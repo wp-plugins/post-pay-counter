@@ -441,8 +441,8 @@ function post_pay_counter_count_view() {
     function meta_box_support_the_author() { ?>
         <p>If you like the Post Pay Counter, there are a couple of things you can do to support its development:</p>
         <ul style="margin: 0 0 15px 2em;">
-            <li style="list-style-image: url('<?php echo plugins_url( 'style/images/feedback.png', __FILE__ ); ?>');">Suggest new functions and ideas you would like to see in the next release of the plugin, or report bugs you've found <a href="" title="Plugin page">at this page</a>.</li>
-            <li style="list-style-image: url('<?php echo plugins_url( 'style/images/star.png', __FILE__ ); ?>');">Rate it in the <a href="http://wordpress.org/extend/plugins/monthly-post-counter/" title="Wordpress directory">Wordpress Directory</a> and share the <a href="" title="Official plugin page">official page</a>.</li>
+            <li style="list-style-image: url('<?php echo plugins_url( 'style/images/feedback.png', __FILE__ ); ?>');">Suggest new functions and ideas you would like to see in the next release of the plugin, or report bugs you've found <a href="mailto:webmaster@thecrowned.org" title="Send mail to the author">by mail</a>.</li>
+            <li style="list-style-image: url('<?php echo plugins_url( 'style/images/star.png', __FILE__ ); ?>');">Rate it in the <a href="http://wordpress.org/extend/plugins/post-pay-counter/" title="Wordpress directory">Wordpress Directory</a> and share the <a href="http://www.thecrowned.org/post-pay-counter" title="Official plugin page">official page</a>.</li>
             <li style="list-style-image: url('<?php echo plugins_url( 'style/images/write.png', __FILE__ ); ?>');">Have a blog or write on some website? Write about the plugin!</li>
             <li style="list-style-image: url('<?php echo plugins_url( 'style/images/paypal.png', __FILE__ ); ?>');"><a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&amp;hosted_button_id=7UH3J3CLVHP8L" title="Donate money"><strong>Donate money</strong></a>. The plugin is free and is developed in my free time: a small income would make everything easier.</li>
         </ul>
