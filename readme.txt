@@ -22,7 +22,7 @@ The administrator can set up the payment values, stats are then viewable from th
 * CSV export: every stats you see can be exported in csv files for offline consulting or storing.
 * Overall stats: at the bottom of every stats page, a box with overall stats is avaiable with interesting details about your blog.
 
-There's much more to enjoy. Try it yourself! More details at the [plugin page]("http://www.thecrowned.org/post-pay-counter" Post Pay Counter page).
+There's much more to enjoy. Try it yourself! More details at the [plugin page](http://www.thecrowned.org/post-pay-counter "Post Pay Counter page").
 
 == Installation ==
 1. Just upload the directory of the Post Pay Counter in your wp-content/plugins directory, note that you need the whole folder, not only the single files.
