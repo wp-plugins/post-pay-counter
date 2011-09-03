@@ -1,4 +1,4 @@
-=== Post Pay Counter ===
+ï»¿=== Post Pay Counter ===
 Contributors: Ste_95
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=7UH3J3CLVHP8L
 Tags: counter, authors, payment, stats, multi author
@@ -9,16 +9,16 @@ Requires at least: 3.0
 Easily calculate and handle author's pay on a multi-author blog by computing every written post remuneration basing on admin defined rules.
 
 == Description ==
-The Post Pay Counter plugin allows you to easily calculate and handle author’s pay on a multi-author blog by computing every written post remuneration basing on admin defined rules.
+The Post Pay Counter plugin allows you to easily calculate and handle authorâ€™s pay on a multi-author blog by computing every written post remuneration basing on admin defined rules.
 
 The administrator can set up the payment values, stats are then viewable from the related page where you can choose between general (all authors) and detailed (one author) countings. Below are all the avaiable functions:
 
 * Counting Type: define the counting type you prefer between post words and unique daily visits. For the latter, you have also some checkboxes to decide what visits you want to count.
-* Counting System: choose if you want to pay with the unique payment system (eg. each word/visit is € 0.01) or with the zones one (eg. from 200 to 300 words/visits it’s € 2.00).
-* Old stats avaiability: once stats are computed, they’re not forgotten. In fact, you can view post countings since the first written post of the blog, disregarding the plugin install date. A fancy date picker lets you shift between days and select the desired range. If something goes wrong, you can also regenerate the stats.
+* Counting System: choose if you want to pay with the unique payment system (eg. each word/visit is â‚¬ 0.01) or with the zones one (eg. from 200 to 300 words/visits itâ€™s â‚¬ 2.00).
+* Old stats avaiability: once stats are computed, theyâ€™re not forgotten. In fact, you can view post countings since the first written post of the blog, disregarding the plugin install date. A fancy date picker lets you shift between days and select the desired range. If something goes wrong, you can also regenerate the stats.
 * User personalizable settings: beside general settings, you can also define special counting and permission settings that only apply to a particular user. Different settings can be made viewable in the stats or hidden depending on your needs.
 * Trial period: another bounch of settings can be defined for the trial period users may be subjected to. The admin can then opt-in and out the trial option for single users or decide for the automatic feature which, relying on the number of written posts subscribtion date, will do the job.
-* Highly customizable permissions: you don’t want your users to see stats and use functions they are not supposed to, and that’s the reason you can set detailed permission rules.
+* Highly customizable permissions: you donâ€™t want your users to see stats and use functions they are not supposed to, and thatâ€™s the reason you can set detailed permission rules.
 * CSV export: every stats you see can be exported in csv files for offline consulting or storing.
 * Overall stats: at the bottom of every stats page, a box with overall stats is avaiable with interesting details about your blog.
 
