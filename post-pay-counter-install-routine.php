@@ -4,8 +4,45 @@ include_once( 'post-pay-counter-functions.php' );
 
 class post_pay_counter_install_routine {
     
-    //Install the plugin. Unfortunately the first releases of the plugin weren't very well-thought, so we have to do many things to people who update 
+    //Initialize the installation and calls the real install procedure
     function post_pay_counter_install() {
+        global $wpdb;
+        
+        //If working on a multisite blog
+    	if ( function_exists( 'is_multisite' ) AND is_multisite() ) {
+    		
+            //If it is a network activation run the activation function for each blog id
+    		if ( isset( $_GET['networkwide'] ) AND ( $_GET['networkwide'] == 1 ) ) {
+    			//Get all blog ids; foreach them and call the install procedure on each of them
+    			$blog_ids = $wpdb->get_col( $wpdb->prepare( "SELECT blog_id FROM ".$wpdb->blogs ) );
+    			
+                foreach ( $blog_ids as $blog_id ) {
+    				switch_to_blog( $blog_id );
+    				$this->post_pay_counter_install_procedure();
+    			}
+                
+                //Go back to the main blog and return - so that if not multisite or not network activation, run the procedure once
+    			restore_current_blog();
+    			return;
+    		}	
+    	} 
+    	$this->post_pay_counter_install_procedure();
+    }
+    
+    //Called when creating a new blog on multiste - launch the install procedure on it either
+    function post_pay_counter_new_blog_install( $blog_id, $user_id, $domain, $path, $site_id, $meta ) {
+        global $wpdb;
+        
+        //If plugin was activated with network activation, install it also on the new site
+    	if (is_plugin_active_for_network( basename( __DIR__ ).'/post-pay-counter.php' ) ) {
+    		switch_to_blog($blog_id);
+    		$this->post_pay_counter_install_procedure();
+    		restore_current_blog();
+    	}
+    }
+    
+    //Install the plugin
+    function post_pay_counter_install_procedure() {
         global $wpdb;
 		
         //Here are the two arries of predefined options

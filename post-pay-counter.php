@@ -4,7 +4,7 @@ Plugin Name: Post Pay Counter
 Plugin URI: http://www.thecrowned.org/post-pay-counter
 Description: The Post Pay Counter plugin allows you to easily calculate and handle author's pay on a multi-author blog by computing every written post remuneration basing on admin defined rules. Define the time range of which you would like to have stats about, and the plugin will do the rest.
 Author: Stefano Ottolenghi
-Version: 1.0
+Version: 1.1
 Author URI: http://www.thecrowned.org/
 
   Copyright 2011  Ottolenghi Stefano  (email: webmaster@thecrowned.org)
@@ -46,6 +46,9 @@ class post_pay_counter_core {
         
         //Hook for the install procedure
         register_activation_hook( __FILE__, array( $this->post_pay_counter_install, 'post_pay_counter_install' ) );
+        
+        //Hook on blog adding on multisite wp to install the plugin there either
+        add_action( 'wpmu_new_blog', array( $this->post_pay_counter_install, 'post_pay_counter_new_blog_install' ), 10, 6); 
         
         //Hook to update single posts counting on status change
         add_action( 'transition_post_status', array( $this, 'post_pay_counter_update_post_counting' ), 10, 3 );
@@ -298,7 +301,7 @@ function post_pay_counter_count_view() {
     }
     
     function meta_box_update_countings() { ?>
-        <p>Use this section to manually rebuild stats if you are experiencing problems. If you are in a personalize settings by user page, only the posts of that author will be updated. Also note that countings are automatically updated when you change the counting type or the count pending revision posts option.</p>
+        <p>Use this section to manually rebuild stats if you are experiencing problems. If you are in a personalize settings by user page, only the posts of that author will be updated. It is not necessary to update countings on settings change, the plugin will care about that.</p>
         <div>        
             <span style="float: left; text-align: left; width: 50%;">
                 <input type="submit" name="post_pay_counter_update_stats_countings" value="Update stats countings" class="button-secondary"  />
@@ -441,7 +444,7 @@ function post_pay_counter_count_view() {
     function meta_box_support_the_author() { ?>
         <p>If you like the Post Pay Counter, there are a couple of things you can do to support its development:</p>
         <ul style="margin: 0 0 15px 2em;">
-            <li style="list-style-image: url('<?php echo plugins_url( 'style/images/feedback.png', __FILE__ ); ?>');">Suggest new functions and ideas you would like to see in the next release of the plugin, or report bugs you've found <a href="mailto:webmaster@thecrowned.org" title="Send mail to the author">by mail</a>.</li>
+            <li style="list-style-image: url('<?php echo plugins_url( 'style/images/feedback.png', __FILE__ ); ?>');">Suggest new functions and ideas you would like to see in the next release of the plugin, or report bugs you've found at the <a href="http://www.thecrowned.org/post-pay-counter" title="Plugin official page">official page</a>.</li>
             <li style="list-style-image: url('<?php echo plugins_url( 'style/images/star.png', __FILE__ ); ?>');">Rate it in the <a href="http://wordpress.org/extend/plugins/post-pay-counter/" title="Wordpress directory">Wordpress Directory</a> and share the <a href="http://www.thecrowned.org/post-pay-counter" title="Official plugin page">official page</a>.</li>
             <li style="list-style-image: url('<?php echo plugins_url( 'style/images/write.png', __FILE__ ); ?>');">Have a blog or write on some website? Write about the plugin!</li>
             <li style="list-style-image: url('<?php echo plugins_url( 'style/images/paypal.png', __FILE__ ); ?>');"><a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&amp;hosted_button_id=7UH3J3CLVHP8L" title="Donate money"><strong>Donate money</strong></a>. The plugin is free and is developed in my free time: a small income would make everything easier.</li>
