@@ -9,7 +9,7 @@ Requires at least: 3.0
 Easily calculate and handle author's pay on a multi-author blog by computing every written post remuneration basing on admin defined rules.
 
 == Description ==
-The Post Pay Counter plugin allows you to easily calculate and handle author’s pay on a multi-author blog by computing every written post remuneration basing on admin defined rules.
+The Post Pay Counter plugin allows you to easily calculate and handle author’s pay on a multi-author blog by computing every written post remuneration basing on admin defined rules. Multisite compatible.
 
 The administrator can set up the payment values, stats are then viewable from the related page where you can choose between general (all authors) and detailed (one author) countings. Below are all the avaiable functions:
 
@@ -31,6 +31,9 @@ There's much more to enjoy. Try it yourself! More details at the [plugin page](h
 4. That's it, done! You should now check the stats page for results.
 
 == Changelog ==
+= 1.1 =
+* Multisite compatibility added.
+
 = 1.0 =
 The plugin is highly derived from Monthly Post Counter, which has almost been re-written from scratch to optimize performance, include new tasty functions and carry many many bug and security fixes. Look has been restyled too, using wordpress metaboxes for the settings page.
 
