@@ -31,6 +31,9 @@ There's much more to enjoy. Try it yourself! More details at the [plugin page](h
 4. That's it, done! You should now check the stats page for results.
 
 == Changelog ==
+= 1.1.1 =
+Made the install process lighter.
+
 = 1.1 =
 * Multisite compatibility added.
 
