@@ -30,7 +30,17 @@ There's much more to enjoy. Try it yourself! More details at the [plugin page](h
 3. Visit the settings page first. The plugin already comes with a predefined set of settings, but I am sure you will want to configure it to better suit your need.
 4. That's it, done! You should now check the stats page for results.
 
+== Frequently Asked Questions ==
+= Can I include in the stats the posts published before the plugin was installed =
+Sure you can. Just head to the Options Page and use the *Update countings* button in the *Update stats* box. This can take the plugin a little time depending on the number of published posts.
+
+= The plugin hangs up when using the Update stats function =
+This happens due to large databases. Try to increase the *max_execution_time* in your server's php.ini file, and see if the problem get solved.
+
 == Changelog ==
+= 1.1.2 =
+* Stats are not generated during installation anymore. This is to prevent the plugin hanging on activation due to large databases. If you still want to have old stats, use the *Update Stats* box in the Options Page.
+
 = 1.1.1 =
 * Made the install process lighter.
 

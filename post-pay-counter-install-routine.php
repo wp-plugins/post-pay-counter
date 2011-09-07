@@ -253,9 +253,6 @@ class post_pay_counter_install_routine {
             $wpdb->query( "ALTER TABLE ".$wpdb->posts." ADD post_pay_counter_count INT( 255 ) NULL COMMENT 'Keeps track of payments values (Post Pay Counter)'" );
         }
         
-        //Populate the new columns with old posts data too (to do it update the general_settings var)
-        $post_pay_counter_functions->general_settings = $post_pay_counter_functions->get_settings( 'general' );
-        $post_pay_counter_functions->update_all_posts_count( FALSE, FALSE, TRUE);
     }
 }
 

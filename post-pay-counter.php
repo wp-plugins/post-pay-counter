@@ -301,7 +301,7 @@ function post_pay_counter_count_view() {
     }
     
     function meta_box_update_countings() { ?>
-        <p>Use this section to manually rebuild stats if you are experiencing problems. If you are in a personalize settings by user page, only the posts of that author will be updated. It is not necessary to update countings on settings change, the plugin will care about that.</p>
+        <p>Use this section to manually rebuild stats if you are experiencing problems. Use this function if you would like to have prior to the install date posts counted. If you are in a personalize settings by user page, only the posts of that author will be updated. It is not necessary to update countings on a settings change, the plugin will care about that.</p>
         <div>        
             <span style="float: left; text-align: left; width: 50%;">
                 <input type="submit" name="post_pay_counter_update_stats_countings" value="Update stats countings" class="button-secondary"  />
@@ -669,7 +669,7 @@ function post_pay_counter_count_view() {
         } ?>
         
             <h2>Post Pay Counter Options</h2>
-            <p>From this page you can configure the Post Pay Counter plug-in. You will find all the information you need inside each following box and, for each avaiable function, clicking on the info icon on the right of them. Generated stats are always avaiable at <a href="<?php echo admin_url( 'options-general.php?page=post_pay_counter_show_stats' ) ?>" title="Go to Stats">this page</a>, where you will find many details about each post (its status, date, words, images and comments count, payment value) with tons of general statistics and the ability to browse old stats.</p>
+            <p>From this page you can configure the Post Pay Counter plug-in. You will find all the information you need inside each following box and, for each avaiable function, clicking on the info icon on the right of them. Generated stats are always avaiable at <a href="<?php echo admin_url( 'options-general.php?page=post_pay_counter_show_stats' ) ?>" title="Go to Stats">this page</a>, where you will find many details about each post (its status, date, words, images and comments count, payment value) with tons of general statistics and the ability to browse old stats. If you want to be able to see stats since the first published post, use the Update Stats box below.</p>
             
             <script type="text/javascript">
             //Javascript snippet to hide two different set of settings depending on the selected radio
