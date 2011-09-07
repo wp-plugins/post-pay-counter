@@ -4,7 +4,7 @@ Plugin Name: Post Pay Counter
 Plugin URI: http://www.thecrowned.org/post-pay-counter
 Description: The Post Pay Counter plugin allows you to easily calculate and handle author's pay on a multi-author blog by computing every written post remuneration basing on admin defined rules. Define the time range of which you would like to have stats about, and the plugin will do the rest.
 Author: Stefano Ottolenghi
-Version: 1.1
+Version: 1.1.1
 Author URI: http://www.thecrowned.org/
 
   Copyright 2011  Ottolenghi Stefano  (email: webmaster@thecrowned.org)
@@ -222,8 +222,8 @@ function post_pay_counter_count_view() {
     
     function meta_box_counting_settings() { ?>
         <div style="font-weight: bold; text-align: left;">Counting type</div>
-            <?php $this->post_pay_counter_functions->echo_p_field( 'Count posts pay basing on their words', $this->edit_options_counter_settings->counting_type_words, 'radio', 'counting_type', 'The words that make up posts content will be used to compute the right pay, basing on the next bounch of settings', 'Words', 'counting_type_words' );
-            $this->post_pay_counter_functions->echo_p_field( 'Count posts pay basing on their unique daily visits', $this->edit_options_counter_settings->counting_type_visits, 'radio', 'counting_type', 'Unique daily visits will be used to compute the right pay,  basing on the next bounch of settings. A simple cookie is used (<strong>notice</strong> that deleting it and refreshing the post page make the counter to log a new visit), and you can define what kinds of visits you want to be counted.', 'Visits', 'counting_type_visits' ); ?>
+            <?php $this->post_pay_counter_functions->echo_p_field( 'Count posts pay basing on their words', $this->edit_options_counter_settings->counting_type_words, 'radio', 'counting_type', 'The words that make up posts content will be used to compute the right pay, basing on the next bunch of settings', 'Words', 'counting_type_words' );
+            $this->post_pay_counter_functions->echo_p_field( 'Count posts pay basing on their unique daily visits', $this->edit_options_counter_settings->counting_type_visits, 'radio', 'counting_type', 'Unique daily visits will be used to compute the right pay,  basing on the next bunch of settings. A simple cookie is used (<strong>notice</strong> that deleting it and refreshing the post page make the counter to log a new visit), and you can define what kinds of visits you want to be counted.', 'Visits', 'counting_type_visits' ); ?>
             <br />        
         <div style="font-weight: bold; text-align: left;">Counting system</div>
         <?php $this->post_pay_counter_functions->echo_p_field( 'Use the multiple zones system', $this->edit_options_counter_settings->counting_system_zones, 'radio', 'counting_system', 'With this system you can define up to 5 zones of retribution, so that from X words/visits to Y words/visits the same pay will be applied (eg. from 200 words to 300 words pay 2.00). It doesn\'t matter how many words/visits a post has, but only in what zone it lies on.', 'counting_system_zones', 'counting_system_zones' ); ?>

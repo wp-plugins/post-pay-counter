@@ -255,7 +255,7 @@ class post_pay_counter_install_routine {
         
         //Populate the new columns with old posts data too (to do it update the general_settings var)
         $post_pay_counter_functions->general_settings = $post_pay_counter_functions->get_settings( 'general' );
-        $post_pay_counter_functions->update_all_posts_count();
+        $post_pay_counter_functions->update_all_posts_count( FALSE, FALSE, TRUE);
     }
 }
 

@@ -442,7 +442,7 @@ class post_pay_counter_functions_class {
     }
     
     //Requested to update all database posts. Called on installation first
-    function update_all_posts_count( $update_dates = FALSE, $author_id = FALSE ) {
+    function update_all_posts_count( $update_dates = FALSE, $author_id = FALSE, $is_install = FALSE ) {
         global $wpdb;
         
         $sql_where = '';
@@ -475,18 +475,29 @@ class post_pay_counter_functions_class {
             );
         }
         
-        //Run through selected posts and update database fields
-        foreach( $old_posts as $single ) {
-            $this->update_single_counting( $single->ID, $single->post_status );
+        //Run through selected posts and update database fields. If running during installation, pass the parameter to update_single_counting.
+        if( $is_install ) {
+            foreach( $old_posts as $single ) {
+                $this->update_single_counting( $single->ID, $single->post_status, TRUE );
+            }
+        } else {
+            foreach( $old_posts as $single ) {
+                $this->update_single_counting( $single->ID, $single->post_status );
+            }
         }
     }
     
     //Function used to update the database posts counting values
-    function update_single_counting( $post_id, $post_status ) {
+    function update_single_counting( $post_id, $post_status, $take_general = FALSE ) {
         global $wpdb;
         
-        $post_data          = get_post( $post_id );
-        $counting_settings  = $this->get_settings( $post_data->post_author, TRUE );
+        $post_data = get_post( $post_id );
+        
+        //If running during installation, take general settings without even calling get_settings (there can't be special settings yet). This is to reduce load time (hopefully) and avoid stalmate
+        if( $take_general )
+            $counting_settings = $this->general_settings;
+        else
+            $counting_settings = $this->get_settings( $post_data->post_author, TRUE );
         
         //Consider only published, future without counting type visits and pending revision posts with counting typw words and count pending revision posts = 1
         if( $post_status == 'publish' 
@@ -523,9 +534,10 @@ class post_pay_counter_functions_class {
         //If the post is a draft or anyway shoudn't be counted, set the fields to null. Do this because: publish a post, it gets counted; 
         //put the same post in draft, you don't lose the counting values and thus even if you republish it it still has the old date
         } else {
-            $wpdb->query(
-             $wpdb->prepare( 'UPDATE '.$wpdb->posts.' SET post_pay_counter = NULL, post_pay_counter_count = NULL WHERE ID = '.$post_id )
-            );
+            if( $post_data->post_pay_counter != '' )
+                $wpdb->query(
+                 $wpdb->prepare( 'UPDATE '.$wpdb->posts.' SET post_pay_counter = NULL, post_pay_counter_count = NULL WHERE ID = '.$post_id )
+                );
         }
     }
     
