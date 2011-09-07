@@ -32,7 +32,7 @@ There's much more to enjoy. Try it yourself! More details at the [plugin page](h
 
 == Changelog ==
 = 1.1.1 =
-Made the install process lighter.
+* Made the install process lighter.
 
 = 1.1 =
 * Multisite compatibility added.
