@@ -532,9 +532,12 @@ class post_pay_counter_functions_class {
     
     //Generate overall stats
     function generate_overall_stats() {
-        global $wpdb;
-                
-        $raw_stats = $wpdb->get_results( 'SELECT ID, post_pay_counter, post_pay_counter_count, post_author FROM '.$wpdb->posts.' WHERE post_pay_counter IS NOT NULL', ARRAY_A );
+        global $wpdb; ?>
+        
+        <br />
+        <h3 style="text-align: center; margin-bottom: 0.4em;">Showing overall stats, since the first counted post...</h3>
+        
+        <?php $raw_stats = $wpdb->get_results( 'SELECT ID, post_pay_counter, post_pay_counter_count, post_author FROM '.$wpdb->posts.' WHERE post_pay_counter IS NOT NULL', ARRAY_A );
         
         //If no stats are avaiable, return
         if( $wpdb->num_rows == 0 ) {
@@ -576,8 +579,6 @@ class post_pay_counter_functions_class {
         @$most_active_user_name         = get_userdata( ( key( $user_posts_count ) ) )->user_login;
         @$most_active_user_posts        = current( $user_posts_count ); ?>
         
-        <br />
-        <h3 style="text-align: center; margin-bottom: 0.4em;">Showing overall stats, since the first counted post...</h3>
         <table class="widefat fixed">
     		<tr>
     			<td width="40%">Total spent money:</td>

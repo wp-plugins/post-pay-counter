@@ -3,7 +3,7 @@ Contributors: Ste_95
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=7UH3J3CLVHP8L
 Tags: counter, authors, payment, stats, multi author
 Tested up to: 3.2.1
-Stable tag: 1.1.2
+Stable tag: 1.1.3
 Requires at least: 3.0
 
 Easily calculate and handle author's pay on a multi-author blog by computing every written post remuneration basing on admin defined rules.
@@ -38,6 +38,10 @@ Sure you can. Just head to the Options Page and use the *Update countings* butto
 This happens due to large databases. Try to increase the *max_execution_time* in your server's php.ini file, and see if the problem get solved.
 
 == Changelog ==
+= 1.1.3 =
+* Changed view counting method, it could trigger problems is headers where already sent before the plugin got in. It's now using an AJAX request to set the cookie.
+* Minimal improvements in in the view counting method.
+
 = 1.1.2 =
 * Stats are not generated during installation anymore. This is to prevent the plugin hanging on activation due to large databases. If you still want to have old stats, use the *Update Stats* box in the Options Page.
 

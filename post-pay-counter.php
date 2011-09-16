@@ -4,7 +4,7 @@ Plugin Name: Post Pay Counter
 Plugin URI: http://www.thecrowned.org/post-pay-counter
 Description: The Post Pay Counter plugin allows you to easily calculate and handle author's pay on a multi-author blog by computing every written post remuneration basing on admin defined rules. Define the time range of which you would like to have stats about, and the plugin will do the rest.
 Author: Stefano Ottolenghi
-Version: 1.1.2
+Version: 1.1.3
 Author URI: http://www.thecrowned.org/
 
   Copyright 2011  Ottolenghi Stefano  (email: webmaster@thecrowned.org)
@@ -41,8 +41,7 @@ class post_pay_counter_core {
         $this->post_pay_counter_install     = new post_pay_counter_install_routine();
         
         //Add left menu entries for both stats and options pages
-        add_action( 'admin_menu', array( $this, 'post_pay_counter_options_menu' ) );
-        add_action( 'admin_menu', array( $this, 'post_pay_counter_stats_menu' ) );
+        add_action( 'admin_menu', array( $this, 'post_pay_counter_admin_menus' ) );
         
         //Hook for the install procedure
         register_activation_hook( __FILE__, array( $this->post_pay_counter_install, 'post_pay_counter_install' ) );
@@ -60,30 +59,33 @@ class post_pay_counter_core {
         //Inject proper css stylesheets to make the two meta box columns 50% large equal and js tooltip activation snippet
         add_action( 'admin_head-settings_page_post_pay_counter_options', array( $this, 'post_pay_counter_metabox_css' ) );
         
-        //Hook in wp_head to record visits when counting type is visits
+        //Hook in init to record visits when counting type is visits
         add_action( 'wp_head', array( $this, 'post_pay_counter_count_view' ) );
         
         //Hook to show custom action links besides the usual "Edit" and "Deactivate"
         add_filter('plugin_action_links', array( $this, 'post_pay_counter_settings_meta_link' ), 10, 2);
         add_filter('plugin_row_meta', array( $this, 'post_pay_counter_donate_meta_link' ), 10, 2);
+        
+        //Manage AJAX calls (visit counting)
+        add_action('wp_ajax_post_pay_counter_register_view_ajax', array( $this, 'post_pay_counter_register_view_ajax' ) );
+        add_action('wp_ajax_nopriv_post_pay_counter_register_view_ajax', array( $this, 'post_pay_counter_register_view_ajax' ) );
     }
     
-    function post_pay_counter_options_menu() {
+    function post_pay_counter_admin_menus() {
         $this->post_pay_counter_options_menu = add_options_page( 'Post Pay Counter Options', 'Post Pay Counter Options', 'manage_options', 'post_pay_counter_options', array( &$this, 'post_pay_counter_options' ) );
-    }
-    
-    function post_pay_counter_stats_menu() {
         add_options_page( 'Post Pay Counter Stats', 'Post Pay Counter Stats', 'edit_posts', 'post_pay_counter_show_stats', array( &$this, 'post_pay_counter_show_stats' ) );
     }
     
     function post_pay_counter_metabox_css() {        
         echo '<script type="text/javascript">
-             jQuery(document).ready(function() {
-                jQuery(".tooltip_container").tipTip({
-                    activation: "click",
-                    maxWidth: "300px"
+            /* <![CDATA[ */
+                jQuery(document).ready(function() {
+                    jQuery(".tooltip_container").tipTip({
+                        activation: "click",
+                        maxWidth: "300px"
+                    });
                 });
-             });
+            /* ]]> */
         </script>
         
         <style type="text/css">
@@ -154,71 +156,90 @@ class post_pay_counter_core {
 
     
     //Function to record visits
-function post_pay_counter_count_view() {
-	global $wpdb,
-           $current_user,
-           $post;
-    
-    //If avaiable, select special user settings, otherwise general settings will do
-    $user_settings = $this->post_pay_counter_functions->get_settings( @$post->post_author, TRUE );
-    
-    //If chosen counting type is not visits, return. Cannot check this in the construct cause it's too early
-    if( $user_settings->counting_type_visits == 0 )
-        return;
-    
-    //If it's a post and it's published
-	if( $post->post_status == 'publish' AND is_single() ) {
-	   
-       //Skip visits that shouldn't be counted: logged-in users/authors and guests things
-        if( ( is_user_logged_in() AND ( $user_settings->count_visits_registered == 0 OR ( $post->post_author == $current_user->ID AND $user_settings->count_visits_authors == 0 ) ) )
-        OR ( ! is_user_logged_in() AND $user_settings->count_visits_guests == 0 ) )
-            return;
+    function post_pay_counter_count_view() {
+    	global $wpdb,
+               $current_user,
+               $post;
         
-        //If bots visits shouldn't be counted, and current visit is from a bot, return
-        if( $user_settings->count_visits_bots == 0 ) {
+        //If it's a post and it's published
+    	if( is_single() AND $post->post_status == 'publish' ) {
+        
+            //If avaiable, select special user settings, otherwise general settings will do
+            $user_settings = $this->post_pay_counter_functions->get_settings( @$post->post_author, TRUE );
             
-            //Thanks to Wp-Postviews for the array list
-			$bots_to_exlude = array( 
-                'Google'        => 'googlebot', 
-                'Google'        => 'google', 
-                'MSN'           => 'msnbot', 
-                'Alex'          => 'ia_archiver', 
-                'Lycos'         => 'lycos', 
-                'Ask Jeeves'    => 'jeeves', 
-                'Altavista'     => 'scooter', 
-                'AllTheWeb'     => 'fast-webcrawler', 
-                'Inktomi'       => 'slurp@inktomi', 
-                'Turnitin.com'  => 'turnitinbot', 
-                'Technorati'    => 'technorati', 
-                'Yahoo'         => 'yahoo', 
-                'Findexa'       => 'findexa', 
-                'NextLinks'     => 'findlinks', 
-                'Gais'          => 'gaisbo', 
-                'WiseNut'       => 'zyborg', 
-                'WhoisSource'   => 'surveybot', 
-                'Bloglines'     => 'bloglines', 
-                'BlogSearch'    => 'blogsearch', 
-                'PubSub'        => 'pubsub', 
-                'Syndic8'       => 'syndic8', 
-                'RadioUserland' => 'userland', 
-                'Gigabot'       => 'gigabot', 
-                'Become.com'    => 'become.com'
-            );
-			
-			foreach( $bots_to_exlude as $single ) {
-				if( stristr($_SERVER['HTTP_USER_AGENT'], $single ) !== false ) {
-					return;
-				}
-			}
-		}
-        
-        //If visitor doesn't have a valid cookie, set it and update db visits count
-        if( ! isset( $_COOKIE['post_pay_counter_view-'.get_bloginfo( 'url' ).'-'.$post->ID] ) ) {
-			setcookie('post_pay_counter_view-'.get_bloginfo( 'url' ).'-'.$post->ID, 'post_pay_counter_view-'.get_bloginfo( 'url' ).'-'.$post->ID, (time()+86400));
-            $this->post_pay_counter_functions->update_single_counting( $post->ID, $post->post_status );
-		}
-	}
-}
+            //If chosen counting type is not visits, return. Cannot check this in the construct cause it's too early
+            if( $user_settings->counting_type_visits == 0 )
+                return;
+    	   
+           //Skip visits that shouldn't be counted: logged-in users/authors and guests things
+            if( ( is_user_logged_in() AND ( $user_settings->count_visits_registered == 0 OR ( $post->post_author == $current_user->ID AND $user_settings->count_visits_authors == 0 ) ) )
+            OR ( ! is_user_logged_in() AND $user_settings->count_visits_guests == 0 ) )
+                return;
+            
+            //If bots visits shouldn't be counted, and current visit is from a bot, return
+            if( $user_settings->count_visits_bots == 0 ) {
+                
+                //Thanks to Wp-Postviews for the array list
+    			$bots_to_exlude = array( 
+                    'Google'        => 'googlebot', 
+                    'Google'        => 'google', 
+                    'MSN'           => 'msnbot', 
+                    'Alex'          => 'ia_archiver', 
+                    'Lycos'         => 'lycos', 
+                    'Ask Jeeves'    => 'jeeves', 
+                    'Altavista'     => 'scooter', 
+                    'AllTheWeb'     => 'fast-webcrawler', 
+                    'Inktomi'       => 'slurp@inktomi', 
+                    'Turnitin.com'  => 'turnitinbot', 
+                    'Technorati'    => 'technorati', 
+                    'Yahoo'         => 'yahoo', 
+                    'Findexa'       => 'findexa', 
+                    'NextLinks'     => 'findlinks', 
+                    'Gais'          => 'gaisbo', 
+                    'WiseNut'       => 'zyborg', 
+                    'WhoisSource'   => 'surveybot', 
+                    'Bloglines'     => 'bloglines', 
+                    'BlogSearch'    => 'blogsearch', 
+                    'PubSub'        => 'pubsub', 
+                    'Syndic8'       => 'syndic8', 
+                    'RadioUserland' => 'userland', 
+                    'Gigabot'       => 'gigabot', 
+                    'Become.com'    => 'become.com'
+                );
+    			
+    			foreach( $bots_to_exlude as $single ) {
+    				if( stristr($_SERVER['HTTP_USER_AGENT'], $single ) !== false ) {
+    					return;
+    				}
+    			}
+    		}
+            
+            //If visitor doesn't have a valid cookie, set it and update db visits count
+            if( ! isset( $_COOKIE['post_pay_counter_view-'.$post->ID] ) ) {
+                //Set cookie via AJAX request (wp_head is too late to set a cookie beacuse of headers already sent, and init is too early because of $post unavaiability)
+                echo '<!-- Post Pay Counter Views Count -->';
+                wp_print_scripts( 'jquery' );	
+    			echo '<script type="text/javascript">
+        			/* <![CDATA[ */
+                        var data = {
+                            action: "post_pay_counter_register_view_ajax",
+                            post_id: "'.$post->ID.'",
+                            post_status: "'.$post->post_status.'",
+                        };
+                        
+                        jQuery.post( "'.admin_url( 'admin-ajax.php' ).'", data );
+        			/* ]]> */
+    			</script>						
+    			<!-- Post Pay Counter Views Count End -->';
+    		}
+    	}
+    }
+    
+    //Sets the view cookie and register the visit in the db (AJAX called)
+    function post_pay_counter_register_view_ajax() {
+        setcookie( 'post_pay_counter_view-'.$_REQUEST['post_id'], 'post_pay_counter_view-'.get_bloginfo( 'url' ).'-'.$_REQUEST['post_id'], time()+86400, '/' );
+        $this->post_pay_counter_functions->update_single_counting( $_REQUEST['post_id'], $_REQUEST['post_status'] );
+    }
     
     function meta_box_counting_settings() { ?>
         <div style="font-weight: bold; text-align: left;">Counting type</div>
