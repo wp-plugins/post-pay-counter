@@ -72,11 +72,13 @@ class post_pay_counter_install_routine {
                 'count_visits_registered'               => 1,
                 'count_visits_authors'                  => 1,
                 'count_visits_bots'                     => 0,
+                'allow_payment_bonuses'                 => 0,
                 'can_view_old_stats'                    => 1,
                 'can_view_others_general_stats'         => 1,
                 'can_view_others_detailed_stats'        => 1,
                 'can_view_overall_stats'                => 1,
                 'can_view_special_settings_countings'   => 1,
+                'can_view_payment_bonuses'              => 0,
                 'can_csv_export'                        => 1,
                 'trial_auto'                            => 0,
                 'trial_manual'                          => 1,
@@ -111,11 +113,13 @@ class post_pay_counter_install_routine {
                 'count_visits_registered'               => 1,
                 'count_visits_authors'                  => 1,
                 'count_visits_bots'                     => 0,
+                'allow_payment_bonuses'                 => 0,
                 'can_view_old_stats'                    => 1,
                 'can_view_others_general_stats'         => 1,
                 'can_view_others_detailed_stats'        => 1,
                 'can_view_overall_stats'                => 1,
                 'can_view_special_settings_countings'   => 1,
+                'can_view_payment_bonuses'              => 0,
                 'can_csv_export'                        => 1,
                 'trial_auto'                            => 0,
                 'trial_manual'                          => 1,
@@ -127,70 +131,14 @@ class post_pay_counter_install_routine {
         );
         
         
-        /*//If it's somebody updating from <= 0.94...
-        if( $updating_user = get_option( 'opt_counter' ) ) {
-            
-            //Get, explode and convert old option string in the new array-for-table var
-            $opt_exploding          = explode( '^', $updating_user );
-            $opt_exploding_again    = explode( 'e', $opt_exploding[1] );
-            $n                      = 5;
-            
-            while( $n >= 0 ) {
-            	$opt_exploding_zones[$n] = explode( '=', $opt_exploding_again[$n] );
-            	--$n;
-            }
-            
-            //Define new array values and start playing...
-            if( $opt_exploding[0] == 'on' ) {
-                $predefined_options['general']['count_pending_revision_posts']  = 1;
-                $predefined_options['trial']['count_pending_revision_posts']    = 1;
-            } else {
-                $predefined_options['general']['count_pending_revision_posts']  = 0;
-                $predefined_options['trial']['count_pending_revision_posts']    = 0;
-            }
-            
-            $predefined_options['general']['zone1_count']           = $opt_exploding_zones[0][0];
-            $predefined_options['trial']['zone1_count']             = $opt_exploding_zones[0][0];
-            $predefined_options['general']['zone1_payment']         = $opt_exploding_zones[0][1];
-            $predefined_options['trial']['zone1_payment']           = $opt_exploding_zones[0][1];
-            $predefined_options['general']['zone2_count']           = $opt_exploding_zones[1][0];
-            $predefined_options['trial']['zone2_count']             = $opt_exploding_zones[1][0];
-            $predefined_options['general']['zone2_payment']         = $opt_exploding_zones[1][1];
-            $predefined_options['trial']['zone2_payment']           = $opt_exploding_zones[1][1];
-            $predefined_options['general']['zone3_count']           = $opt_exploding_zones[2][0];
-            $predefined_options['trial']['zone3_count']             = $opt_exploding_zones[2][0];
-            $predefined_options['general']['zone3_payment']         = $opt_exploding_zones[2][1];
-            $predefined_options['trial']['zone3_payment']           = $opt_exploding_zones[2][1];
-            $predefined_options['general']['zone4_count']           = $opt_exploding_zones[3][0];
-            $predefined_options['trial']['zone4_count']             = $opt_exploding_zones[3][0];
-            $predefined_options['general']['zone4_payment']         = $opt_exploding_zones[3][1];
-            $predefined_options['trial']['zone4_payment']           = $opt_exploding_zones[3][1];
-            $predefined_options['general']['zone5_count']           = $opt_exploding_zones[4][0];
-            $predefined_options['trial']['zone5_count']             = $opt_exploding_zones[4][0];
-            $predefined_options['general']['zone5_payment']         = $opt_exploding_zones[4][1];
-            $predefined_options['trial']['zone5_payment']           = $opt_exploding_zones[4][1];
-            $predefined_options['general']['bonus_comment_count']   = $opt_exploding_zones[5][0];
-            $predefined_options['trial']['bonus_comment_count']     = $opt_exploding_zones[5][0];
-            $predefined_options['general']['bonus_comment_payment'] = $opt_exploding_zones[5][1];
-            $predefined_options['trial']['bonus_comment_payment']   = $opt_exploding_zones[5][1];
-            
-            //Delete old settings, now stored in the new array
-            delete_option( 'opt_counter' );
-            
-            //As a security measure, delete all csv stats ever created
-            while( false !== ( $file = readdir( opendir( __DIR__ ) ) ) ) {
-                if( pathinfo( $file, PATHINFO_EXTENSION ) == 'csv' )
-                    unlink( __DIR__.'\\'.$file );
-            }
-            
-            //Delete the old 'monthly_post_counter' columns, we'll create the new ones later...
-            if( $wpdb->query( "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '".$wpdb->posts."' AND TABLE_SCHEMA = '".$wpdb->dbname."' AND COLUMN_NAME = 'monthly_post_counter'" ) ) {
-                $wpdb->query( "ALTER TABLE ".$wpdb->posts." DROP 'monthly_post_counter' " );
-            }
-            if( $wpdb->query( "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '".$wpdb->posts."' AND TABLE_SCHEMA = '".$wpdb->dbname."' AND COLUMN_NAME = 'monthly_post_counter_count'" ) ) {
-                $wpdb->query( "ALTER TABLE ".$wpdb->posts." DROP 'monthly_post_counter_count' " );
-            }
-        }*/
+        //If it's somebody updating from <= 1.1.3, add the two payment bonuses columns
+        if( !$wpdb->query( "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '".$wpdb->prefix."post_pay_counter' AND TABLE_SCHEMA = '".$wpdb->dbname."' AND COLUMN_NAME = 'can_view_payment_bonuses'" ) ) {
+            $wpdb->query( "ALTER TABLE `".$wpdb->prefix."post_pay_counter` ADD `can_view_payment_bonuses` INT(1) NOT NULL DEFAULT '0' AFTER can_view_special_settings_countings" );
+        }
+        
+        if( $wpdb->query( "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '".$wpdb->posts."' AND TABLE_SCHEMA = '".$wpdb->dbname."' AND COLUMN_NAME = 'monthly_post_counter_count'" ) ) {
+            $wpdb->query( "ALTER TABLE `".$wpdb->prefix."post_pay_counter` ADD `allow_payment_bonuses` INT(1) NOT NULL DEFAULT '0' AFTER count_visits_bots" );
+        }
     
         //Alter table to allow post counting and create the new plugin's table
         $wpdb->query( "CREATE TABLE IF NOT EXISTS `".$wpdb->prefix."post_pay_counter` (
@@ -219,11 +167,13 @@ class post_pay_counter_install_routine {
             `count_visits_registered` int(1) NOT NULL DEFAULT '1',
             `count_visits_authors` int(1) NOT NULL DEFAULT '1',
             `count_visits_bots` int(1) NOT NULL DEFAULT '0',
+            `allow_payment_bonuses` INT(1) NOT NULL DEFAULT '0'
             `can_view_old_stats` int(1) NOT NULL DEFAULT '1',
             `can_view_others_general_stats` int(1) NOT NULL DEFAULT '1',
             `can_view_others_detailed_stats` int(1) NOT NULL DEFAULT '0',
             `can_view_overall_stats` int(1) NOT NULL DEFAULT '1',
             `can_view_special_settings_countings` int(1) NOT NULL DEFAULT '0',
+            `can_view_payment_bonuses` INT(1) NOT NULL DEFAULT '0',
             `can_csv_export` int(1) NOT NULL DEFAULT '0',
             `paypal_address` varchar(255) DEFAULT NULL,
             `trial_auto` int(1) NOT NULL DEFAULT '0',

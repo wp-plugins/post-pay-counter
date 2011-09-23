@@ -4,7 +4,7 @@ Plugin Name: Post Pay Counter
 Plugin URI: http://www.thecrowned.org/post-pay-counter
 Description: The Post Pay Counter plugin allows you to easily calculate and handle author's pay on a multi-author blog by computing every written post remuneration basing on admin defined rules. Define the time range of which you would like to have stats about, and the plugin will do the rest.
 Author: Stefano Ottolenghi
-Version: 1.1.3
+Version: 1.1.4
 Author URI: http://www.thecrowned.org/
 
   Copyright 2011  Ottolenghi Stefano  (email: webmaster@thecrowned.org)
@@ -303,7 +303,9 @@ class post_pay_counter_core {
             $this->post_pay_counter_functions->echo_p_field( 'Count visits from bots', $this->edit_options_counter_settings->count_visits_bots, 'checkbox', 'count_visits_bots', 'Define whether visits coming from search engines crawlers should be counted or not.' ); ?>
         </div>
             
-        <?php //Show this only if we're in a particular author settings page (paypal address input field)
+        <?php $this->post_pay_counter_functions->echo_p_field( 'Allow post payment bonuses', $this->edit_options_counter_settings->allow_payment_bonuses, 'checkbox', 'allow_payment_bonuses', 'If checked, a custom field will allow to award a post bonus in the writing page. Do this by creating a new custom field named <em>payment_bonus</em> with the value you want to be the bonus (read the FAQ for details). Take care because everyone who can edit posts can also handle this custom field, potentially having their posts payed more without your authorization. In the stats page you will anyway see what posts have bonuses, which are shown in brackets.' ); 
+        
+        //Show this only if we're in a particular author settings page (paypal address input field)
         if( is_numeric( $this->edit_options_counter_settings->userID ) ) { ?>
             <p>
                 <label>Add here the user's paypal address for an easier payment <input type="text" name="paypal_address" size="28" value="<?php echo $this->edit_options_counter_settings->paypal_address ?>" /></label>
@@ -318,6 +320,7 @@ class post_pay_counter_core {
         $this->post_pay_counter_functions->echo_p_field( 'Make old stats viewable', $this->edit_options_counter_settings->can_view_old_stats, 'checkbox', 'can_view_old_stats', 'If checked, users won\'t be able to view stats with a start time prior to the first day of the current month.' );
         $this->post_pay_counter_functions->echo_p_field( 'Make overall stats viewable', $this->edit_options_counter_settings->can_view_overall_stats, 'checkbox', 'can_view_overall_stats', 'Responsible of the <em>Overall Stats</em> box displaying. It shows some interesting data regarding your blog since you started it, but their generation it\'s quite heavy since it selects all the conted posts ever.' );
         $this->post_pay_counter_functions->echo_p_field( 'Make viewable the use of special settings in countings', $this->edit_options_counter_settings->can_view_special_settings_countings, 'checkbox', 'can_view_special_settings_countings', 'If you personalize settings by user, keep this in mind. If unchecked, users won\'t see personalized settings in countings, they\'ll believe everybody is still using general settings. Anyway, the selected posts author will see them.' );
+        $this->post_pay_counter_functions->echo_p_field( 'Make post bonuses visible to other users', $this->edit_options_counter_settings->can_view_payment_bonuses, 'checkbox', 'can_view_payment_bonuses', 'If you sometimes award really well written posts with payment bonuses, you may also want to hide them to certain or all users.' );
         $this->post_pay_counter_functions->echo_p_field( 'Allow stats to be downloadable as csv files', $this->edit_options_counter_settings->can_csv_export, 'checkbox', 'can_csv_export', 'If checked, a link in the bottom of the stats table will allow to download the displayed data as a csv file for offline consulting.' );
     }
     
@@ -533,11 +536,12 @@ class post_pay_counter_core {
                 break;
         }
         
-        $new_settings['count_pending_revision_posts'] = @$this->post_pay_counter_functions->update_options_checkbox_value( $_POST['count_pending_revision_posts'] );
-        $new_settings['count_visits_guests'] = @$this->post_pay_counter_functions->update_options_checkbox_value( $_POST['count_visits_guests'] );
-        $new_settings['count_visits_registered'] = @$this->post_pay_counter_functions->update_options_checkbox_value( $_POST['count_visits_registered'] );
-        $new_settings['count_visits_authors'] = @$this->post_pay_counter_functions->update_options_checkbox_value( $_POST['count_visits_authors'] );
-        $new_settings['count_visits_bots'] = @$this->post_pay_counter_functions->update_options_checkbox_value( $_POST['count_visits_bots'] );
+        $new_settings['count_pending_revision_posts']   = @$this->post_pay_counter_functions->update_options_checkbox_value( $_POST['count_pending_revision_posts'] );
+        $new_settings['count_visits_guests']            = @$this->post_pay_counter_functions->update_options_checkbox_value( $_POST['count_visits_guests'] );
+        $new_settings['count_visits_registered']        = @$this->post_pay_counter_functions->update_options_checkbox_value( $_POST['count_visits_registered'] );
+        $new_settings['count_visits_authors']           = @$this->post_pay_counter_functions->update_options_checkbox_value( $_POST['count_visits_authors'] );
+        $new_settings['count_visits_bots']              = @$this->post_pay_counter_functions->update_options_checkbox_value( $_POST['count_visits_bots'] );
+        $new_settings['allow_payment_bonuses']          = @$this->post_pay_counter_functions->update_options_checkbox_value( $_POST['allow_payment_bonuses'] );
             
         //If we're dealing with personalized options, check paypal address and add it to the query array
         if( is_numeric( $_POST['userID'] ) AND get_userdata( $_POST['userID'] ) ) {
@@ -552,12 +556,13 @@ class post_pay_counter_core {
         }
         
         /* PERMISSIONS BOX */
-        $new_settings['can_view_old_stats'] = @$this->post_pay_counter_functions->update_options_checkbox_value( $_POST['can_view_old_stats'] );
-        $new_settings['can_view_others_general_stats'] = @$this->post_pay_counter_functions->update_options_checkbox_value( $_POST['can_view_others_general_stats'] );
-        $new_settings['can_view_others_detailed_stats'] = @$this->post_pay_counter_functions->update_options_checkbox_value( $_POST['can_view_others_detailed_stats'] );
-        $new_settings['can_view_overall_stats'] = @$this->post_pay_counter_functions->update_options_checkbox_value( $_POST['can_view_overall_stats'] );
-        $new_settings['can_view_special_settings_countings'] = @$this->post_pay_counter_functions->update_options_checkbox_value( $_POST['can_view_special_settings_countings'] );
-        $new_settings['can_csv_export'] = @$this->post_pay_counter_functions->update_options_checkbox_value( $_POST['can_csv_export'] );
+        $new_settings['can_view_old_stats']                     = @$this->post_pay_counter_functions->update_options_checkbox_value( $_POST['can_view_old_stats'] );
+        $new_settings['can_view_others_general_stats']          = @$this->post_pay_counter_functions->update_options_checkbox_value( $_POST['can_view_others_general_stats'] );
+        $new_settings['can_view_others_detailed_stats']         = @$this->post_pay_counter_functions->update_options_checkbox_value( $_POST['can_view_others_detailed_stats'] );
+        $new_settings['can_view_overall_stats']                 = @$this->post_pay_counter_functions->update_options_checkbox_value( $_POST['can_view_overall_stats'] );
+        $new_settings['can_view_special_settings_countings']    = @$this->post_pay_counter_functions->update_options_checkbox_value( $_POST['can_view_special_settings_countings'] );
+        $new_settings['can_view_payment_bonuses']               = @$this->post_pay_counter_functions->update_options_checkbox_value( $_POST['can_view_payment_bonuses'] );
+        $new_settings['can_csv_export']                         = @$this->post_pay_counter_functions->update_options_checkbox_value( $_POST['can_csv_export'] );
         
         /* TRIAL BOX (only if not referring from trial settings page) */
         if( $_POST['userID'] != 'trial' ) {  
@@ -575,8 +580,8 @@ class post_pay_counter_core {
                     break;
                     
                 default:
-                    $new_settings['trial_auto']      = $this->post_pay_counter_functions->$new_settings['trial_auto'];
-                    $new_settings['trial_manual']    = $this->post_pay_counter_functions->$new_settings['trial_manual'];;
+                    $new_settings['trial_auto']      = $current_counting_settings->general_settings['trial_auto'];
+                    $new_settings['trial_manual']    = $current_counting_settings->general_settings['trial_manual'];;
                     break;
             }
             
@@ -592,8 +597,8 @@ class post_pay_counter_core {
                     break;
                     
                 default:
-                    $new_settings['trial_period_days']   = $this->post_pay_counter_functions->$new_settings['trial_period_days'];
-                    $new_settings['trial_period_posts']  = $this->post_pay_counter_functions->$new_settings['trial_period_posts'];;
+                    $new_settings['trial_period_days']   = $current_counting_settings->general_settings['trial_period_days'];
+                    $new_settings['trial_period_posts']  = $current_counting_settings->general_settings['trial_period_posts'];;
                     break;
             }
             
@@ -817,7 +822,7 @@ class post_pay_counter_core {
                 $get_and_post['tend']   = strtotime( $get_and_post['tend'].' 23:59:59' );
             } else {
                 $get_and_post['tstart'] = mktime( 0, 0, 1, date( 'm' ), 1, date( 'Y' ) );
-                $get_and_post['tend']   = time();
+                $get_and_post['tend']   = mktime( 23, 59, 59, date( 'm' ), date( 'd' ), date( 'Y' ) );
             }
         }
         
@@ -848,7 +853,7 @@ class post_pay_counter_core {
                     <table class="widefat fixed">
                         <thead>
                     		<tr>
-                    			<th scope="col" width="53%">Post title</th>
+                    			<th scope="col" width="52%">Post title</th>
                                 <th scope="col" width="8%">Status</th>
                                 <th scope="col" width="8%">Date</th>
                     			
@@ -859,14 +864,14 @@ class post_pay_counter_core {
                                 <th scope="col" width="7%">Visits</th>    
                                 <?php } ?>
                                 
-                    			<th scope="col" width="10%">Comments</th>
+                    			<th scope="col" width="11%">Comments</th>
                                 <th scope="col" width="8%">Images</th>
                     			<th scope="col" width="9%">Payment</th>
                     		</tr>
                     	</thead>
                     	<tfoot>
                     		<tr>
-                    			<th scope="col" width="53%">Post title</th>
+                    			<th scope="col" width="54%">Post title</th>
                                 <th scope="col" width="8%">Status</th>
                                 <th scope="col" width="8%">Date</th>
                     			
@@ -877,7 +882,7 @@ class post_pay_counter_core {
                                 <th scope="col" width="7%">Visits</th>    
                                 <?php } ?>
                                 
-                    			<th scope="col" width="10%">Comments</th>
+                    			<th scope="col" width="11%">Comments</th>
                                 <th scope="col" width="8%">Images</th>
                     			<th scope="col" width="9%">Payment</th>
                     		</tr>
@@ -886,6 +891,13 @@ class post_pay_counter_core {
                     
                     <?php $n = 0; 
                     foreach( $generated_stats['general_stats'] as $single ) {
+                        
+                        //If there's a bonus associated with current post, attach it
+                        $payment_bonus = 0;
+                        if( $single['payment_bonus'] != 0 )
+                            $payment_bonus = '<br /><span style="font-size: smaller;">(> '.$single['payment_bonus'].')</span>';
+                        else
+                            unset( $payment_bonus );
                         
                         //Wrap post title if too long
                         if( strlen( $single['post_title'] ) > 85 )
@@ -910,7 +922,7 @@ class post_pay_counter_core {
                         <td><?php echo $single['words_count']; ?></td>
                         <td><?php echo $single['comment_count']; ?></td>
                         <td><?php echo $single['image_count']; ?></td>
-                        <td>&euro; <?php printf( '%.2f', $single['post_payment'] ); ?></td>
+                        <td>&euro; <?php printf( '%.2f', $single['post_payment'] ); echo @$payment_bonus; ?></td>
                     </tr>
                         
                     <?php $n++;
@@ -926,8 +938,8 @@ class post_pay_counter_core {
                     <tr>
                         <td width="40%">Total displayed posts:</td>
                         <td align="left" width="10%"><?php echo @(int) $generated_stats['overall_stats']['total_posts'] ?></td>
-                        <td width="40%">Total displayed payment:</td>
-                        <td align="left" width="10%">&euro; <?php printf( '%.2f', @$generated_stats['overall_stats']['total_payment'] ); ?></td>
+                        <td width="35%">Total displayed payment:</td>
+                        <td align="left" width="15%">&euro; <?php printf( '%.2f', @$generated_stats['overall_stats']['total_payment'] ); echo @$generated_stats['overall_stats']['payment_bonus']; ?></td>
                     </tr>
                 <?php //Show the other rows only if using zones as counting system 
                 if( $current_user_settings->counting_system_zones == 1 ) { ?>
@@ -977,8 +989,8 @@ class post_pay_counter_core {
                     <thead>
                         <tr>
                 			<th scope="col">Author</th>
-                			<th scope="col" width="13%" style="text-align: right;">Written posts</th>
-                			<th scope="col" width="16%" style="text-align: right;">Total payment</th>
+                			<th scope="col" width="13%">Written posts</th>
+                			<th scope="col" width="17%">Total payment</th>
                 
                 <?php //If current_user == admin, show paypal addresses
                 if( $current_user->user_level >= 7 ) { ?>
@@ -990,8 +1002,8 @@ class post_pay_counter_core {
         	<tfoot>
         		<tr>
         			<th scope="col">Author</th>
-        			<th scope="col" width="13%" style="text-align: right;">Written posts</th>
-    	            <th scope="col" width="16%" style="text-align: right;">Total payment</th>
+        			<th scope="col" width="13%">Written posts</th>
+    	            <th scope="col" width="17%">Total payment</th>
                     
                 <?php if( $current_user->user_level >= 7 ) { ?>
                     <th scope="col" width="25%">PayPal address</th>
@@ -1006,6 +1018,13 @@ class post_pay_counter_core {
     
                     $author_display_name    = get_userdata( $key )->nickname;
                     $author_paypal_address  = @$this->post_pay_counter_functions->get_settings( $key )->paypal_address;
+                    
+                    //If there's a bonus associated with current post, attach it
+                    $payment_bonus = 0;
+                    if( $value['payment_bonus'] != 0 )
+                        $payment_bonus = ' <span style="font-size: smaller;">(> '.$value['payment_bonus'].')</span>';
+                    else
+                        unset( $payment_bonus );
                     
                     //Class alternate adding
                     if( $n % 2 == 1 )
@@ -1025,8 +1044,8 @@ class post_pay_counter_core {
                     <td><a href="<?php echo admin_url( 'options-general.php?page=post_pay_counter_show_stats&amp;author='.$key.'&amp;tstart='.$get_and_post['tstart'].'&amp;tend='.$get_and_post['tend'] ) ?>" title="<?php echo $author_display_name ?>"><?php echo $author_display_name ?></a></td>
                     <?php } ?>
                     
-                    <td align="right"><?php echo $value['posts'] ?></td>
-                    <td align="right">&euro; <?php printf( '%.2f', $value['payment'] ); ?></td>
+                    <td><?php echo $value['posts'] ?></td>
+                    <td>&euro; <?php printf( '%.2f', $value['payment'] ); echo @$payment_bonus; ?></td>
                         
                          <?php if( $current_user->user_level >= 7 ) { ?>
                     <td><?php echo $author_paypal_address ?></td>
@@ -1046,8 +1065,8 @@ class post_pay_counter_core {
 		<tr>
 			<td width="40%">Total displayed posts:</td>
 			<td align="left" width="10%"><?php echo @(int) $generated_stats['overall_stats']['total_posts'] ?></td>
-			<td width="40%">Total displayed payment:</td>
-			<td align="left" width="10%">&euro; <?php printf( '%.2f', @$generated_stats['overall_stats']['total_payment'] ); ?></td>
+			<td width="35%">Total displayed payment:</td>
+			<td align="left" width="15%">&euro; <?php printf( '%.2f', @$generated_stats['overall_stats']['total_payment'] ); echo @$generated_stats['overall_stats']['payment_bonus']; ?></td>
 		</tr>
         <?php //Show the other rows only if using zones counting system 
         if( $current_user_settings->counting_system_zones == 1 ) { ?>

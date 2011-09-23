@@ -3,7 +3,7 @@ Contributors: Ste_95
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=7UH3J3CLVHP8L
 Tags: counter, authors, payment, stats, multi author
 Tested up to: 3.2.1
-Stable tag: 1.1.3
+Stable tag: 1.1.4
 Requires at least: 3.0
 
 Easily calculate and handle author's pay on a multi-author blog by computing every written post remuneration basing on admin defined rules.
@@ -20,6 +20,7 @@ The administrator can set up the payment values, stats are then viewable from th
 * **Trial period**: another bounch of settings can be defined for the trial period users may be subjected to. The admin can then opt-in and out the trial option for single users or decide for the automatic feature which, relying on the number of written posts subscribtion date, will do the job.
 * **Highly customizable permissions**: you don’t want your users to see stats and use functions they are not supposed to, and that’s the reason you can set detailed permission rules.
 * **CSV export**: every stats you see can be exported in csv files for offline consulting or storing.
+* **Reward posts and authors**: with a simple custom field, you cand award payment bonuses to your authors.
 * **Overall stats**: at the bottom of every stats page, a box with overall stats is avaiable with interesting details about your blog.
 
 There's much more to enjoy. Try it yourself! More details at the [plugin page](http://www.thecrowned.org/post-pay-counter "Post Pay Counter page"), while reviews can be found at [IdeaGeek](http://www.ideageek.it/il-plugin-wordpress-per-semplificare-i-conti-post-pay-counter/ "IdeaGeek") and [Mondofico](http://www.mondofico.com/2011/09/post-pay-counter-gestire-i-pagamenti-dei-redattori-su-wordpress/ "Mondofico").
@@ -37,7 +38,14 @@ Sure you can. Just head to the Options Page and use the *Update countings* butto
 = The plugin hangs up when using the Update stats function =
 This happens due to large databases. Try to increase the *max_execution_time* in your server's php.ini file, and see if the problem get solved.
 
+= Can I reward particular posts / authors? =
+Sure you can! In the edit page related to the post you want to reward, create a new Custom Field named *payment_bonus* giving it the value of the rewarding (add as many decimal digits you want). Those bonuses are then shown in the stats page already summed to the post payment and also in brackets. The admin can still disable this function or simply hide the bonuses. Remember that having this function enabled potentially allows everyone who has the permission of posts editing to award bonuses!
+
 == Changelog ==
+= 1.1.4 =
+* Manually creating a post meta named *payment_bonus* allows to award a bonus to posts. Bonuses are then shown in the stats page in brackets and with a smaller font, though the admin can decide to disable the function or hide the bonuses.
+* Fixed a bug that triggered a fatal error when updating settings without having them in the database (default case of switch).
+
 = 1.1.3 =
 * Changed view counting method, it could trigger problems is headers where already sent before the plugin got in. It's now using an AJAX request to set the cookie.
 * Minimal improvements in in the view counting method.

@@ -167,11 +167,13 @@ class post_pay_counter_functions_class {
                 $post_payment = $this->content2cash( $single->ID );
                 
                 //Create a multidimensional array divided for author's names. Using silence operator to avoid notices
-                @$totale[$single->post_author]['payment'] = $totale[$single->post_author]['payment'] + $post_payment['total_payment'];
+                @$totale[$single->post_author]['payment']       = $totale[$single->post_author]['payment'] + $post_payment['total_payment'] + $post_payment['payment_bonus'];
+                @$totale[$single->post_author]['payment_bonus'] = $totale[$single->post_author]['payment_bonus'] + $post_payment['payment_bonus'];
                 @$totale[$single->post_author]['posts']++;
                 
                 //Overall stats
-                @$overall_stats['total_payment'] = $overall_stats['total_payment'] + $post_payment['total_payment'];
+                @$overall_stats['total_payment'] = $overall_stats['total_payment'] + $post_payment['total_payment'] + $post_payment['payment_bonus'];
+                @$overall_stats['payment_bonus'] = $overall_stats['payment_bonus'] + $post_payment['payment_bonus'];
                 @$overall_stats['total_posts']++;
                 
                 //If using zones_system, define the payment area the post fits in
@@ -201,7 +203,7 @@ class post_pay_counter_functions_class {
                 $post_payment = $this->content2cash( $single->ID );
                 $post_date_array = explode( ' ', $single->post_date );
                 
-                $totale[] = array( 
+                $totale[] = array(
                     'ID'            => $single->ID,
                     'post_title'    => $single->post_title,
                     'comment_count' => (int) $single->comment_count,
@@ -209,10 +211,12 @@ class post_pay_counter_functions_class {
                     'post_date'     => date( 'd/m/y', strtotime( $post_date_array[0] ) ),
                     'post_status'   => $single->post_status,
                     'words_count'   => (int) $single->post_pay_counter_count,
-                    'post_payment'  => $post_payment['total_payment']
+                    'post_payment'  => $post_payment['total_payment'] + $post_payment['payment_bonus'],
+                    'payment_bonus' => $post_payment['payment_bonus']
                 );
                 
-                @$overall_stats['total_payment'] = $overall_stats['total_payment'] + $post_payment['total_payment'];
+                @$overall_stats['total_payment'] = $overall_stats['total_payment'] + $post_payment['total_payment'] + $post_payment['payment_bonus'];
+                @$overall_stats['payment_bonus'] = $overall_stats['payment_bonus'] + $post_payment['payment_bonus'];
                 @$overall_stats['total_posts']++;
                 
                 //If using zones_system, define the payment area the post fits in
@@ -234,7 +238,12 @@ class post_pay_counter_functions_class {
             }
         }
         
-        //Build and return final array
+        //Build and return final array, if equal to 0 unsetting it to prevent 0 from showing along with the total payment, like € 30.440
+        if( $overall_stats['payment_bonus'] != 0 )
+            $overall_stats['payment_bonus'] = ' <span style="font-size: smaller">(> '.$overall_stats['payment_bonus'].')</span>';
+        else
+            unset( $overall_stats['payment_bonus'] );
+             
         $stats_response['general_stats'] = $totale;
         $stats_response['overall_stats'] = $overall_stats;
         
@@ -395,6 +404,7 @@ class post_pay_counter_functions_class {
         $author_settings        = $this->get_settings( $post_data->post_author, TRUE );
         $current_user_settings  = $this->get_settings( $current_user->ID, TRUE );
         $post_payment           = 0;
+        $admin_bonus            = 0;
         
         //If user can, special settings are retrieved from db and used for countings.
         if( $current_user->ID == $post_data->post_author OR $current_user->user_level >= 7 OR $current_user_settings->can_view_special_settings_countings == 1 )
@@ -404,20 +414,20 @@ class post_pay_counter_functions_class {
         if( $counting_settings->counting_system_unique_payment == 1 ) {
             $post_payment = round( $counting_settings->unique_payment * $post_words, 2 );
         } else {
-        //If using zones system, define what payment area the post fits in
-        if( $post_data->post_status == 'publish' OR $post_data->post_status == 'future' OR ( $post_data->post_status == 'pending' AND $counting_settings->count_pending_revision_posts == 1 ) AND $post_data->post_type == 'post' ) {
-            if( $post_words >= $counting_settings->zone1_count AND $post_words < $counting_settings->zone2_count ) {
-                $post_payment = $counting_settings->zone1_payment;
-    		} else if( $post_words >= $counting_settings->zone2_count AND $post_words < $counting_settings->zone3_count ) {
-                $post_payment = $counting_settings->zone2_payment;
-            } else if( $post_words >= $counting_settings->zone3_count AND $post_words < $counting_settings->zone4_count ) {
-                $post_payment = $counting_settings->zone3_payment;
-            } else if( $post_words >= $counting_settings->zone4_count AND $post_words < $counting_settings->zone5_count ) {
-                $post_payment = $counting_settings->zone4_payment;
-            } else if( $post_words >= $counting_settings->zone5_count ) {
-                $post_payment = $counting_settings->zone5_payment;
+            //If using zones system, define what payment area the post fits in
+            if( $post_data->post_status == 'publish' OR $post_data->post_status == 'future' OR ( $post_data->post_status == 'pending' AND $counting_settings->count_pending_revision_posts == 1 ) AND $post_data->post_type == 'post' ) {
+                if( $post_words >= $counting_settings->zone1_count AND $post_words < $counting_settings->zone2_count ) {
+                    $post_payment = $counting_settings->zone1_payment;
+        		} else if( $post_words >= $counting_settings->zone2_count AND $post_words < $counting_settings->zone3_count ) {
+                    $post_payment = $counting_settings->zone2_payment;
+                } else if( $post_words >= $counting_settings->zone3_count AND $post_words < $counting_settings->zone4_count ) {
+                    $post_payment = $counting_settings->zone3_payment;
+                } else if( $post_words >= $counting_settings->zone4_count AND $post_words < $counting_settings->zone5_count ) {
+                    $post_payment = $counting_settings->zone4_payment;
+                } else if( $post_words >= $counting_settings->zone5_count ) {
+                    $post_payment = $counting_settings->zone5_payment;
+                }
             }
-        }
             
             //Comment bonus
             if( $post_data->comment_count >= $counting_settings->bonus_comment_count ) {
@@ -434,9 +444,16 @@ class post_pay_counter_functions_class {
                 }
             }
         }
+        
+        //Define admin defined bonus if available and allowed (or user is admin or author of current post)
+        if( ( $author_settings->allow_payment_bonuses == 1 AND $current_user_settings->can_view_payment_bonuses == 1 ) OR $current_user->user_level >= 7 OR $current_user->ID == $post_data->post_author ) {
+            $payment_bonus  = @get_post_meta( $post_id, 'payment_bonus', true );
+            $post_payment   = $post_payment + $payment_bonus;
+        }
 
         return array(
             'total_payment' => $post_payment,
+            'payment_bonus' => sprintf( '%.2f', @$payment_bonus ),
             'image_count'   => @( (int) $array_all_imgs_count )
         );
     }
