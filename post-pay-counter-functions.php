@@ -428,19 +428,19 @@ class post_pay_counter_functions_class {
                     $post_payment = $counting_settings->zone5_payment;
                 }
             }
+        }
             
-            //Comment bonus
-            if( $post_data->comment_count >= $counting_settings->bonus_comment_count ) {
-                $post_payment = $post_payment + $counting_settings->bonus_comment_payment;
-            }
-            
-            //Credit the image bonus if there's more than one image in the processed post            
-            if( $counting_settings->bonus_image_payment != '' ) {
-                if( preg_match_all( '/<img[^>]*>/', $post_data->post_content, $array_all_imgs ) ) {
-                    $array_all_imgs_count = count( $array_all_imgs[0] );
-                    if( $array_all_imgs_count > 1 ) {
-                        $post_payment = $post_payment + ( ( $array_all_imgs_count - 1 ) * $counting_settings->bonus_image_payment );
-                    }
+        //Comment bonus
+        if( $post_data->comment_count >= $counting_settings->bonus_comment_count ) {
+            $post_payment = $post_payment + $counting_settings->bonus_comment_payment;
+        }
+        
+        //Credit the image bonus if there's more than one image in the processed post            
+        if( $counting_settings->bonus_image_payment != '' ) {
+            if( preg_match_all( '/<img[^>]*>/', $post_data->post_content, $array_all_imgs ) ) {
+                $array_all_imgs_count = count( $array_all_imgs[0] );
+                if( $array_all_imgs_count > 1 ) {
+                    $post_payment = $post_payment + ( ( $array_all_imgs_count - 1 ) * $counting_settings->bonus_image_payment );
                 }
             }
         }
