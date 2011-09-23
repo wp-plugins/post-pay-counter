@@ -20,7 +20,7 @@ The administrator can set up the payment values, stats are then viewable from th
 * **Trial period**: another bounch of settings can be defined for the trial period users may be subjected to. The admin can then opt-in and out the trial option for single users or decide for the automatic feature which, relying on the number of written posts subscribtion date, will do the job.
 * **Highly customizable permissions**: you don’t want your users to see stats and use functions they are not supposed to, and that’s the reason you can set detailed permission rules.
 * **CSV export**: every stats you see can be exported in csv files for offline consulting or storing.
-* **Reward posts and authors**: with a simple custom field, you cand award payment bonuses to your authors.
+* **Reward posts and authors**: with a simple custom field, you can award payment bonuses to your authors.
 * **Overall stats**: at the bottom of every stats page, a box with overall stats is avaiable with interesting details about your blog.
 
 There's much more to enjoy. Try it yourself! More details at the [plugin page](http://www.thecrowned.org/post-pay-counter "Post Pay Counter page"), while reviews can be found at [IdeaGeek](http://www.ideageek.it/il-plugin-wordpress-per-semplificare-i-conti-post-pay-counter/ "IdeaGeek") and [Mondofico](http://www.mondofico.com/2011/09/post-pay-counter-gestire-i-pagamenti-dei-redattori-su-wordpress/ "Mondofico").
