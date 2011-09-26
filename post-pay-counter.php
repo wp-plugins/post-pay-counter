@@ -239,6 +239,7 @@ class post_pay_counter_core {
     function post_pay_counter_register_view_ajax() {
         setcookie( 'post_pay_counter_view-'.$_REQUEST['post_id'], 'post_pay_counter_view-'.get_bloginfo( 'url' ).'-'.$_REQUEST['post_id'], time()+86400, '/' );
         $this->post_pay_counter_functions->update_single_counting( $_REQUEST['post_id'], $_REQUEST['post_status'] );
+        exit;
     }
     
     function meta_box_counting_settings() { ?>
@@ -745,6 +746,9 @@ class post_pay_counter_core {
         //If not asking for trial, check the userid. If valid and avaiable as personalized settings, get those settings; 
         //if only exists as user in the blog but plugin doesn't have special settings registered, take general settings changing the userid in the array (need it to be numeric for the metaboxes checks); 
         //if it isn't numeric, simply take general settings.
+		
+		$this->post_pay_counter_install->post_pay_counter_install();
+		
         if( isset( $_GET['userid'] ) AND $_GET['userid'] == 'trial' ) {
             $this->edit_options_counter_settings = $this->post_pay_counter_functions->get_settings( 'trial' );
             
@@ -770,7 +774,7 @@ class post_pay_counter_core {
             } else {
                 $this->edit_options_counter_settings = $this->post_pay_counter_functions->general_settings;
             }
-        } 
+        }
         
         //Nonces for major security
         wp_nonce_field( 'post_pay_counter_main_form_update' );

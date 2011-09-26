@@ -8,7 +8,7 @@ class post_pay_counter_functions_class {
         
         //Select general settings (if they exist). We use them here, in the main plugin file and in the install one
         if( $wpdb->query( 'SHOW TABLES FROM '.$wpdb->dbname.' LIKE "'.$wpdb->prefix.'post_pay_counter"' ) )
-            $this->general_settings = @$this->get_settings( 'general' );
+            $this->general_settings = $this->get_settings( 'general' );
     }
     
     //Select settings. Gets in one facoltative parameter, userID, and returns the counting settings as an object
@@ -63,7 +63,7 @@ class post_pay_counter_functions_class {
         //If for some reason (like not having special settings for a particular user) special settings are not avaiable, and $return_general is TRUE, return general ones
         if( ! is_object( $counting_settings ) AND $return_general == TRUE ) 
             $counting_settings = $this->general_settings;
-            
+		
         return $counting_settings;
     }
     
@@ -339,7 +339,10 @@ class post_pay_counter_functions_class {
     function show_stats_page_header( $current_page, $page_permalink, $current_time_start, $current_time_end ) {
         global $wpdb;
         
-        $first_avaiable_post = $wpdb->get_row( 'SELECT post_pay_counter FROM '.$wpdb->posts.' WHERE post_pay_counter IS NOT NULL ORDER BY post_pay_counter ASC LIMIT 0,1' ); ?>
+        $first_avaiable_post = $wpdb->get_row( 'SELECT post_pay_counter FROM '.$wpdb->posts.' WHERE post_pay_counter IS NOT NULL ORDER BY post_pay_counter ASC LIMIT 0,1' );
+		
+		if( $first_avaiable_post == '' )
+            $first_avaiable_post->post_pay_counter = time(); ?>
 
         <script type="text/javascript">
             jQuery(document).ready(function() {
@@ -593,7 +596,7 @@ class post_pay_counter_functions_class {
         //Count and sort all the user records to retrieve the most active one (username + written posts)
         @$user_posts_count              = array_count_values( $total_users );
         @arsort( $user_posts_count, SORT_NUMERIC );
-        @$most_active_user_name         = get_userdata( ( key( $user_posts_count ) ) )->user_login;
+        @$most_active_user_name         = get_userdata( ( key( $user_posts_count ) ) )->nickname;
         @$most_active_user_posts        = current( $user_posts_count ); ?>
         
         <table class="widefat fixed">
