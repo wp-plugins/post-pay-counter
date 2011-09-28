@@ -11,9 +11,14 @@ global $wpdb;
 function post_pay_counter_uninstall_procedure() {
     global $wpdb;
     
-    $wpdb->query( 'ALTER TABLE '.$wpdb->posts.' DROP post_pay_counter' );
-    $wpdb->query( 'ALTER TABLE '.$wpdb->posts.' DROP post_pay_counter_count' );
-    $wpdb->query( 'DROP TABLE '.$wpdb->prefix.'post_pay_counter' );
+    if( $wpdb->query( "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '".$wpdb->posts."' AND TABLE_SCHEMA = '".$wpdb->dbname."' AND COLUMN_NAME = 'post_pay_counter'" ) )
+        $wpdb->query( 'ALTER TABLE '.$wpdb->posts.' DROP post_pay_counter' );
+    
+    if( $wpdb->query( "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '".$wpdb->posts."' AND TABLE_SCHEMA = '".$wpdb->dbname."' AND COLUMN_NAME = 'post_pay_counter_count'" ) )
+        $wpdb->query( 'ALTER TABLE '.$wpdb->posts.' DROP post_pay_counter_count' );
+    
+    if( $wpdb->query( 'SHOW TABLES FROM '.$wpdb->dbname.' LIKE "'.$wpdb->prefix.'post_pay_counter"' ) )
+        $wpdb->query( 'DROP TABLE '.$wpdb->prefix.'post_pay_counter' );
     
     $post_payment_bonuses = get_posts('numberposts=-1&post_type=post&post_status=any');
     foreach( $post_payment_bonuses as $single)
@@ -29,10 +34,7 @@ if( function_exists( 'is_multisite' ) AND is_multisite() ) {
     //Get all blog ids; foreach them and call the install procedure on each of them if the plugin table is found
     foreach( $blog_ids as $blog_id ) {
 		switch_to_blog( $blog_id );
-        
-        //If current blog does have Post Pay Counter
-        if( $wpdb->query( 'SHOW TABLES FROM '.$wpdb->dbname.' LIKE "'.$wpdb->prefix.'post_pay_counter"' ) )
-            post_pay_counter_uninstall_procedure();
+        post_pay_counter_uninstall_procedure();
             
 	}
     
