@@ -3,7 +3,7 @@ Contributors: Ste_95
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=7UH3J3CLVHP8L
 Tags: counter, authors, payment, stats, multi author
 Tested up to: 3.2.1
-Stable tag: 1.1.7
+Stable tag: 1.1.8
 Requires at least: 3.0
 
 Easily calculate and handle author's pay on a multi-author blog by computing every written post remuneration basing on admin defined rules.
@@ -42,6 +42,9 @@ This happens due to large databases. Try to increase the *max_execution_time* in
 Sure you can! In the edit page related to the post you want to reward, create a new Custom Field named *payment_bonus* giving it the value of the rewarding (add as many decimal digits you want). Those bonuses are then shown in the stats page already summed to the post payment and also in brackets. The admin can still disable this function or simply hide the bonuses. Remember that having this function enabled potentially allows everyone who has the permission of posts editing to award bonuses!
 
 == Changelog ==
+= 1.1.8 =
+* Bug from previous release made impossible to update settings because of two MySQL columns missing. Should be fixed now.
+
 = 1.1.7 =
 * When uninstalling it now checks for table/columns existance while already into the uninstallation process, not before it.
 

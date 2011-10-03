@@ -131,12 +131,12 @@ class post_pay_counter_install_routine {
         );
         
         
-		//If it's somebody updating from <= 1.1.3, add the two payment bonuses columns
-        if( !$wpdb->query( "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '".$wpdb->prefix."post_pay_counter' AND TABLE_SCHEMA = '".$wpdb->dbname."' AND COLUMN_NAME = 'can_view_payment_bonuses'" ) AND $wpdb->query( "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '".$wpdb->prefix."post_pay_counter'" ) ) {
+        //If it's somebody updating from <= 1.1.3, add the two payment bonuses columns
+        if( ! $wpdb->query( "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '".$wpdb->prefix."post_pay_counter' AND TABLE_SCHEMA = '".$wpdb->dbname."' AND COLUMN_NAME = 'can_view_payment_bonuses'" ) ) {
             $wpdb->query( "ALTER TABLE `".$wpdb->prefix."post_pay_counter` ADD `can_view_payment_bonuses` INT(1) NOT NULL DEFAULT '0' AFTER can_view_special_settings_countings" );
         }
         
-        if( !$wpdb->query( "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '".$wpdb->prefix."post_pay_counter' AND TABLE_SCHEMA = '".$wpdb->dbname."' AND COLUMN_NAME = 'allow_payment_bonuses'" ) AND $wpdb->query( "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '".$wpdb->prefix."post_pay_counter'" ) ) {
+        if( ! $wpdb->query( "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '".$wpdb->prefix."post_pay_counter' AND TABLE_SCHEMA = '".$wpdb->dbname."' AND COLUMN_NAME = 'allow_payment_bonuses'" ) ) {
             $wpdb->query( "ALTER TABLE `".$wpdb->prefix."post_pay_counter` ADD `allow_payment_bonuses` INT(1) NOT NULL DEFAULT '0' AFTER count_visits_bots" );
         }
     
