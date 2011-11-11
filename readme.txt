@@ -32,14 +32,20 @@ There's much more to enjoy. Try it yourself! More details at the [plugin page](h
 4. That's it, done! You should now check the stats page for results.
 
 == Frequently Asked Questions ==
-= Can I include in the stats the posts published before the plugin was installed =
+= Can I include in the stats the posts published before the plugin was installed? =
 Sure you can. Just head to the Options Page and use the *Update countings* button in the *Update stats* box. This can take the plugin a little time depending on the number of published posts.
 
 = The plugin hangs up when using the Update stats function =
 This happens due to large databases. Try to increase the *max_execution_time* in your server's php.ini file, and see if the problem get solved.
 
-= Can I reward particular posts / authors? =
+= Can I reward more particular posts/authors? =
 Sure you can! In the edit page related to the post you want to reward, create a new Custom Field named *payment_bonus* giving it the value of the rewarding (add as many decimal digits you want). Those bonuses are then shown in the stats page already summed to the post payment and also in brackets. The admin can still disable this function or simply hide the bonuses. Remember that having this function enabled potentially allows everyone who has the permission of posts editing to award bonuses!
+
+= Can I change the currency? =
+The main point here is, at the present moment, the currency symbol is not really important - not at all indeed. The euro symbol, in fact, is just a way to better distinguish payments from other numbers. Just set the plugin as if you were using your desired currency and then, even if in the countings payments will be shown preceded by a euro sign, you will know you are actually using *your* currency.
+
+= Can I pay all posts the same, without caring about words/visits? =
+It is not really an explicit feature, but again, the answer is yes. All you have to do is set the plugin to use the counting system zones putting 1 in every *Words/Visits n°* column field and the amount you want to give each post (always the same, of course) in each *Payment* field.
 
 == Changelog ==
 = 1.1.8 =
