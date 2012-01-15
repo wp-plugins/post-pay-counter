@@ -86,8 +86,10 @@ class post_pay_counter_functions_class {
     
     //Used to print settings fields: a checkbox/radio on the left span and the related description on the right span
     function echo_p_field( $text, $setting, $field, $name, $tooltip_description = NULL, $value = NULL, $id = NULL ) { ?>
-        <p style="min-height: 12px;">
-            <span style="float: right; width: 20px; height: 13px; text-align: right;"><img src="<?php echo plugins_url( 'style/images/info.png', __FILE__ ); ?>" title="<?php echo $tooltip_description; ?>" class="tooltip_container" /></span>
+        <p style="height: 13px;">
+            <span style="float: right; width: 20px; text-align: right;">
+                <img src="<?php echo plugins_url( 'style/images/info.png', __FILE__ ); ?>" title="<?php echo $tooltip_description; ?>" class="tooltip_container" />
+            </span>
             <label>
                 <span style="float: left; width: 5%;">    
         <?php echo $this->checked_or_not( $setting, $field, $name, $value, $id ); ?>
@@ -97,7 +99,7 @@ class post_pay_counter_functions_class {
         </p>
     <?php }
     
-    //Used when updating plugin options; defining checkboxes values
+    //Used when updating plugin options for defining checkboxes values
     function update_options_checkbox_value( $checkbox ) {
         if( ! isset( $checkbox ) )
             return 0;
@@ -146,7 +148,7 @@ class post_pay_counter_functions_class {
         /** POST COUNTING ROUTINE **/
         //Return if no posts are selected
         if( $wpdb->num_rows == 0 )
-            return 'No avaiable stats for the requested time frame/author. Try changing the time frame from the fields above and then press <em>Update time range</em>.';
+            return 'No available stats for the requested time frame/author. Try changing the time frame from the fields above and then press <em>Update time range</em>.';
         
         $stats_response = array();
         $totale         = array();
@@ -166,17 +168,21 @@ class post_pay_counter_functions_class {
                 //Get post payment value
                 $post_payment = $this->content2cash( $single->ID );
                 
-                //Create a multidimensional array divided for author's names. Using silence operator to avoid notices
-                @$totale[$single->post_author]['payment']       = $totale[$single->post_author]['payment'] + $post_payment['total_payment'] + $post_payment['payment_bonus'];
-                @$totale[$single->post_author]['payment_bonus'] = $totale[$single->post_author]['payment_bonus'] + $post_payment['payment_bonus'];
+                //Create a multidimensional array divided for author's names. Using silence operator to avoid notices for non-existent variable
+                @$totale[$single->post_author]['total_payment']     = sprintf( '%.2f', $totale[$single->post_author]['total_payment'] + $post_payment['total_payment'] );
+                @$totale[$single->post_author]['ordinary_payment']  = sprintf( '%.2f', $totale[$single->post_author]['ordinary_payment'] + $post_payment['ordinary_payment'] );
+                @$totale[$single->post_author]['minimum_fee']       = sprintf( '%.2f', $totale[$single->post_author]['minimum_fee'] + $post_payment['minimum_fee'] );
+                @$totale[$single->post_author]['payment_bonus']     = sprintf( '%.2f', $totale[$single->post_author]['payment_bonus'] + $post_payment['payment_bonus'] );
+                @$totale[$single->post_author]['image_bonus']       = sprintf( '%.2f', $totale[$single->post_author]['image_bonus'] + $post_payment['image_bonus'] );
+                @$totale[$single->post_author]['comment_bonus']     = sprintf( '%.2f', $totale[$single->post_author]['comment_bonus'] + $post_payment['comment_bonus'] );
                 @$totale[$single->post_author]['posts']++;
                 
                 //Overall stats
-                @$overall_stats['total_payment'] = $overall_stats['total_payment'] + $post_payment['total_payment'] + $post_payment['payment_bonus'];
-                @$overall_stats['payment_bonus'] = $overall_stats['payment_bonus'] + $post_payment['payment_bonus'];
+                @$overall_stats['total_payment'] = $overall_stats['total_payment'] + $post_payment['total_payment'];
+                //@$overall_stats['payment_bonus'] = $overall_stats['payment_bonus'] + $post_payment['payment_bonus'];
                 @$overall_stats['total_posts']++;
                 
-                //If using zones_system, define the payment area the post fits in
+                //If using zones_system, define the payment area the post fits in (overall stats)
                 if( $user_settings->counting_system_zones == 1 ) {
                     if( $single->post_pay_counter_count < $user_settings->zone1_count ) {
                         @$overall_stats['0zone']++;
@@ -204,22 +210,26 @@ class post_pay_counter_functions_class {
                 $post_date_array = explode( ' ', $single->post_date );
                 
                 $totale[] = array(
-                    'ID'            => $single->ID,
-                    'post_title'    => $single->post_title,
-                    'comment_count' => (int) $single->comment_count,
-                    'image_count'   => (int) $post_payment['image_count'],
-                    'post_date'     => date( 'd/m/y', strtotime( $post_date_array[0] ) ),
-                    'post_status'   => $single->post_status,
-                    'words_count'   => (int) $single->post_pay_counter_count,
-                    'post_payment'  => $post_payment['total_payment'] + $post_payment['payment_bonus'],
-                    'payment_bonus' => $post_payment['payment_bonus']
+                    'ID'                => $single->ID,
+                    'post_title'        => $single->post_title,
+                    'comment_count'     => (int) $single->comment_count,
+                    'comment_bonus'     => $post_payment['comment_bonus'],
+                    'image_count'       => (int) $post_payment['image_count'],
+                    'image_bonus'       => $post_payment['image_bonus'],
+                    'post_date'         => date( 'd/m/y', strtotime( $post_date_array[0] ) ),
+                    'post_status'       => $single->post_status,
+                    'words_count'       => (int) $single->post_pay_counter_count,
+                    'minimum_fee'       => $post_payment['minimum_fee'],
+                    'ordinary_payment'  => $post_payment['ordinary_payment'],
+                    'payment_bonus'     => $post_payment['payment_bonus'],
+                    'post_payment'      => $post_payment['total_payment']
                 );
                 
-                @$overall_stats['total_payment'] = $overall_stats['total_payment'] + $post_payment['total_payment'] + $post_payment['payment_bonus'];
-                @$overall_stats['payment_bonus'] = $overall_stats['payment_bonus'] + $post_payment['payment_bonus'];
+                @$overall_stats['total_payment'] = $overall_stats['total_payment'] + $post_payment['total_payment'];
+                //@$overall_stats['payment_bonus'] = $overall_stats['payment_bonus'] + $post_payment['payment_bonus'];
                 @$overall_stats['total_posts']++;
                 
-                //If using zones_system, define the payment area the post fits in
+                //If using zones_system, define the payment area the post fits in (overall stats)
                 if( $user_settings->counting_system_zones == 1 ) { 
                     if( $single->post_pay_counter_count < $user_settings->zone1_count ) {
                         @$overall_stats['0zone']++;
@@ -238,12 +248,7 @@ class post_pay_counter_functions_class {
             }
         }
         
-        //Build and return final array, if equal to 0 unsetting it to prevent 0 from showing along with the total payment, like € 30.440
-        if( $overall_stats['payment_bonus'] != 0 )
-            $overall_stats['payment_bonus'] = ' <span style="font-size: smaller">(> '.$overall_stats['payment_bonus'].')</span>';
-        else
-            unset( $overall_stats['payment_bonus'] );
-             
+        //Build and return final array             
         $stats_response['general_stats'] = $totale;
         $stats_response['overall_stats'] = $overall_stats;
         
@@ -254,12 +259,17 @@ class post_pay_counter_functions_class {
     function csv_export( $author = false, $time_start = false, $time_end = false ) {
         global $current_user;
         
+        //Little csv headers (blog name, URL...)
+        $csv_file = '|| '.get_bloginfo('name').' - '.home_url().' ||
+
+';
+        
         //Define csv file name
         $csv_file_name = 'MC__';
         
         //Date to show 
         $csv_file_name  .= date( 'Y/m/d', $time_start ).'-'.date( 'Y/m/d', $time_end ).'__';
-        $csv_file       = '"Showing stats from '.date( 'Y/m/d', $time_start ).' to '.date( 'Y/m/d', $time_end );
+        $csv_file       .= '"Showing stats from '.date( 'Y/m/d', $time_start ).' to '.date( 'Y/m/d', $time_end );
         
         //Author (if set) to show
         $author_data = get_userdata( $author );
@@ -283,7 +293,7 @@ class post_pay_counter_functions_class {
             
             //Generate stats author
             $generated_stats    = $this->generate_stats( $author, $time_start, $time_end );
-            $csv_file          .= '"Post title";"Status";"Date";"Words";"Comments";"Images";"Payment";';
+            $csv_file          .= '"Post title";;"Status";;"Date";;"Words";;"Comments";;"Images";;"Payment";;';
         
         //General stats
         } else {
@@ -293,9 +303,9 @@ class post_pay_counter_functions_class {
             
             //Generate stats general
             $generated_stats    = $this->generate_stats( false, $time_start, $time_end );
-            $csv_file           .= '"Author";"Written posts";"Total payment";';
+            $csv_file           .= '"Author";;"Written posts";;"Total payment";';
             if( $current_user->user_level >= 7 )
-                $csv_file  .= '"Paypal address";';
+                $csv_file  .= ';"Paypal address";';
         
         }
         
@@ -306,23 +316,30 @@ class post_pay_counter_functions_class {
         //If stats are per author...
         if( strpos( $csv_file, ';"Status";' ) ) {
             foreach( $generated_stats['general_stats'] as $single ) {
-                $csv_file .= '"'.utf8_decode( $single['post_title'] ).'";"'.$single['post_status'].'";"'.$single['post_date'].'";"'.$single['words_count'].'";"'.$single['comment_count'].'";"'.$single['image_count'].'";"'.$single['post_payment'].'";
+                $csv_file .= '"'.utf8_decode( $single['post_title'] ).'";;"'.$single['post_status'].'";;"'.$single['post_date'].'";;"'.$single['words_count'].'";;"'.$single['comment_count'].'";;"'.$single['image_count'].'";;"'.$single['post_payment'].'";
 ';
             }
             
         //Otherwise, they'll be general ones...
         } else {
             foreach( $generated_stats['general_stats'] as $key => $value ) {
-                $csv_file .= '"'.utf8_decode( get_userdata( $key )->nickname ).'";"'.$value['posts'].'";"'.$value['payment'].'";';
+                $csv_file .= '"'.utf8_decode( get_userdata( $key )->nickname ).'";;"'.$value['posts'].'";;"'.$value['total_payment'].'";';
                 
                 if( $current_user->user_level >= 7 )
-                    $csv_file .= @$this->get_settings( $key )->paypal_address.';';
+                    $csv_file .= ';"'.@$this->get_settings( $key )->paypal_address.'";';
                     
                 $csv_file .= '
 ';
                 
             }
         }
+        
+        $csv_file .= '
+';
+        $csv_file .= ';;;"Total posts";;"Total payment";
+';
+        $csv_file .= ';;;"'.$generated_stats['overall_stats']['total_posts'].'";;"'.$generated_stats['overall_stats']['total_payment'].'";';
+        //$csv_file .= ';;;;;;;;;;;"Generated by Pay Post Counter";';
         
         //Download headers
         header( 'Content-Type: application/force-download' );
@@ -413,6 +430,10 @@ class post_pay_counter_functions_class {
         if( $current_user->ID == $post_data->post_author OR $current_user->user_level >= 7 OR $current_user_settings->can_view_special_settings_countings == 1 )
             $counting_settings = $author_settings;
         
+        //If minimum fee should be credited to every post, let's do it right now: we set the var $minimum_fee and we will add it later on to prevent the $post_payment var to lose its value
+        if( $counting_settings->minimum_fee_always == 1 )
+            $minimum_fee = $counting_settings->minimum_fee_value;
+        
         //If using unique payment system, get the value and multiply it for the number of words/visits of the post
         if( $counting_settings->counting_system_unique_payment == 1 ) {
             $post_payment = round( $counting_settings->unique_payment * $post_words, 2 );
@@ -432,10 +453,16 @@ class post_pay_counter_functions_class {
                 }
             }
         }
+        $ordinary_payment = $post_payment;
+        
+        //If minimum fee should be added whenever the post pay is 0, but regardless of image and comment bonuses, this is the right moment to credit it
+        if( $post_payment == 0 AND $counting_settings->minimum_fee_only_when_zero == 1 AND $counting_settings->minimum_fee_only_when_zero_regardless_bonuses == 1 )
+            $minimum_fee = $counting_settings->minimum_fee_value;
             
         //Comment bonus
         if( $post_data->comment_count >= $counting_settings->bonus_comment_count ) {
-            $post_payment = $post_payment + $counting_settings->bonus_comment_payment;
+            $comment_bonus = $counting_settings->bonus_comment_payment;
+            $post_payment = $post_payment + $comment_bonus;
         }
         
         //Credit the image bonus if there's more than one image in the processed post            
@@ -443,21 +470,34 @@ class post_pay_counter_functions_class {
             if( preg_match_all( '/<img[^>]*>/', $post_data->post_content, $array_all_imgs ) ) {
                 $array_all_imgs_count = count( $array_all_imgs[0] );
                 if( $array_all_imgs_count > 1 ) {
-                    $post_payment = $post_payment + ( ( $array_all_imgs_count - 1 ) * $counting_settings->bonus_image_payment );
+                    $image_bonus    = ( $array_all_imgs_count - 1 ) * $counting_settings->bonus_image_payment;
+                    $post_payment   = $post_payment + $image_bonus;
                 }
             }
         }
         
-        //Define admin defined bonus if available and allowed (or user is admin or author of current post)
-        if( ( $author_settings->allow_payment_bonuses == 1 AND $current_user_settings->can_view_payment_bonuses == 1 ) OR $current_user->user_level >= 7 OR $current_user->ID == $post_data->post_author ) {
+        //If post payment is still 0 and the minimum fee should be added because of this, let's do it
+        if( $post_payment == 0 AND $counting_settings->minimum_fee_only_when_zero == 1 )
+            $minimum_fee = $counting_settings->minimum_fee_value;
+        
+        //Define admin defined bonus if available
+        if( ( $author_settings->allow_payment_bonuses == 1 ) ) {
             $payment_bonus  = @get_post_meta( $post_id, 'payment_bonus', true );
             $post_payment   = $post_payment + $payment_bonus;
         }
-
+        
+        //If the minimum_value var is set, we add it to the total payment count
+        if( isset( $minimum_fee ) )
+            $post_payment = $post_payment + $minimum_fee;
+        
         return array(
-            'total_payment' => $post_payment,
-            'payment_bonus' => sprintf( '%.2f', @$payment_bonus ),
-            'image_count'   => @( (int) $array_all_imgs_count )
+            'ordinary_payment'  => sprintf( '%.2f', $ordinary_payment ),
+            'total_payment'     => sprintf( '%.2f', $post_payment ),
+            'payment_bonus'     => sprintf( '%.2f', @$payment_bonus ),
+            'minimum_fee'       => sprintf( '%.2f', @$minimum_fee ),
+            'image_count'       => @( (int) $array_all_imgs_count ),
+            'image_bonus'       => sprintf( '%.2f', @$image_bonus ),
+            'comment_bonus'     => sprintf( '%.2f', @$comment_bonus )
         );
     }
     
@@ -512,6 +552,10 @@ class post_pay_counter_functions_class {
         if( $post_status == 'publish' 
         OR ( $post_status == 'future' AND $counting_settings->counting_type_visits == 0 )
         OR ( $post_status == 'pending' AND $counting_settings->counting_type_words == 1 AND $counting_settings->count_pending_revision_posts == 1 ) ) {
+             
+            //If counting should stop after a certain amout of time
+            //
+            //
             
             //Define the suitable counting value and do the maths
             if( $counting_settings->counting_type_words == 1 ) {
@@ -521,10 +565,10 @@ class post_pay_counter_functions_class {
                 $count_value    = $old_visits + 1;
             }
             
-            //Now create array data and update db fields
+            //Now create array data to update db fields
             $update_counting_query = array( 'post_pay_counter_count' => $count_value );
             
-            //Update the plugin date field only if it's empty ( i.e. the post has never been counted )
+            //Update the plugin date field only if it's empty (i.e. the post has never been counted)
             if( $post_data->post_pay_counter == '' ) {
                 //If current post status is future, set the counting time to NOW otherwise it would go to the publish date 
                 //(ie. write a posto on 30/08, get planned for 02/09 => it will show up on 02/09 and will be payed the following month => not the expected behaviour). 

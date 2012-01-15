@@ -2,8 +2,8 @@
 Contributors: Ste_95
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=7UH3J3CLVHP8L
 Tags: counter, authors, payment, stats, multi author
-Tested up to: 3.3
-Stable tag: 1.1.9
+Tested up to: 3.3.1
+Stable tag: 1.2
 Requires at least: 3.0
 
 Easily calculate and handle author's pay on a multi-author blog by computing every written post remuneration basing on admin defined rules.
@@ -11,7 +11,7 @@ Easily calculate and handle author's pay on a multi-author blog by computing eve
 == Description ==
 The Post Pay Counter plugin allows you to easily calculate and handle author’s pay on a multi-author blog by computing every written post remuneration basing on admin defined rules. Multisite compatible.
 
-The administrator can set up the payment values, stats are then viewable from the related page where you can choose between general (all authors) and detailed (one author) countings. Below are all the avaiable functions:
+The administrator can set up the payment values, stats are then viewable from the related page where you can choose between general (all authors) and detailed (one author) countings. Below are all the available functions:
 
 * **Counting Type**: define the counting type you prefer between post words and unique daily visits. For the latter, you have also some checkboxes to decide what visits you want to count.
 * **Counting System**: choose if you want to pay with the unique payment system (eg. each word/visit is € 0.01) or with the zones one (eg. from 200 to 300 words/visits it’s € 2.00).
@@ -20,8 +20,8 @@ The administrator can set up the payment values, stats are then viewable from th
 * **Trial period**: another bounch of settings can be defined for the trial period users may be subjected to. The admin can then opt-in and out the trial option for single users or decide for the automatic feature which, relying on the number of written posts subscribtion date, will do the job.
 * **Highly customizable permissions**: you don’t want your users to see stats and use functions they are not supposed to, and that’s the reason you can set detailed permission rules.
 * **CSV export**: every stats you see can be exported in csv files for offline consulting or storing.
-* **Reward posts and authors**: with a simple custom field, you can award payment bonuses to your authors.
-* **Overall stats**: at the bottom of every stats page, a box with overall stats is avaiable with interesting details about your blog.
+* **Reward posts and authors**: with a simple custom field, you can award payment bonuses to your authors. You may also define a minimum fee which will always be credited to writers so that they will earn something from every written posts.
+* **Overall stats**: at the bottom of every stats page, a box with overall stats is available with interesting details about your blog.
 
 There's much more to enjoy. Try it yourself! More details at the [plugin page](http://www.thecrowned.org/post-pay-counter "Post Pay Counter page"), while reviews can be found at [IdeaGeek](http://www.ideageek.it/il-plugin-wordpress-per-semplificare-i-conti-post-pay-counter/ "IdeaGeek") and [Mondofico](http://www.mondofico.com/2011/09/post-pay-counter-gestire-i-pagamenti-dei-redattori-su-wordpress/ "Mondofico").
 
@@ -48,6 +48,13 @@ The main point here is, at the present moment, the currency symbol is not really
 It is not really an explicit feature, but again, the answer is yes. All you have to do is set the plugin to use the counting system zones putting 1 in every *Words/Visits n°* column field and the amount you want to give each post (always the same, of course) in each *Payment* field.
 
 == Changelog ==
+= 1.2.0 =
+* The plugin now has its own toplevel menu item: it is called Post Pay Counter and is located at the bottom of the admin menu, with the stats and options pages being accesible through it.
+* Introduced the minimum fee capability. Admins can now set a minimum amout of money that will be credited to posts when their ordinary payment would be too low (there are options to define how much low is).
+* It is now possible to show the posts word count directly in the WordPress post list as a column.
+* In the stats page, if the user can, when the payment has bonuses associated with it they are now shown on mouse overlay.
+* The exported CSV files now have a little introduction with the site name and address and also report the total counting at the bottom (total payment and total posts).
+
 = 1.1.9 =
 * Changes to counting routine grant wider compatibility: Greek charachters are now supported.
 
@@ -106,5 +113,6 @@ The plugin is highly derived from Monthly Post Counter, which has almost been re
 3. Use the tooltips beside each field to know what you can do with them
 4. Post Pay Counter general stats (i.e. all author are shown). The provided datapicker allows to edit the time range and select the wished stats
 5. Post Pay Counter per author stats. Datapicker avaiable here, too
-6. Post Pay Counter csv exporting sample
-7. Post Pay Counter menus
+6. The tooltip with all the counting details
+7. Post Pay Counter csv exporting sample
+8. Post Pay Counter menus

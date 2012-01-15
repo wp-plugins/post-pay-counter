@@ -48,96 +48,125 @@ class post_pay_counter_install_routine {
         //Here are the two arries of predefined options
         $predefined_settings = array( 
             'general' => array( 
-                'userID'                                => 'general',
-                'counting_type_words'                   => 1,
-                'counting_type_visits'                  => 0,
-                'counting_system_zones'                 => 0,
-                'counting_system_unique_payment'        => 1,
-                'zone1_count'                           => '200',
-                'zone1_payment'                         => '2.00',
-                'zone2_count'                           => '350',
-                'zone2_payment'                         => '3.50',
-                'zone3_count'                           => '500',
-                'zone3_payment'                         => '5.00',
-                'zone4_count'                           => '800',
-                'zone4_payment'                         => '8.00',
-                'zone5_count'                           => '1200',
-                'zone5_payment'                         => '12.00',
-                'unique_payment'                        => '0.01000',
-                'bonus_comment_count'                   => '30',
-                'bonus_comment_payment'                 => '0.50',
-                'bonus_image_payment'                   => '0.10',
-                'count_pending_revision_posts'          => 0,
-                'count_visits_guests'                   => 1,
-                'count_visits_registered'               => 1,
-                'count_visits_authors'                  => 1,
-                'count_visits_bots'                     => 0,
-                'allow_payment_bonuses'                 => 0,
-                'can_view_old_stats'                    => 1,
-                'can_view_others_general_stats'         => 1,
-                'can_view_others_detailed_stats'        => 1,
-                'can_view_overall_stats'                => 1,
-                'can_view_special_settings_countings'   => 1,
-                'can_view_payment_bonuses'              => 0,
-                'can_csv_export'                        => 1,
-                'trial_auto'                            => 0,
-                'trial_manual'                          => 1,
-                'trial_period'                          => 20,
-                'trial_period_posts'                    => 1,
-                'trial_period_days'                     => 0,
-                'trial_enable'                          => 0
+                'userID'                                        => 'general',
+                'counting_type_words'                           => 1,
+                'counting_type_visits'                          => 0,
+                'counting_system_zones'                         => 0,
+                'counting_system_unique_payment'                => 1,
+                'zone1_count'                                   => '200',
+                'zone1_payment'                                 => '2.00',
+                'zone2_count'                                   => '350',
+                'zone2_payment'                                 => '3.50',
+                'zone3_count'                                   => '500',
+                'zone3_payment'                                 => '5.00',
+                'zone4_count'                                   => '800',
+                'zone4_payment'                                 => '8.00',
+                'zone5_count'                                   => '1200',
+                'zone5_payment'                                 => '12.00',
+                'unique_payment'                                => '0.01000',
+                'minimum_fee_value'                             => '0.00000',
+                'minimum_fee_only_when_zero'                    => 1,
+                'minimum_fee_only_when_zero_regardless_bonuses' => '1',
+                'minimum_fee_always'                            => 0,
+                'bonus_comment_count'                           => '30',
+                'bonus_comment_payment'                         => '0.50',
+                'bonus_image_payment'                           => '0.10',
+                'count_pending_revision_posts'                  => 0,
+                'count_visits_guests'                           => 1,
+                'count_visits_registered'                       => 1,
+                'count_visits_authors'                          => 1,
+                'count_visits_bots'                             => 0,
+                'allow_payment_bonuses'                         => 0,
+                'can_view_old_stats'                            => 1,
+                'can_view_others_general_stats'                 => 1,
+                'can_view_others_detailed_stats'                => 1,
+                'can_view_overall_stats'                        => 1,
+                'can_view_special_settings_countings'           => 1,
+                'can_view_overlay_counting_details'             => 1,
+                'can_view_posts_word_count_post_list'           => 1,
+                'can_csv_export'                                => 1,
+                'trial_auto'                                    => 0,
+                'trial_manual'                                  => 1,
+                'trial_period'                                  => 20,
+                'trial_period_posts'                            => 1,
+                'trial_period_days'                             => 0,
+                'trial_enable'                                  => 0
             ),
             
             'trial' => array( 
-                'userID'                                => 'trial',
-                'counting_type_words'                   => 1,
-                'counting_type_visits'                  => 0,
-                'counting_system_zones'                 => 0,
-                'counting_system_unique_payment'        => 1,
-                'zone1_count'                           => '200',
-                'zone1_payment'                         => '2.00',
-                'zone2_count'                           => '350',
-                'zone2_payment'                         => '3.50',
-                'zone3_count'                           => '500',
-                'zone3_payment'                         => '5.00',
-                'zone4_count'                           => '800',
-                'zone4_payment'                         => '8.00',
-                'zone5_count'                           => '1200',
-                'zone5_payment'                         => '12.00',
-                'unique_payment'                        => '0.01000',
-                'bonus_comment_count'                   => '30',
-                'bonus_comment_payment'                 => '0.50',
-                'bonus_image_payment'                   => '0.10',
-                'count_pending_revision_posts'          => 0,
-                'count_visits_guests'                   => 1,
-                'count_visits_registered'               => 1,
-                'count_visits_authors'                  => 1,
-                'count_visits_bots'                     => 0,
-                'allow_payment_bonuses'                 => 0,
-                'can_view_old_stats'                    => 1,
-                'can_view_others_general_stats'         => 1,
-                'can_view_others_detailed_stats'        => 1,
-                'can_view_overall_stats'                => 1,
-                'can_view_special_settings_countings'   => 1,
-                'can_view_payment_bonuses'              => 0,
-                'can_csv_export'                        => 1,
-                'trial_auto'                            => 0,
-                'trial_manual'                          => 1,
-                'trial_period'                          => 20,
-                'trial_period_posts'                    => 1,
-                'trial_period_days'                     => 0,
-                'trial_enable'                          => 0
+                'userID'                                        => 'trial',
+                'counting_type_words'                           => 1,
+                'counting_type_visits'                          => 0,
+                'counting_system_zones'                         => 0,
+                'counting_system_unique_payment'                => 1,
+                'zone1_count'                                   => '200',
+                'zone1_payment'                                 => '2.00',
+                'zone2_count'                                   => '350',
+                'zone2_payment'                                 => '3.50',
+                'zone3_count'                                   => '500',
+                'zone3_payment'                                 => '5.00',
+                'zone4_count'                                   => '800',
+                'zone4_payment'                                 => '8.00',
+                'zone5_count'                                   => '1200',
+                'zone5_payment'                                 => '12.00',
+                'unique_payment'                                => '0.01000',
+                'minimum_fee_value'                             => '0.00000',
+                'minimum_fee_only_when_zero'                    => 1,
+                'minimum_fee_only_when_zero_regardless_bonuses' => '1',
+                'minimum_fee_always'                            => 0,
+                'bonus_comment_count'                           => '30',
+                'bonus_comment_payment'                         => '0.50',
+                'bonus_image_payment'                           => '0.10',
+                'count_pending_revision_posts'                  => 0,
+                'count_visits_guests'                           => 1,
+                'count_visits_registered'                       => 1,
+                'count_visits_authors'                          => 1,
+                'count_visits_bots'                             => 0,
+                'allow_payment_bonuses'                         => 0,
+                'can_view_old_stats'                            => 1,
+                'can_view_others_general_stats'                 => 1,
+                'can_view_others_detailed_stats'                => 1,
+                'can_view_overall_stats'                        => 1,
+                'can_view_special_settings_countings'           => 1,
+                'can_view_overlay_counting_details'             => 1,
+                'can_view_posts_word_count_post_list'           => 1,
+                'can_csv_export'                                => 1,
+                'trial_auto'                                    => 0,
+                'trial_manual'                                  => 1,
+                'trial_period'                                  => 20,
+                'trial_period_posts'                            => 1,
+                'trial_period_days'                             => 0,
+                'trial_enable'                                  => 0
             )
         );
         
         
-        //If it's somebody updating from <= 1.1.3, add the two payment bonuses columns
-        if( ! $wpdb->query( "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '".$wpdb->prefix."post_pay_counter' AND TABLE_SCHEMA = '".$wpdb->dbname."' AND COLUMN_NAME = 'can_view_payment_bonuses'" ) ) {
-            $wpdb->query( "ALTER TABLE `".$wpdb->prefix."post_pay_counter` ADD `can_view_payment_bonuses` INT(1) NOT NULL DEFAULT '0' AFTER can_view_special_settings_countings" );
-        }
-        
+        //If it's somebody updating from <= 1.1.3, add the allow payment bonuses column
         if( ! $wpdb->query( "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '".$wpdb->prefix."post_pay_counter' AND TABLE_SCHEMA = '".$wpdb->dbname."' AND COLUMN_NAME = 'allow_payment_bonuses'" ) ) {
             $wpdb->query( "ALTER TABLE `".$wpdb->prefix."post_pay_counter` ADD `allow_payment_bonuses` INT(1) NOT NULL DEFAULT '0' AFTER count_visits_bots" );
+        }
+        
+        //If it's somebody updating from <= 1.1.9, add the four minimum fee columns, the word_count_column column and can_view_overlay_counting_details; drop the can_view_payment_bonuses
+        if( ! $wpdb->query( "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '".$wpdb->prefix."post_pay_counter' AND TABLE_SCHEMA = '".$wpdb->dbname."' AND COLUMN_NAME = 'minimum_fee_value'" ) ) {
+            $wpdb->query( "ALTER TABLE `".$wpdb->prefix."post_pay_counter` ADD `minimum_fee_value` decimal(10,5) NOT NULL DEFAULT '0' AFTER unique_payment" );
+        }
+        if( ! $wpdb->query( "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '".$wpdb->prefix."post_pay_counter' AND TABLE_SCHEMA = '".$wpdb->dbname."' AND COLUMN_NAME = 'minimum_fee_only_when_zero'" ) ) {
+            $wpdb->query( "ALTER TABLE `".$wpdb->prefix."post_pay_counter` ADD `minimum_fee_only_when_zero` INT(1) NOT NULL DEFAULT '1' AFTER minimum_fee_value" );
+        }
+        if( ! $wpdb->query( "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '".$wpdb->prefix."post_pay_counter' AND TABLE_SCHEMA = '".$wpdb->dbname."' AND COLUMN_NAME = 'minimum_fee_only_when_zero'" ) ) {
+            $wpdb->query( "ALTER TABLE `".$wpdb->prefix."post_pay_counter` ADD `minimum_fee_only_when_zero_regardless_bonuses` INT(1) NOT NULL DEFAULT '1' AFTER minimum_fee_only_when_zero" );
+        }
+        if( ! $wpdb->query( "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '".$wpdb->prefix."post_pay_counter' AND TABLE_SCHEMA = '".$wpdb->dbname."' AND COLUMN_NAME = 'minimum_fee_always'" ) ) {
+            $wpdb->query( "ALTER TABLE `".$wpdb->prefix."post_pay_counter` ADD `minimum_fee_always` INT(1) NOT NULL DEFAULT '0' AFTER minimum_fee_only_when_zero_regardless_bonuses" );
+        }
+        if( ! $wpdb->query( "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '".$wpdb->prefix."post_pay_counter' AND TABLE_SCHEMA = '".$wpdb->dbname."' AND COLUMN_NAME = 'can_view_posts_word_count_post_list'" ) ) {
+            $wpdb->query( "ALTER TABLE `".$wpdb->prefix."post_pay_counter` ADD `can_view_posts_word_count_post_list` INT(1) NOT NULL DEFAULT '1' AFTER can_view_payment_bonuses" );
+        }
+        if( ! $wpdb->query( "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '".$wpdb->prefix."post_pay_counter' AND TABLE_SCHEMA = '".$wpdb->dbname."' AND COLUMN_NAME = 'can_view_overlay_counting_details'" ) ) {
+            $wpdb->query( "ALTER TABLE `".$wpdb->prefix."post_pay_counter` ADD `can_view_overlay_counting_details` INT(1) NOT NULL DEFAULT '1' AFTER can_view_posts_word_count_post_list" );
+        }
+        if( $wpdb->query( "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '".$wpdb->prefix."post_pay_counter' AND TABLE_SCHEMA = '".$wpdb->dbname."' AND COLUMN_NAME = 'can_view_payment_bonuses'" ) ) {
+            $wpdb->query( "ALTER TABLE `".$wpdb->prefix."post_pay_counter` DROP `can_view_payment_bonuses`" );
         }
     
         //Alter table to allow post counting and create the new plugin's table
@@ -159,6 +188,10 @@ class post_pay_counter_install_routine {
             `zone5_count` int(255) DEFAULT NULL,
             `zone5_payment` decimal(10,2) DEFAULT NULL,
             `unique_payment` decimal(10,5) DEFAULT NULL,
+            `minimum_fee_value` decimal(10, 5) NOT NULL DEFAULT '0',
+            `minimum_fee_only_when_zero` int(1) NOT NULL DEFAULT '1',
+            `minimum_fee_only_when_zero_regardless_bonuses` int(1) NOT NULL DEFAULT '1',
+            `minimum_fee_always` int(1) NOT NULL DEFAULT '0',
             `bonus_comment_count` int(255) DEFAULT NULL,
             `bonus_comment_payment` decimal(10,2) DEFAULT NULL,
             `bonus_image_payment` decimal(10,2) DEFAULT NULL,
@@ -167,13 +200,14 @@ class post_pay_counter_install_routine {
             `count_visits_registered` int(1) NOT NULL DEFAULT '1',
             `count_visits_authors` int(1) NOT NULL DEFAULT '1',
             `count_visits_bots` int(1) NOT NULL DEFAULT '0',
-            `allow_payment_bonuses` INT(1) NOT NULL DEFAULT '0',
+            `allow_payment_bonuses` int(1) NOT NULL DEFAULT '0',
             `can_view_old_stats` int(1) NOT NULL DEFAULT '1',
             `can_view_others_general_stats` int(1) NOT NULL DEFAULT '1',
             `can_view_others_detailed_stats` int(1) NOT NULL DEFAULT '0',
             `can_view_overall_stats` int(1) NOT NULL DEFAULT '1',
             `can_view_special_settings_countings` int(1) NOT NULL DEFAULT '0',
-            `can_view_payment_bonuses` INT(1) NOT NULL DEFAULT '0',
+            `can_view_overlay_counting_details` int(1) NOT NULL DEFAULT '1',
+            `can_view_posts_word_count_post_list` int(1) NOT NULL DEFAULT '1',
             `can_csv_export` int(1) NOT NULL DEFAULT '0',
             `paypal_address` varchar(255) DEFAULT NULL,
             `trial_auto` int(1) NOT NULL DEFAULT '0',
@@ -197,10 +231,10 @@ class post_pay_counter_install_routine {
         
         //Add the needed columns to wp_posts if they do not exist
         if( ! $wpdb->query( "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '".$wpdb->posts."' AND TABLE_SCHEMA = '".$wpdb->dbname."' AND COLUMN_NAME = 'post_pay_counter'" ) ) {
-            $wpdb->query( "ALTER TABLE ".$wpdb->posts." ADD post_pay_counter INT( 15 ) NULL COMMENT 'Keeps track of payments dates (Post Pay Counter)'" );
+            $wpdb->query( "ALTER TABLE ".$wpdb->posts." ADD post_pay_counter INT(15) NULL COMMENT 'Keeps track of payments dates (Post Pay Counter)'" );
         }
         if( ! $wpdb->query( "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '".$wpdb->posts."' AND TABLE_SCHEMA = '".$wpdb->dbname."' AND COLUMN_NAME = 'post_pay_counter_count'" ) ) {
-            $wpdb->query( "ALTER TABLE ".$wpdb->posts." ADD post_pay_counter_count INT( 255 ) NULL COMMENT 'Keeps track of payments values (Post Pay Counter)'" );
+            $wpdb->query( "ALTER TABLE ".$wpdb->posts." ADD post_pay_counter_count INT(255) NULL COMMENT 'Keeps track of payments values (Post Pay Counter)'" );
         }
         
     }
