@@ -26,10 +26,11 @@ The administrator can set up the payment values, stats are then viewable from th
 There's much more to enjoy. Try it yourself! More details at the [plugin page](http://www.thecrowned.org/post-pay-counter "Post Pay Counter page"), while reviews can be found at [IdeaGeek](http://www.ideageek.it/il-plugin-wordpress-per-semplificare-i-conti-post-pay-counter/ "IdeaGeek") and [Mondofico](http://www.mondofico.com/2011/09/post-pay-counter-gestire-i-pagamenti-dei-redattori-su-wordpress/ "Mondofico").
 
 == Installation ==
-1. Just upload the directory of the Post Pay Counter in your wp-content/plugins directory, note that you need the whole folder, not only the single files.
-2. Activate the plugin through the "Activate" button in "Plugins" page of your WordPress.
-3. Visit the settings page first. The plugin already comes with a predefined set of settings, but I am sure you will want to configure it to better suit your need.
-4. That's it, done! You should now check the stats page for results.
+1. Upload the directory of the Post Pay Counter in your wp-content/plugins directory; note that you need the whole folder, not only the single files.
+2. Activate the plugin through the "Activate" button in the "Plugins" page of your WordPress.
+3. Head to the configuration page first. The plugin already comes with a predefined set of settings, but I am sure you will want to configure it to better suit your needs.
+4. You may want to generate stats for your old posts too: should you, use the Update Stats button in the Options Page.
+5. That's it, done! You can now check the stats page to browse all the countings.
 
 == Frequently Asked Questions ==
 = Can I include in the stats the posts published before the plugin was installed? =
@@ -46,6 +47,9 @@ The main point here is, at the present moment, the currency symbol is not really
 
 = Can I pay all posts the same, without caring about words/visits? =
 It is not really an explicit feature, but again, the answer is yes. All you have to do is set the plugin to use the counting system zones putting 1 in every *Words/Visits n°* column field and the amount you want to give each post (always the same, of course) in each *Payment* field.
+
+= I try to update settings, but my changes do not get registered =
+This often happens because you are pressing *Enter* on your keyboard to update settings. Because of the page structure (for you HTML guys, there are other submit buttons before the *Save Options* one), this action does not trigger the Save Options buttons. Instead, you should scroll down the configuration page and click on *Save Options* with your mouse. If you are still experiencing problems, [contact me](http://www.thecrowned.org/contact-me "Contact me")!
 
 == Changelog ==
 = 1.2.0 =
@@ -115,4 +119,4 @@ The plugin is highly derived from Monthly Post Counter, which has almost been re
 5. Post Pay Counter per author stats. Datapicker avaiable here, too
 6. The tooltip with all the counting details
 7. Post Pay Counter csv exporting sample
-8. Post Pay Counter menus
+8. Post Pay Counter menu
