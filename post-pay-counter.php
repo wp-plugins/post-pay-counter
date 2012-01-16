@@ -4,7 +4,7 @@ Plugin Name: Post Pay Counter
 Plugin URI: http://www.thecrowned.org/post-pay-counter
 Description: The Post Pay Counter plugin allows you to easily calculate and handle author's pay on a multi-author blog by computing every written post remuneration basing on admin defined rules. Define the time range you would like to have stats about, and the plugin will do the rest.
 Author: Stefano Ottolenghi
-Version: 1.2
+Version: 1.2.1
 Author URI: http://www.thecrowned.org/
 */
 
@@ -172,9 +172,9 @@ class post_pay_counter_core {
             if( $name == 'post_pay_counter_word_count' ) {
                 $word_count = $post->post_pay_counter_count;
                 if( $counting_settings->counting_system_zones == 1 AND $word_count < $counting_settings->zone1_count )
-                    echo '<span style="opacity: 0.60">'.$word_count.'</span>';
+                    echo '<span style="opacity: 0.60">'.$word_count.' words</span>';
                 else
-                    echo $word_count;
+                    echo $word_count.' words';
             }
         }
     }
@@ -743,7 +743,9 @@ class post_pay_counter_core {
                 $this->post_pay_counter_functions->update_all_posts_count( TRUE );
                 
             echo '<div id="message" class="updated fade"><p><strong>Stats successfully updated.</strong> <a href="'.admin_url( $this->post_pay_counter_stats_menu_link ).'">Go to stats now &raquo;</a></p></div>';
-        } ?>
+        }
+        $this->post_pay_counter_install->post_pay_counter_install();
+         ?>
         
             <h2>Post Pay Counter Options</h2>
             <p>From this page you can configure the Post Pay Counter plug-in. You will find all the information you need inside each following box and, for each avaiable function, clicking on the info icon on the right of them. Generated stats are always avaiable at <a href="<?php echo admin_url( $this->post_pay_counter_stats_menu_link ) ?>" title="Go to Stats">this page</a>, where you will find many details about each post (its status, date, words, images and comments count, payment value) with tons of general statistics and the ability to browse old stats. If you want to be able to see stats since the first published post, use the Update Stats box below.<strong>Do not press Enter to update settings</strong>, scroll the page and click on <em>Save Options</em>.</p>

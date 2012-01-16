@@ -178,7 +178,7 @@ class post_pay_counter_functions_class {
                 @$totale[$single->post_author]['posts']++;
                 
                 //Overall stats
-                @$overall_stats['total_payment'] = $overall_stats['total_payment'] + $post_payment['total_payment'];
+                @$overall_stats['total_payment'] = sprintf( '%.2f', $overall_stats['total_payment'] + $post_payment['total_payment'] );
                 //@$overall_stats['payment_bonus'] = $overall_stats['payment_bonus'] + $post_payment['payment_bonus'];
                 @$overall_stats['total_posts']++;
                 
@@ -225,7 +225,7 @@ class post_pay_counter_functions_class {
                     'post_payment'      => $post_payment['total_payment']
                 );
                 
-                @$overall_stats['total_payment'] = $overall_stats['total_payment'] + $post_payment['total_payment'];
+                @$overall_stats['total_payment'] = sprintf( '%.2f', $overall_stats['total_payment'] + $post_payment['total_payment'] );
                 //@$overall_stats['payment_bonus'] = $overall_stats['payment_bonus'] + $post_payment['payment_bonus'];
                 @$overall_stats['total_posts']++;
                 

@@ -3,7 +3,7 @@ Contributors: Ste_95
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=7UH3J3CLVHP8L
 Tags: counter, authors, payment, stats, multi author
 Tested up to: 3.3.1
-Stable tag: 1.2
+Stable tag: 1.2.1
 Requires at least: 3.0
 
 Easily calculate and handle author's pay on a multi-author blog by computing every written post remuneration basing on admin defined rules.
@@ -52,6 +52,9 @@ It is not really an explicit feature, but again, the answer is yes. All you have
 This often happens because you are pressing *Enter* on your keyboard to update settings. Because of the page structure (for you HTML guys, there are other submit buttons before the *Save Options* one), this action does not trigger the Save Options buttons. Instead, you should scroll down the configuration page and click on *Save Options* with your mouse. If you are still experiencing problems, [contact me](http://www.thecrowned.org/contact-me "Contact me")!
 
 == Changelog ==
+= 1.2.1 =
+* Fixed a problem with the installation which prevented the new functions to work properly because of missing database columns.
+
 = 1.2.0 =
 * The plugin now has its own toplevel menu item: it is called Post Pay Counter and is located at the bottom of the admin menu, with the stats and options pages being accesible through it.
 * Introduced the minimum fee capability. Admins can now set a minimum amout of money that will be credited to posts when their ordinary payment would be too low (there are options to define how much low is).

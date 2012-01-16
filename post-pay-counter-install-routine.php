@@ -153,7 +153,7 @@ class post_pay_counter_install_routine {
         if( ! $wpdb->query( "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '".$wpdb->prefix."post_pay_counter' AND TABLE_SCHEMA = '".$wpdb->dbname."' AND COLUMN_NAME = 'minimum_fee_only_when_zero'" ) ) {
             $wpdb->query( "ALTER TABLE `".$wpdb->prefix."post_pay_counter` ADD `minimum_fee_only_when_zero` INT(1) NOT NULL DEFAULT '1' AFTER minimum_fee_value" );
         }
-        if( ! $wpdb->query( "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '".$wpdb->prefix."post_pay_counter' AND TABLE_SCHEMA = '".$wpdb->dbname."' AND COLUMN_NAME = 'minimum_fee_only_when_zero'" ) ) {
+        if( ! $wpdb->query( "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '".$wpdb->prefix."post_pay_counter' AND TABLE_SCHEMA = '".$wpdb->dbname."' AND COLUMN_NAME = 'minimum_fee_only_when_zero_regardless_bonuses'" ) ) {
             $wpdb->query( "ALTER TABLE `".$wpdb->prefix."post_pay_counter` ADD `minimum_fee_only_when_zero_regardless_bonuses` INT(1) NOT NULL DEFAULT '1' AFTER minimum_fee_only_when_zero" );
         }
         if( ! $wpdb->query( "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '".$wpdb->prefix."post_pay_counter' AND TABLE_SCHEMA = '".$wpdb->dbname."' AND COLUMN_NAME = 'minimum_fee_always'" ) ) {
