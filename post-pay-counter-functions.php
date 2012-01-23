@@ -559,7 +559,7 @@ class post_pay_counter_functions_class {
             
             //Define the suitable counting value and do the maths
             if( $counting_settings->counting_type_words == 1 ) {
-                $count_value    = count( explode (" ", strip_tags( $post_data->post_content ) ) );
+                $count_value    = count( explode (" ", strip_tags( preg_replace( '/\s+/', ' ', $post_data->post_content ) ) ) );
             } else if ( $counting_settings->counting_type_visits == 1 ) {
                 $old_visits     = $wpdb->get_var( 'SELECT post_pay_counter_count FROM '.$wpdb->posts.' WHERE ID = '.$post_id );
                 $count_value    = $old_visits + 1;
