@@ -53,6 +53,9 @@ It is not really an explicit feature, but again, the answer is yes. All you have
 Only the first 250 are shown in the list to prevent the plugin from hanging or slowing the whole page because of that part. To personalize settings for a username that is not in the list, click first on any other username of the list. Then, look at the URL in your browser and, at the end of it, put the ID of the user you would like to personalize settings for as value of the paramater *userid*.
 
 == Changelog ==
+= 1.3.1 =
+* Hopefully fixed a bug that, after the update, prevented the new user roles permissions for the plugin pages to work properly.
+
 = 1.3 =
 * Some options contained in the Counting Settings box can not be personalized by user anymore. This allows the counting routine to run much faster, and it was necessary to logically differentiate between settings that apply to everybody and the ones that may be useful to personalize. Those options, if personalized before this release, will not be taken into account anymore: the plugin will use general ones instead.
 * It is now possible to mark as paid counted posts. Along each post in the stats by author there is a checkbox that allows to do that; it works with AJAX, so that there is no need to reload the page after a park is marked as such. The plugin also keeps a payment history, so that, if over time the payment for a post should change, the plugin will show you how much you have already paid and how much you still have to pay. The control is only available to administrators, other users can only see how much a post was paid (only if the related permission is checked).

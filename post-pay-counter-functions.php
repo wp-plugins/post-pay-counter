@@ -28,7 +28,9 @@ class post_pay_counter_functions_class {
             //...Select current plugin version and make it available for other files/functions; if it doesn't exist add it as option with newest version as value and launch the update procedures
             if( ! $this->ppc_current_version = get_option( 'ppc_current_version' ) ) {
                 $post_pay_counter_update = new post_pay_counter_update_procedures( $this->ppc_current_version, $this->ppc_newest_version );
-                add_option( 'ppc_current_version', $this->ppc_newest_version );
+                $this->options_changed_vars_update_to_reflect();
+                $this->manage_cap_allowed_user_groups_plugin_pages( $this->allowed_user_roles_options_page, $this->allowed_user_roles_stats_page );
+                update_option( 'ppc_current_version', $this->ppc_newest_version );
                 $this->ppc_current_version = $this->ppc_newest_version;
             }
         
@@ -62,6 +64,8 @@ class post_pay_counter_functions_class {
                 $this->publication_time_range_start   = time() - ( $this->general_settings->publication_time_range_custom_value*24*60*60 );
                 $this->publication_time_range_end     = time();
             }
+            
+            $this->manage_cap_allowed_user_groups_plugin_pages( $this->allowed_user_roles_options_page, $this->allowed_user_roles_stats_page );
             
             /*//Define visits time range 
             if( $this->general_settings->visits_time_range_equal_to_pub ) {
