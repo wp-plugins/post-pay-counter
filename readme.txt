@@ -1,9 +1,9 @@
 ﻿=== Post Pay Counter ===
 Contributors: Ste_95
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=7UH3J3CLVHP8L
-Tags: counter, authors, payment, stats, multi author
-Tested up to: 3.3.1
-Stable tag: 1.2.2
+Tags: counter, authors, payment, stats, multi author, post management
+Tested up to: 3.4.1
+Stable tag: 1.3
 Requires at least: 3.0
 
 Easily calculate and handle author's pay on a multi-author blog by computing every written post remuneration basing on admin defined rules.
@@ -14,7 +14,7 @@ The Post Pay Counter plugin allows you to easily calculate and handle author’s
 The administrator can set up the payment values, stats are then viewable from the related page where you can choose between general (all authors) and detailed (one author) countings. Below are all the available functions:
 
 * **Counting Type**: define the counting type you prefer between post words and unique daily visits. For the latter, you have also some checkboxes to decide what visits you want to count.
-* **Counting System**: choose if you want to pay with the unique payment system (eg. each word/visit is € 0.01) or with the zones one (eg. from 200 to 300 words/visits it’s € 2.00).
+* **Counting System**: choose if you want to pay with the unique payment system (eg. each word/visit is € 0.01) or with the zones one (eg. from 200 to 300 words/visits it’s € 2.00, up to 10 zones).
 * **Old stats avaiability**: once stats are computed, they’re not forgotten. In fact, you can view post countings since the first written post of the blog, disregarding the plugin install date. A fancy date picker lets you shift between days and select the desired range. If something goes wrong, you can also regenerate the stats.
 * **User personalizable settings**: beside general settings, you can also define special counting and permission settings that only apply to a particular user. Different settings can be made viewable in the stats or hidden depending on your needs.
 * **Trial period**: another bounch of settings can be defined for the trial period users may be subjected to. The admin can then opt-in and out the trial option for single users or decide for the automatic feature which, relying on the number of written posts subscribtion date, will do the job.
@@ -22,6 +22,7 @@ The administrator can set up the payment values, stats are then viewable from th
 * **CSV export**: every stats you see can be exported in csv files for offline consulting or storing.
 * **Reward posts and authors**: with a simple custom field, you can award payment bonuses to your authors. You may also define a minimum fee which will always be credited to writers so that they will earn something from every written posts.
 * **Overall stats**: at the bottom of every stats page, a box with overall stats is available with interesting details about your blog.
+* **And...** works with custom post types, narrow your payments only to chosen user groups.
 
 There's much more to enjoy. Try it yourself! More details at the [plugin page](http://www.thecrowned.org/post-pay-counter "Post Pay Counter page"), while reviews can be found at [IdeaGeek](http://www.ideageek.it/il-plugin-wordpress-per-semplificare-i-conti-post-pay-counter/ "IdeaGeek") and [Mondofico](http://www.mondofico.com/2011/09/post-pay-counter-gestire-i-pagamenti-dei-redattori-su-wordpress/ "Mondofico").
 
@@ -48,10 +49,29 @@ The main point here is, at the present moment, the currency symbol is not really
 = Can I pay all posts the same, without caring about words/visits? =
 It is not really an explicit feature, but again, the answer is yes. All you have to do is set the plugin to use the counting system zones putting 1 in every *Words/Visits n°* column field and the amount you want to give each post (always the same, of course) in each *Payment* field.
 
-= I try to update settings, but my changes do not get registered =
-This often happens because you are pressing *Enter* on your keyboard to update settings. Because of the page structure (for you HTML guys, there are other submit buttons before the *Save Options* one), this action does not trigger the Save Options buttons. Instead, you should scroll down the configuration page and click on *Save Options* with your mouse. If you are still experiencing problems, [contact me](http://www.thecrowned.org/contact-me "Contact me")!
+= I want to personalize settings for a user, but I do not see their name in the list =
+Only the first 250 are shown in the list to prevent the plugin from hanging or slowing the whole page because of that part. To personalize settings for a username that is not in the list, click first on any other username of the list. Then, look at the URL in your browser and, at the end of it, put the ID of the user you would like to personalize settings for as value of the paramater *userid*.
 
 == Changelog ==
+= 1.3 =
+* Some options contained in the Counting Settings box can not be personalized by user anymore. This allows the counting routine to run much faster, and it was necessary to logically differentiate between settings that apply to everybody and the ones that may be useful to personalize. Those options, if personalized before this release, will not be taken into account anymore: the plugin will use general ones instead.
+* It is now possible to mark as paid counted posts. Along each post in the stats by author there is a checkbox that allows to do that; it works with AJAX, so that there is no need to reload the page after a park is marked as such. The plugin also keeps a payment history, so that, if over time the payment for a post should change, the plugin will show you how much you have already paid and how much you still have to pay. The control is only available to administrators, other users can only see how much a post was paid (only if the related permission is checked).
+* Post of a post type different than the default one can now be included into countings (including pages). Post types to include can be chosen in the Options page from a list of the registered ones, and in the stats a column will show the post type the displayed posts fit in. The post types to include can not be personalized by user.
+* Choose the user groups of which you would like posts to be counted from a convenient list in the Options. In the general stats, the user group will be displayed.
+* Define what user groups should be able to view and edit plugin settings and browse through the stats page.
+* Update procedure changed, to line up with new Wordpress standards (we now store the installed version in a wp_option in the database and compare it with the most recent one, hardcoded in the plugin files).
+* It is now possible to exclude quotations from posts counting routine: only award authors for what they write themselves.
+* It is now possible to define up to 10 zones when using the zones counting type, with the second five being optional.
+* It is possible to define how often payment usually takes place, so that in the stats page it will automatically be selected the right time range accordingly.
+* If user is allowed to, they can now clearly see how the payment was computed by a convenient hover tooltip.
+* Future scheduled posts can now be excluded from countings.
+* Users are now shown by their chosen display name and not by nickname.
+* Only 250 usernames are now shown for personalizing settings due to hanging in blogs with very large databases. To personalize settings for other users, you can put their IDs in the userid parameter in the URL.
+* No more problems in pressing *Enter* to update settings, it works!
+* Deleted the old stats permission: with the new free time frame picker, it became useless (already a couple releases ago...).
+* Split in a different class the functions used to generate the HTML form fields in the options and everything related to that.
+* General speed up.
+
 = 1.2.2 =
 * Word counting is now more precise.
 
@@ -106,7 +126,7 @@ The plugin is highly derived from Monthly Post Counter, which has almost been re
 * The admin can define permissions for old, overall and other's stats (general and detailed), csv exporting and special settings in countings.
 * The counting type can be chosen between visits and words (the latter used by default), and during the installation all the posts in database are selected and updated.
 * Two counting systems are now avaiable: the zones one and the unique payment one.
-* Stats time range is now customely seelctable with a jQuery datepicker.
+* Stats time range is now customely selectable with a jQuery datepicker.
 * Added possibility to pay images after the first one with a little award.
 * The admin can define a set of trial settings that will be applied to new users.
 * The plugin now records the words number instead of the payment value, this allows the countings to be update immediately without any post-all update.
@@ -126,3 +146,4 @@ The plugin is highly derived from Monthly Post Counter, which has almost been re
 6. The tooltip with all the counting details
 7. Post Pay Counter csv exporting sample
 8. Post Pay Counter menu
+9. Marking post as paid
