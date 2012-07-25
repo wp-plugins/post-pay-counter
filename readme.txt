@@ -3,7 +3,7 @@ Contributors: Ste_95
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=7UH3J3CLVHP8L
 Tags: counter, authors, payment, stats, multi author, post management
 Tested up to: 3.4.1
-Stable tag: 1.3
+Stable tag: 1.3.1
 Requires at least: 3.0
 
 Easily calculate and handle author's pay on a multi-author blog by computing every written post remuneration basing on admin defined rules.
@@ -55,6 +55,7 @@ Only the first 250 are shown in the list to prevent the plugin from hanging or s
 == Changelog ==
 = 1.3.1 =
 * Hopefully fixed a bug that, after the update, prevented the new user roles permissions for the plugin pages to work properly.
+* Fixed a uninstallation bug that prevented the ppc_current_version option from being deleted.
 
 = 1.3 =
 * Some options contained in the Counting Settings box can not be personalized by user anymore. This allows the counting routine to run much faster, and it was necessary to logically differentiate between settings that apply to everybody and the ones that may be useful to personalize. Those options, if personalized before this release, will not be taken into account anymore: the plugin will use general ones instead.
