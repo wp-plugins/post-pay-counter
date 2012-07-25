@@ -17,7 +17,7 @@ class post_pay_counter_functions_class {
     public function __construct() {
         global $wpdb;
         
-        $this->ppc_newest_version = '1.3';
+        $this->ppc_newest_version = '1.3.2';
         
         //If there is a possibility the plugin has already been installed once, and its table is there...
         if( $wpdb->query( 'SHOW TABLES FROM '.$wpdb->dbname.' LIKE "'.$wpdb->prefix.'post_pay_counter"' ) ) {
@@ -143,29 +143,36 @@ class post_pay_counter_functions_class {
         $allowed_user_roles_options_page_remove_cap  = array_diff( (array) $wp_roles->role_names, $allowed_user_roles_options_page );
         
         foreach( $allowed_user_roles_options_page_add_cap as $single ) {
-            $current_role = get_role( lcfirst( $single ) );
+            $current_role = get_role( $this->lcfirst( $single ) );
             
             if( ! $current_role->has_cap( 'post_pay_counter_manage_options' ) )
                 $current_role->add_cap( 'post_pay_counter_manage_options' );
         }
         foreach( $allowed_user_roles_options_page_remove_cap as $single ) {
-            $current_role = get_role( lcfirst( $single ) );
+            $current_role = get_role( $this->lcfirst( $single ) );
             
             if( $current_role->has_cap( 'post_pay_counter_manage_options' ) )
                 $current_role->remove_cap( 'post_pay_counter_manage_options' );
         }
         foreach( $allowed_user_roles_stats_page_add_cap as $single ) {
-            $current_role = get_role( lcfirst( $single ) );
+            $current_role = get_role( $this->lcfirst( $single ) );
             
             if( ! $current_role->has_cap( 'post_pay_counter_access_stats' ) )
                 $current_role->add_cap( 'post_pay_counter_access_stats' );
         }
         foreach( $allowed_user_roles_stats_page_remove_cap as $single ) {
-            $current_role = get_role( lcfirst( $single ) );
+            $current_role = get_role( $this->lcfirst( $single ) );
             
             if( $current_role->has_cap( 'post_pay_counter_access_stats' ) )
                 $current_role->remove_cap( 'post_pay_counter_access_stats' );
         }
+    }
+    
+    function lcfirst( $string ) {
+        if( function_exists( 'lcfirst' ) )
+            return lcfirst( $string );
+        else
+            return (string) ( strtolower( substr( $string, 0, 1 ) ).substr( $string,1 ) );
     }
     
     //Select settings. Gets in one facoltative parameter, userID, and returns the counting settings as an object

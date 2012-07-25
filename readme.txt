@@ -3,7 +3,7 @@ Contributors: Ste_95
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=7UH3J3CLVHP8L
 Tags: counter, authors, payment, stats, multi author, post management
 Tested up to: 3.4.1
-Stable tag: 1.3.1
+Stable tag: 1.3.2
 Requires at least: 3.0
 
 Easily calculate and handle author's pay on a multi-author blog by computing every written post remuneration basing on admin defined rules.
@@ -53,6 +53,9 @@ It is not really an explicit feature, but again, the answer is yes. All you have
 Only the first 250 are shown in the list to prevent the plugin from hanging or slowing the whole page because of that part. To personalize settings for a username that is not in the list, click first on any other username of the list. Then, look at the URL in your browser and, at the end of it, put the ID of the user you would like to personalize settings for as value of the paramater *userid*.
 
 == Changelog ==
+= 1.3.2 =
+Without noticing, I was using a PHP 5.3 function that, of course, triggered a fatal error almost everywhere. Sorry!
+
 = 1.3.1 =
 * Hopefully fixed a bug that, after the update, prevented the new user roles permissions for the plugin pages to work properly.
 * Fixed a uninstallation bug that prevented the ppc_current_version option from being deleted.
