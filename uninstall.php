@@ -23,8 +23,8 @@ function post_pay_counter_uninstall_procedure() {
     if( $wpdb->query( 'SHOW TABLES FROM '.$wpdb->dbname.' LIKE "'.$wpdb->prefix.'post_pay_counter"' ) )
         $wpdb->query( 'DROP TABLE '.$wpdb->prefix.'post_pay_counter' );
     
-    if( get_option( 'ppc_version' ) )
-        delete_option( 'ppc_version' );
+    if( get_option( 'ppc_current_version' ) )
+        delete_option( 'ppc_current_version' );
     
     /*if( get_option( 'ppc_ga_last_update' ) )
         delete_option( 'ppc_ga_last_update' );*/
