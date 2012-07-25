@@ -44,32 +44,34 @@ class post_pay_counter_functions_class {
             $this->options_changed_vars_update_to_reflect();
         }
         
-        //Just as a comfort, define the word siutable for countings, depending on the chosen counting type 
-        if( $this->general_settings->counting_type_words == 1 )
-            $this->current_counting_method_word = 'words';
-        else
-            $this->current_counting_method_word = 'visits';
-        
-        //Define publication time range depending on chosen settings: if monthly it depends on current month days number, weekly always 7, otherwise custom
-        if( $this->general_settings->publication_time_range_week == 1 ) {
-            $this->publication_time_range_start   = time() - ( ( date( 'N' )-1 )*24*60*60 );
-            $this->publication_time_range_end     = time();
-        } else if( $this->general_settings->publication_time_range_month == 1 ) {
-            $this->publication_time_range_start   = time() - ( ( date( 'j' )-1 )*24*60*60 );
-            $this->publication_time_range_end     = time();
-        } else if( $this->general_settings->publication_time_range_custom == 1 ) {
-            $this->publication_time_range_start   = time() - ( $this->general_settings->publication_time_range_custom_value*24*60*60 );
-            $this->publication_time_range_end     = time();
+        if( is_object( $this->general_settings ) ) {
+            //Just as a comfort, define the word siutable for countings, depending on the chosen counting type 
+            if( $this->general_settings->counting_type_words == 1 )
+                $this->current_counting_method_word = 'words';
+            else
+                $this->current_counting_method_word = 'visits';
+            
+            //Define publication time range depending on chosen settings: if monthly it depends on current month days number, weekly always 7, otherwise custom
+            if( $this->general_settings->publication_time_range_week == 1 ) {
+                $this->publication_time_range_start   = time() - ( ( date( 'N' )-1 )*24*60*60 );
+                $this->publication_time_range_end     = time();
+            } else if( $this->general_settings->publication_time_range_month == 1 ) {
+                $this->publication_time_range_start   = time() - ( ( date( 'j' )-1 )*24*60*60 );
+                $this->publication_time_range_end     = time();
+            } else if( $this->general_settings->publication_time_range_custom == 1 ) {
+                $this->publication_time_range_start   = time() - ( $this->general_settings->publication_time_range_custom_value*24*60*60 );
+                $this->publication_time_range_end     = time();
+            }
+            
+            /*//Define visits time range 
+            if( $this->general_settings->visits_time_range_equal_to_pub ) {
+                $this->visits_time_range_start  = $this->general_settings->publication_time_range_start;
+                $this->visits_time_range_end    = $this->general_settings->publication_time_range_end;
+            } else if( $this->general_settings->visits_time_range_rules_selection ) {
+                $this->visits_time_range_start  = $this->general_settings->publication_time_range_start;
+                $this->visits_time_range_end    = $this->general_settings->publication_time_range_end;
+            } */
         }
-        
-        /*//Define visits time range 
-        if( $this->general_settings->visits_time_range_equal_to_pub ) {
-            $this->visits_time_range_start  = $this->general_settings->publication_time_range_start;
-            $this->visits_time_range_end    = $this->general_settings->publication_time_range_end;
-        } else if( $this->general_settings->visits_time_range_rules_selection ) {
-            $this->visits_time_range_start  = $this->general_settings->publication_time_range_start;
-            $this->visits_time_range_end    = $this->general_settings->publication_time_range_end;
-        } */
     }
     
     //Define a string of allowed status to use into queries and data selection routines. Need to be a function itself due to stats regenerate after settings update
