@@ -383,7 +383,7 @@ class post_pay_counter_core {
                 </span>
                 <label>
                     <span style="float: left; width: 5%;">    
-                        <input type="checkbox" name="add_five_more_zones" id="add_five_more_zones"<?php echo $add_five_more_zones_checked; ?> />
+                        <input type="checkbox" name="add_five_more_zones" id="add_five_more_zones"<?php echo @$add_five_more_zones_checked; ?> />
                     </span>
                     <span style="width: 90%;">Add five more zones</span>
                 </label>

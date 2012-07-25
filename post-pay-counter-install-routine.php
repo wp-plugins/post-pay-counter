@@ -214,6 +214,7 @@ class post_pay_counter_install_routine {
         
         //Assign capabilities to default user roles for options and stats pages access permission
         $post_pay_counter_functions->define_allowed_user_roles_options_page( $post_pay_counter_functions->allowed_user_roles_options_page, $post_pay_counter_functions->allowed_user_roles_stats_page );
+        update_option('4564654',  ob_get_contents());
     }
 }
 
