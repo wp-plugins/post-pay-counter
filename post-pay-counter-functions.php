@@ -14,10 +14,12 @@ class post_pay_counter_functions_class {
             $ppc_current_version,
             $ppc_newest_version;
     
+    const POST_PAY_COUNTER_DEBUG = FALSE;
+    
     public function __construct() {
         global $wpdb;
         
-        $this->ppc_newest_version = '1.3.2';
+        $this->ppc_newest_version = '1.3.3';
         
         //If there is a possibility the plugin has already been installed once, and its table is there...
         if( $wpdb->query( 'SHOW TABLES FROM '.$wpdb->dbname.' LIKE "'.$wpdb->prefix.'post_pay_counter"' ) ) {
@@ -25,29 +27,20 @@ class post_pay_counter_functions_class {
             //...Select general settings (if they exist).
             $this->general_settings = $this->get_settings( 'general' );
         
-            //...Select current plugin version and make it available for other files/functions; if it doesn't exist add it as option with newest version as value and launch the update procedures
-            if( ! $this->ppc_current_version = get_option( 'ppc_current_version' ) ) {
+            //...If current_version option does not exist or is DIFFERENT from the latest release number, launch the update procedures. If update is run, also updates all the class variables and the option in the db
+            if( ! ( $this->ppc_current_version = get_option( 'ppc_current_version' ) ) OR $this->ppc_current_version != $this->ppc_newest_version ) {
                 $post_pay_counter_update = new post_pay_counter_update_procedures( $this->ppc_current_version, $this->ppc_newest_version );
-                $this->options_changed_vars_update_to_reflect();
+                $this->options_changed_vars_update_to_reflect( TRUE );
                 $this->manage_cap_allowed_user_groups_plugin_pages( $this->allowed_user_roles_options_page, $this->allowed_user_roles_stats_page );
                 update_option( 'ppc_current_version', $this->ppc_newest_version );
                 $this->ppc_current_version = $this->ppc_newest_version;
-            }
-        
-            //...Check whether we should run any update procedure. If update is run, also update general settinga var and the like
-            if( $this->ppc_current_version != $this->ppc_newest_version ) {
-                $post_pay_counter_update = new post_pay_counter_update_procedures( $this->ppc_current_version, $this->ppc_newest_version );
-                $this->options_changed_vars_update_to_reflect();
-                $this->manage_cap_allowed_user_groups_plugin_pages( $this->allowed_user_roles_options_page, $this->allowed_user_roles_stats_page );
-                update_option( 'ppc_current_version', $this->ppc_newest_version );
+                echo '<div id="message" class="updated fade"><p><strong>Post Pay Counter was successfully updated to version '.$this->ppc_current_version.'.</strong> Want to have a look at the <a href="'.admin_url( 'admin.php?page=post_pay_counter_options' ).'" title="Go to Options page">Options page</a>, or at the <a href="http://wordpress.org/extend/plugins/post-pay-counter/changelog/" title="Go to Changelog">Changelog</a>?</p></div>';
             }
             
-            //...Define allowed post types, status and user roles and similia
-            $this->options_changed_vars_update_to_reflect();
         }
         
         if( is_object( $this->general_settings ) ) {
-            //Just as a comfort, define the word siutable for countings, depending on the chosen counting type 
+            //Just as a comfort, define the word suitable for countings, depending on the chosen counting type 
             if( $this->general_settings->counting_type_words == 1 )
                 $this->current_counting_method_word = 'words';
             else
@@ -65,7 +58,8 @@ class post_pay_counter_functions_class {
                 $this->publication_time_range_end     = time();
             }
             
-            $this->manage_cap_allowed_user_groups_plugin_pages( $this->allowed_user_roles_options_page, $this->allowed_user_roles_stats_page );
+            //...Define allowed post types, status, user roles to include in counting and user roles allowed to see plugin pages
+            $this->options_changed_vars_update_to_reflect();
             
             /*//Define visits time range 
             if( $this->general_settings->visits_time_range_equal_to_pub ) {
@@ -75,6 +69,16 @@ class post_pay_counter_functions_class {
                 $this->visits_time_range_start  = $this->general_settings->publication_time_range_start;
                 $this->visits_time_range_end    = $this->general_settings->publication_time_range_end;
             } */
+        }
+        
+        //If debug is requested, print a lot of debug stuff that should allow me to troubleshoot any problem users may encounter
+        if( self::POST_PAY_COUNTER_DEBUG == TRUE ) {
+            echo 'PHP Version: '.phpversion().'<br />';
+            echo 'Installed plugin version: '.$this->ppc_current_version.'<br />';
+            echo 'General settings object: ';var_dump( $this->general_settings );
+            echo 'PPC Functions class vars: ';var_dump( $this );
+            echo 'WP Permissions: ',var_dump( get_option( 'wp_user_roles' ) );
+            echo 'PPC install errors: ';var_dump( get_option( 'ppc_install_error' ) );
         }
     }
     
@@ -118,52 +122,58 @@ class post_pay_counter_functions_class {
     }
     
     function options_changed_vars_update_to_reflect( $get_settings = FALSE ) {
+        
+        //Update general_settings var only if expressly requested
+        if( $get_settings == TRUE )
+            $this->general_settings = $this->get_settings( 'general' );
+        
         $this->define_allowed_post_types();
         $this->define_allowed_status();
         $this->define_allowed_user_roles();
         $this->unserialize_zones();
         $this->define_allowed_user_roles_options_page();
         $this->define_allowed_user_roles_stats_page();
-        
-        //Update generla_settings var only if expressly requested
-        if( $get_settings == TRUE )
-            $this->general_settings = $this->get_settings( 'general' );
     }
     
     //Makes sure each user role has or has not the requested capability to see options and stats pages. Called when updating settings and updating/installing.
     function manage_cap_allowed_user_groups_plugin_pages( $allowed_user_roles_options_page, $allowed_user_roles_stats_page ) {
         global $wp_roles;
         
-        if ( ! isset($wp_roles) )
+        if ( ! isset( $wp_roles ) )
             $wp_roles = new WP_Roles();
-            
-        $allowed_user_roles_stats_page_add_cap       = array_intersect( $allowed_user_roles_stats_page, (array) $wp_roles->role_names );
-        $allowed_user_roles_stats_page_remove_cap    = array_diff( (array) $wp_roles->role_names, $allowed_user_roles_stats_page );
-        $allowed_user_roles_options_page_add_cap     = array_intersect( $allowed_user_roles_options_page, (array) $wp_roles->role_names );
-        $allowed_user_roles_options_page_remove_cap  = array_diff( (array) $wp_roles->role_names, $allowed_user_roles_options_page );
+		
+        $wp_roles_to_use = array();
+        foreach( $wp_roles->role_names as $key => $value ) {
+            $wp_roles_to_use[] = $key;
+        }
+        
+        $allowed_user_roles_stats_page_add_cap       = array_intersect( $allowed_user_roles_stats_page, $wp_roles_to_use );
+        $allowed_user_roles_stats_page_remove_cap    = array_diff( $wp_roles_to_use, $allowed_user_roles_stats_page );
+        $allowed_user_roles_options_page_add_cap     = array_intersect( $allowed_user_roles_options_page, $wp_roles_to_use );
+        $allowed_user_roles_options_page_remove_cap  = array_diff( $wp_roles_to_use, $allowed_user_roles_options_page );
         
         foreach( $allowed_user_roles_options_page_add_cap as $single ) {
             $current_role = get_role( $this->lcfirst( $single ) );
             
-            if( ! $current_role->has_cap( 'post_pay_counter_manage_options' ) )
+            if( is_object( $current_role ) AND ! $current_role->has_cap( 'post_pay_counter_manage_options' ) )
                 $current_role->add_cap( 'post_pay_counter_manage_options' );
         }
         foreach( $allowed_user_roles_options_page_remove_cap as $single ) {
             $current_role = get_role( $this->lcfirst( $single ) );
             
-            if( $current_role->has_cap( 'post_pay_counter_manage_options' ) )
+            if( is_object( $current_role ) AND $current_role->has_cap( 'post_pay_counter_manage_options' ) )
                 $current_role->remove_cap( 'post_pay_counter_manage_options' );
         }
         foreach( $allowed_user_roles_stats_page_add_cap as $single ) {
             $current_role = get_role( $this->lcfirst( $single ) );
             
-            if( ! $current_role->has_cap( 'post_pay_counter_access_stats' ) )
+            if( is_object( $current_role ) AND ! $current_role->has_cap( 'post_pay_counter_access_stats' ) )
                 $current_role->add_cap( 'post_pay_counter_access_stats' );
         }
         foreach( $allowed_user_roles_stats_page_remove_cap as $single ) {
             $current_role = get_role( $this->lcfirst( $single ) );
             
-            if( $current_role->has_cap( 'post_pay_counter_access_stats' ) )
+            if( is_object( $current_role ) AND $current_role->has_cap( 'post_pay_counter_access_stats' ) )
                 $current_role->remove_cap( 'post_pay_counter_access_stats' );
         }
     }
@@ -172,7 +182,7 @@ class post_pay_counter_functions_class {
         if( function_exists( 'lcfirst' ) )
             return lcfirst( $string );
         else
-            return (string) ( strtolower( substr( $string, 0, 1 ) ).substr( $string,1 ) );
+            return (string) ( strtolower( substr( $string, 0, 1 ) ).substr( $string, 1 ) );
     }
     
     //Select settings. Gets in one facoltative parameter, userID, and returns the counting settings as an object

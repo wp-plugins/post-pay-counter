@@ -4,7 +4,7 @@ Plugin Name: Post Pay Counter
 Plugin URI: http://www.thecrowned.org/post-pay-counter
 Description: The Post Pay Counter plugin allows you to easily calculate and handle author's pay on a multi-author blog by computing every written post remuneration basing on admin defined rules. Define the time range you would like to have stats about, and the plugin will do the rest.
 Author: Stefano Ottolenghi
-Version: 1.3.2
+Version: 1.3.3
 Author URI: http://www.thecrowned.org/
 */
 
@@ -130,24 +130,19 @@ class post_pay_counter_core {
     #side-info-column {
         width: 49%;
     }
-    
     .inner-sidebar #side-sortables {
         width: 100%;
     }
-    
     .has-right-sidebar #post-body-content {
         width: 49%;
         margin-right: 390px;
     }
-    
     .has-right-sidebar #post-body {
         margin-right: -50%;
     }
-    
     #post-body #normal-sortables {
         width: 100%;
     }
-    
     .section_title {
         font-weight: bold;
         text-align: left;
@@ -379,7 +374,7 @@ class post_pay_counter_core {
             
             <p class="p_options">
                 <span style="float: right; width: 20px; text-align: right;">
-                    <img src="http://ste95.no-ip.org/WordPress/wp-content/plugins/post-pay-counter/style/images/info.png" title="If you need to fragment your payment zones more accurately, this allows you to add five more zones to the counting routine. When checked, the plugin will automatically take into account all the ten zones, while when unchecked the standard five are used." class="tooltip_container" />
+                    <img src="<?php echo plugins_url( 'style/images/info.png', __FILE__ ); ?>" title="If you need to fragment your payment zones more accurately, this allows you to add five more zones to the counting routine. When checked, the plugin will automatically take into account all the ten zones, while when unchecked the standard five are used." class="tooltip_container" />
                 </span>
                 <label>
                     <span style="float: left; width: 5%;">    
@@ -561,8 +556,9 @@ class post_pay_counter_core {
     function meta_box_permissions() {
         global $wp_roles; 
         
-        if ( ! isset($wp_roles) )
+        if ( ! isset( $wp_roles ) )
             $wp_roles = new WP_Roles(); ?>
+        
         <p>Just a few fields to help you keeping users away from where they should not be. Remember that administrators override all these permissions even if their settings have been personalized.</p>
         <?php $this->post_pay_counter_options_functions->echo_p_field( 'Make other users\' general stats viewable', $this->edit_options_counter_settings->can_view_others_general_stats, 'checkbox', 'can_view_others_general_stats', 'If unchecked, users will only be able to see their stats in the general page. Other users\' names, posts and pay counts will not be displayed.' );
         $this->post_pay_counter_options_functions->echo_p_field( 'Make other users\' detailed stats viewable', $this->edit_options_counter_settings->can_view_others_detailed_stats, 'checkbox', 'can_view_others_detailed_stats', 'If unchecked, other users will not be able to see other user\'s detailed stats (ie. written posts details) but still able to see general ones. ' );
@@ -575,19 +571,19 @@ class post_pay_counter_core {
         
         if( $this->edit_options_counter_settings->userID == 'general' ) {
             echo '<p style="margin-top: 20px;">Plugin Options can be viewed and edited by following user roles</p>';
-            foreach( $wp_roles->role_names as $single ) {
-                if( in_array( $single, $this->post_pay_counter_functions->allowed_user_roles_options_page ) )
+            foreach( $wp_roles->role_names as $key => $value ) {
+                if( in_array( $key, $this->post_pay_counter_functions->allowed_user_roles_options_page ) )
                     $checked = ' checked="checked"';
                 
-                echo '<p style="height: 10px;"><label><input type="checkbox" name="permission_options_page_user_roles_'.$single.'" value="'.$single.'"'.@$checked.'> '.$single.'</label></p>';
+                echo '<p style="height: 10px;"><label><input type="checkbox" name="permission_options_page_user_roles_'.$key.'" value="'.$key.'"'.@$checked.'> '.$value.'</label></p>';
                 unset( $checked );
             }
             echo '<p style="margin-top: 20px;">Plugin Stats page can be viewed by following user roles</p>';
-            foreach( $wp_roles->role_names as $single ) {
-                if( in_array( $single, $this->post_pay_counter_functions->allowed_user_roles_stats_page ) )
+            foreach( $wp_roles->role_names as $key => $value ) {
+                if( in_array( $key, $this->post_pay_counter_functions->allowed_user_roles_stats_page ) )
                     $checked = ' checked="checked"';
                 
-                echo '<p style="height: 10px;"><label><input type="checkbox" name="permission_stats_page_user_roles_'.$single.'" value="'.$single.'"'.@$checked.'> '.$single.'</label></p>';
+                echo '<p style="height: 10px;"><label><input type="checkbox" name="permission_stats_page_user_roles_'.$key.'" value="'.$key.'"'.@$checked.'> '.$value.'</label></p>';
                 unset( $checked );
             }
         }

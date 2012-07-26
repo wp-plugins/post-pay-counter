@@ -93,6 +93,7 @@ class post_pay_counter_update_procedures {
             $wpdb->update( $wpdb->prefix."post_pay_counter", array( 'post_types_to_include_in_counting' => 'a:2:{i:0;s:4:"post";i:1;s:4:"page";}'), array( 'userID' => 'general' ) );
         }
         if( ! $wpdb->query( "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '".$wpdb->prefix."post_pay_counter' AND TABLE_SCHEMA = '".$wpdb->dbname."' AND COLUMN_NAME = 'user_roles_to_include_in_counting'" ) ) {
+            $wpdb->query( "ALTER TABLE `".$wpdb->prefix."post_pay_counter` ADD `user_roles_to_include_in_counting` TEXT NULL AFTER post_types_to_include_in_counting" );
             $wpdb->update( $wpdb->prefix."post_pay_counter", array( 'user_roles_to_include_in_counting' => 'a:5:{i:0;s:13:"administrator";i:1;s:6:"editor";i:2;s:6:"author";i:3;s:11:"contributor";i:4;s:10:"subscriber";}'), array( 'userID' => 'general' ) );
         }
         if( ! $wpdb->query( "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '".$wpdb->prefix."post_pay_counter' AND TABLE_SCHEMA = '".$wpdb->dbname."' AND COLUMN_NAME = 'can_view_paid_amount'" ) ) {
@@ -100,11 +101,35 @@ class post_pay_counter_update_procedures {
         }
         if( ! $wpdb->query( "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '".$wpdb->prefix."post_pay_counter' AND TABLE_SCHEMA = '".$wpdb->dbname."' AND COLUMN_NAME = 'permission_options_page_user_roles'" ) ) {
             $wpdb->query( "ALTER TABLE `".$wpdb->prefix."post_pay_counter` ADD `permission_options_page_user_roles` TEXT NOT NULL AFTER can_csv_export" );
-            $wpdb->update( $wpdb->prefix."post_pay_counter", array( 'permission_options_page_user_roles' => 'a:2:{i:0;s:13:"Administrator";i:1;s:6:"Editor";}' ), array( 'userID' => 'general' ) );
+            $wpdb->update( $wpdb->prefix."post_pay_counter", array( 'permission_options_page_user_roles' => 'a:2:{i:0;s:13:"administrator";i:1;s:6:"editor";}' ), array( 'userID' => 'general' ) );
+        } else {
+            $old_permission = unserialize( $wpdb->get_var( "SELECT permission_options_page_user_roles FROM ".$wpdb->prefix." WHERE userID = 'general'" ) );
+            if( empty( $old_permission ) ) {
+                $new_permission = array( 'administrator', 'editor' );
+            } else {
+                $new_permission = array();
+                foreach( $old_permission as $single ) {
+                    $new_permission[] = $this->lcfirst( $single );
+                }
+            }
+            $wpdb->update( $wpdb->prefix."post_pay_counter", array( 'permission_options_page_user_roles' => serialize( $new_permission ) ), array( 'userID' => 'general' ) );
+            $wpdb->update( $wpdb->prefix."post_pay_counter", array( 'permission_options_page_user_roles' => serialize( $new_permission ) ), array( 'userID' => 'trial' ) );
         }
         if( ! $wpdb->query( "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '".$wpdb->prefix."post_pay_counter' AND TABLE_SCHEMA = '".$wpdb->dbname."' AND COLUMN_NAME = 'permission_stats_page_user_roles'" ) ) {
             $wpdb->query( "ALTER TABLE `".$wpdb->prefix."post_pay_counter` ADD `permission_stats_page_user_roles` TEXT NULL AFTER permission_options_page_user_roles" );
-            $wpdb->update( $wpdb->prefix."post_pay_counter", array( 'permission_stats_page_user_roles' => 'a:5:{i:0;s:13:"Administrator";i:1;s:6:"Editor";i:2;s:6:"Author";i:3;s:11:"Contributor";i:4;s:10:"Subscriber";}' ), array( 'userID' => 'general' ) );
+            $wpdb->update( $wpdb->prefix."post_pay_counter", array( 'permission_stats_page_user_roles' => 'a:5:{i:0;s:13:"administrator";i:1;s:6:"editor";i:2;s:6:"author";i:3;s:11:"contributor";i:4;s:10:"subscriber";}' ), array( 'userID' => 'general' ) );
+        } else {
+            $old_permission = unserialize( $wpdb->get_var( "SELECT permission_stats_page_user_roles FROM ".$wpdb->prefix." WHERE userID = 'general'" ) );
+            if( empty( $old_permission ) ) {
+                $new_permission = array( 'administrator', 'editor', 'author', 'contributor', 'subscriber' );
+            } else {
+                $new_permission = array();
+                foreach( $old_permission as $single ) {
+                    $new_permission[] = $this->lcfirst( $single );
+                }
+            }
+            $wpdb->update( $wpdb->prefix."post_pay_counter", array( 'permission_stats_page_user_roles' => serialize( $new_permission ) ), array( 'userID' => 'general' ) );
+            $wpdb->update( $wpdb->prefix."post_pay_counter", array( 'permission_stats_page_user_roles' => serialize( $new_permission ) ), array( 'userID' => 'trial' ) );
         }
         
         //Move the ordinary zones system fields into a serialized array in database
@@ -175,6 +200,13 @@ class post_pay_counter_update_procedures {
             $wpdb->query( "ALTER TABLE `".$wpdb->prefix."post_pay_counter` DROP `can_view_old_stats`" );
         }
         
+    }
+    
+    function lcfirst( $string ) {
+        if( function_exists( 'lcfirst' ) )
+            return lcfirst( $string );
+        else
+            return (string) ( strtolower( substr( $string, 0, 1 ) ).substr( $string, 1 ) );
     }
     
 }

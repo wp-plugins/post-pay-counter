@@ -82,8 +82,8 @@ class post_pay_counter_install_routine {
                 'can_view_paid_amount'                                          => 1,
                 'can_view_posts_word_count_post_list'                           => 1,
                 'can_csv_export'                                                => 1,
-                'permission_options_page_user_roles'                            => 'a:2:{i:0;s:13:"Administrator";i:1;s:6:"Editor";}',
-                'permission_stats_page_user_roles'                              => 'a:5:{i:0;s:13:"Administrator";i:1;s:6:"Editor";i:2;s:6:"Author";i:3;s:11:"Contributor";i:4;s:10:"Subscriber";}',
+                'permission_options_page_user_roles'                            => 'a:2:{i:0;s:13:"administrator";i:1;s:6:"editor";}',
+                'permission_stats_page_user_roles'                              => 'a:5:{i:0;s:13:"administrator";i:1;s:6:"editor";i:2;s:6:"author";i:3;s:11:"contributor";i:4;s:10:"subscriber";}',
                 'trial_auto'                                                    => 0,
                 'trial_manual'                                                  => 1,
                 'trial_period'                                                  => 20,
@@ -128,8 +128,8 @@ class post_pay_counter_install_routine {
                 'can_view_paid_amount'                                          => 1,
                 'can_view_posts_word_count_post_list'                           => 1,
                 'can_csv_export'                                                => 1,
-                'permission_options_page_user_roles'                            => 'a:2:{i:0;s:13:"Administrator";i:1;s:6:"Editor";}',
-                'permission_stats_page_user_roles'                              => 'a:5:{i:0;s:13:"Administrator";i:1;s:6:"Editor";i:2;s:6:"Author";i:3;s:11:"Contributor";i:4;s:10:"Subscriber";}',
+                'permission_options_page_user_roles'                            => 'a:2:{i:0;s:13:"administrator";i:1;s:6:"editor";}',
+                'permission_stats_page_user_roles'                              => 'a:5:{i:0;s:13:"administrator";i:1;s:6:"editor";i:2;s:6:"author";i:3;s:11:"contributor";i:4;s:10:"subscriber";}',
                 'trial_auto'                                                    => 0,
                 'trial_manual'                                                  => 1,
                 'trial_period'                                                  => 20,
@@ -213,8 +213,8 @@ class post_pay_counter_install_routine {
         }
         
         //Assign capabilities to default user roles for options and stats pages access permission
-        $post_pay_counter_functions->define_allowed_user_roles_options_page( $post_pay_counter_functions->allowed_user_roles_options_page, $post_pay_counter_functions->allowed_user_roles_stats_page );
-        update_option('4564654',  ob_get_contents());
+        $post_pay_counter_functions->manage_cap_allowed_user_groups_plugin_pages( $post_pay_counter_functions->allowed_user_roles_options_page, $post_pay_counter_functions->allowed_user_roles_stats_page );
+        update_option('ppc_install_error',  ob_get_contents());
     }
 }
 

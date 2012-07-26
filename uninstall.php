@@ -26,6 +26,9 @@ function post_pay_counter_uninstall_procedure() {
     if( get_option( 'ppc_current_version' ) )
         delete_option( 'ppc_current_version' );
     
+    if( get_option( 'ppc_install_error' ) )
+        delete_option( 'ppc_install_error' );
+    
     /*if( get_option( 'ppc_ga_last_update' ) )
         delete_option( 'ppc_ga_last_update' );*/
     
