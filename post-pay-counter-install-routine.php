@@ -1,50 +1,58 @@
 <?php
 
-include_once( 'post-pay-counter-functions.php' );
-
-class post_pay_counter_install_routine {
+class post_pay_counter_install_routine extends post_pay_counter_core {
     
     //Initialize the installation and calls the real install procedure
-    function post_pay_counter_install() {
+    function post_pay_counter_install( $network_wide ) {
         global $wpdb;
         
-        //If working on a multisite blog
-    	if ( function_exists( 'is_multisite' ) AND is_multisite() ) {
-    		
-            //If it is a network activation run the activation function for each blog id
-    		if ( isset( $_GET['networkwide'] ) AND ( $_GET['networkwide'] == 1 ) ) {
-    			//Get all blog ids; foreach them and call the install procedure on each of them
-    			$blog_ids = $wpdb->get_col( "SELECT blog_id FROM ".$wpdb->blogs );
-    			
-                foreach ( $blog_ids as $blog_id ) {
-    				switch_to_blog( $blog_id );
-    				$this->post_pay_counter_install_procedure();
-    			}
-                
-                //Go back to the main blog and return - so that if not multisite or not network activation, run the procedure once
-    			restore_current_blog();
-    			return;
-    		}	
-    	} 
-    	$this->post_pay_counter_install_procedure();
+        //If it is a network activation run the activation function for each blog id
+		if ( $network_wide ) {
+			//Get all blog ids; foreach them and call the install procedure on each of them
+			$blog_ids = $wpdb->get_col( "SELECT blog_id FROM ".$wpdb->blogs );
+			
+            foreach ( $blog_ids as $blog_id ) {
+				switch_to_blog( $blog_id );
+				self::post_pay_counter_install_procedure();
+			}
+            
+            //Go back to the main blog and return - so that if not multisite or not network activation, run the procedure once
+			restore_current_blog();
+			return;
+		} 
+    	self::post_pay_counter_install_procedure();
     }
     
     //Called when creating a new blog on multiste. If plugin was activated with a network-wide activation, activate and install it on the new blog too
     function post_pay_counter_new_blog_install( $blog_id, $user_id, $domain, $path, $site_id, $meta ) {
         global $wpdb;
         
-    	if ( is_plugin_active_for_network( basename( __DIR__ ).'/post-pay-counter.php' ) ) {
+    	if ( is_plugin_active_for_network( dirname( __FILE__ ).'/post-pay-counter.php' ) ) {
     		switch_to_blog( $blog_id );
-    		$this->post_pay_counter_install_procedure();
+    		self::post_pay_counter_install_procedure();
     		restore_current_blog();
     	}
     }
     
     //Install the plugin
-    function post_pay_counter_install_procedure() {
+    static function post_pay_counter_install_procedure() {
         global $wpdb;
-		
-        //Here are the two arries of predefined options
+        
+        self::post_pay_counter_create_table();
+        self::post_pay_counter_insert_default_settings();
+        self::add_wp_posts_plugin_columns();
+        post_pay_counter_functions_class::options_changed_vars_update_to_reflect( TRUE );
+        
+        //Assign capabilities to default user roles for options and stats pages access permission
+        post_pay_counter_functions_class::manage_cap_allowed_user_groups_plugin_pages( parent::$allowed_user_roles_options_page, parent::$allowed_user_roles_stats_page );
+        update_option( 'ppc_install_error', ob_get_contents() );
+        update_option( 'ppc_current_version', parent::$ppc_newest_version );
+    }
+    
+    function post_pay_counter_insert_default_settings() {
+        global $wpdb;
+        
+        //Here are the two arrays of predefined options
         $predefined_settings = array(
             'general' => array( 
                 'userID'                                                        => 'general',
@@ -62,7 +70,7 @@ class post_pay_counter_install_routine {
                 'bonus_comment_payment'                                         => '0.50',
                 'bonus_image_payment'                                           => '0.10',
                 'count_pending_revision_posts'                                  => 0,
-                'count_future_scheduled_posts'                                  => 0,
+                'count_future_scheduled_posts'                                  => 1,
                 'exclude_quotations_from_countings'                             => 0,
                 'count_visits_guests'                                           => 1,
                 'count_visits_registered'                                       => 1,
@@ -108,7 +116,7 @@ class post_pay_counter_install_routine {
                 'bonus_comment_payment'                                         => '0.50',
                 'bonus_image_payment'                                           => '0.10',
                 'count_pending_revision_posts'                                  => 0,
-                'count_future_scheduled_posts'                                  => 0,
+                'count_future_scheduled_posts'                                  => 1,
                 'exclude_quotations_from_countings'                             => 0,
                 'count_visits_guests'                                           => 1,
                 'count_visits_registered'                                       => 1,
@@ -139,7 +147,22 @@ class post_pay_counter_install_routine {
             )
         );
         
-        //Alter table to allow post counting and create the new plugin's table
+        //If there are no settings in the db yet, add the predefined ones (general + trial) and update the related vars
+        if( ! is_object( post_pay_counter_functions_class::get_settings( 'general' ) ) ) {
+            $wpdb->query( 'DELETE FROM '.parent::$post_pay_counter_db_table.' WHERE userID = "general"' );
+            $wpdb->insert( $wpdb->prefix.'post_pay_counter', $predefined_settings['general'] );
+        }
+        if( ! is_object( post_pay_counter_functions_class::get_settings( 'trial' ) ) ) {
+            $wpdb->query( 'DELETE FROM '.parent::$post_pay_counter_db_table.' WHERE userID = "trial"' );
+            $wpdb->insert( $wpdb->prefix.'post_pay_counter', $predefined_settings['trial'] );
+        }
+        
+    }
+    
+    //Create plugin table
+    function post_pay_counter_create_table() {
+        global $wpdb;
+        
         $wpdb->query( "CREATE TABLE IF NOT EXISTS `".$wpdb->prefix."post_pay_counter` (
             `ID` int(255) NOT NULL AUTO_INCREMENT,
             `userID` varchar(255) NOT NULL,
@@ -189,19 +212,12 @@ class post_pay_counter_install_routine {
             `trial_enable` int(1) NOT NULL DEFAULT '0',
             PRIMARY KEY (`ID`)
         ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;" );
+    }
+    
+    //Add the needed columns to wp_posts if they do not exist
+    function add_wp_posts_plugin_columns() {
+        global $wpdb;
         
-        $post_pay_counter_functions = new post_pay_counter_functions_class();
-        
-        //If there are no settings in the db yet, add the predefined ones (general + trial) and update the related vars
-        if( ! is_object( @$post_pay_counter_functions->get_settings( 'general' ) ) ) {
-            $wpdb->insert( $wpdb->prefix.'post_pay_counter', $predefined_settings['general'] );
-        }
-        if( ! is_object( @$post_pay_counter_functions->get_settings( 'trial' ) ) ) {
-            $wpdb->insert( $wpdb->prefix.'post_pay_counter', $predefined_settings['trial'] );
-        }
-        $post_pay_counter_functions->options_changed_vars_update_to_reflect();
-        
-        //Add the needed columns to wp_posts if they do not exist
         if( ! $wpdb->query( "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '".$wpdb->posts."' AND TABLE_SCHEMA = '".$wpdb->dbname."' AND COLUMN_NAME = 'post_pay_counter'" ) ) {
             $wpdb->query( "ALTER TABLE ".$wpdb->posts." ADD post_pay_counter INT(15) NULL COMMENT 'Keeps track of payments dates (Post Pay Counter)'" );
         }
@@ -211,10 +227,6 @@ class post_pay_counter_install_routine {
         if( ! $wpdb->query( "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '".$wpdb->posts."' AND TABLE_SCHEMA = '".$wpdb->dbname."' AND COLUMN_NAME = 'post_pay_counter_paid'" ) ) {
             $wpdb->query( "ALTER TABLE ".$wpdb->posts." ADD post_pay_counter_paid TEXT NULL COMMENT 'Post Pay Counter plugin paying dates and amounts tracking'" );
         }
-        
-        //Assign capabilities to default user roles for options and stats pages access permission
-        $post_pay_counter_functions->manage_cap_allowed_user_groups_plugin_pages( $post_pay_counter_functions->allowed_user_roles_options_page, $post_pay_counter_functions->allowed_user_roles_stats_page );
-        update_option('ppc_install_error',  ob_get_contents());
     }
 }
 

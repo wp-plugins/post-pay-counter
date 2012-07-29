@@ -4,7 +4,7 @@ Plugin Name: Post Pay Counter
 Plugin URI: http://www.thecrowned.org/post-pay-counter
 Description: The Post Pay Counter plugin allows you to easily calculate and handle author's pay on a multi-author blog by computing every written post remuneration basing on admin defined rules. Define the time range you would like to have stats about, and the plugin will do the rest.
 Author: Stefano Ottolenghi
-Version: 1.3.3
+Version: 1.3.4
 Author URI: http://www.thecrowned.org/
 */
 
@@ -35,35 +35,93 @@ include_once( 'post-pay-counter-update-procedures.php' );
 //include_once( 'gapi.class.php' );
 
 class post_pay_counter_core {
-    public  $post_pay_counter_functions,
-            $post_pay_counter_options_functions,
-            $post_pay_counter_install,
-            $post_pay_counter_update,
-            $post_pay_counter_options_menu_slug,
-            $post_pay_counter_options_menu_link,
-            $post_pay_counter_stats_menu_link,
-            $edit_options_counter_settings;
+    public static   $post_pay_counter_options_menu_slug,
+                    $post_pay_counter_options_menu_link,
+                    $post_pay_counter_stats_menu_link,
+                    $post_pay_counter_db_table,
+                    $edit_options_counter_settings,
+                    $general_settings,
+                    $current_counting_method_word,
+                    $allowed_status,
+                    $allowed_post_types,
+                    $allowed_user_roles,
+                    $ordinary_zones,
+                    $allowed_user_roles_options_page,
+                    $allowed_user_roles_stats_page,
+                    $publication_time_range_start,
+                    $publication_time_range_end,
+                    $ppc_current_version,
+                    $ppc_newest_version;
+    
+    const POST_PAY_COUNTER_DEBUG = FALSE;
     
     function __construct() {
-        $this->post_pay_counter_functions           = new post_pay_counter_functions_class();
-        $this->post_pay_counter_options_functions   = new post_pay_counter_options_functions_class();
-        $this->post_pay_counter_install             = new post_pay_counter_install_routine();
+        global $wpdb;
         
-        //If general or trial settings are missing add them through the installation process     
-        if( ! $this->post_pay_counter_functions->general_settings OR ! $this->post_pay_counter_functions->get_settings( 'trial' ) ) {
-            $this->post_pay_counter_install->post_pay_counter_install_procedure();
-            $this->post_pay_counter_functions->options_changed_vars_update_to_reflect( TRUE );
-            $this->post_pay_counter_functions->manage_cap_allowed_user_groups_plugin_pages( $this->post_pay_counter_functions->allowed_user_roles_options_page, $this->post_pay_counter_functions->allowed_user_roles_stats_page );
+        self::$ppc_newest_version           = '1.3.4';
+        self::$post_pay_counter_db_table    = $wpdb->prefix.'post_pay_counter';
+                
+        //Select general settings
+        self::$general_settings = post_pay_counter_functions_class::get_settings( 'general' );
+        
+        //If current_version option does not exist or is DIFFERENT from the latest release number, launch the update procedures. If update is run, also updates all the class variables and the option in the db
+        if( ! ( self::$ppc_current_version = get_option( 'ppc_current_version' ) ) OR self::$ppc_current_version != self::$ppc_newest_version ) {
+            post_pay_counter_update_procedures::update();
+            post_pay_counter_functions_class::options_changed_vars_update_to_reflect( TRUE );
+            post_pay_counter_functions_class::manage_cap_allowed_user_groups_plugin_pages( self::$allowed_user_roles_options_page, self::$allowed_user_roles_stats_page );
+            update_option( 'ppc_current_version', self::$ppc_newest_version );
+            self::$ppc_current_version = self::$ppc_newest_version;
+            echo '<div id="message" class="updated fade"><p><strong>Post Pay Counter was successfully updated to version '.self::$ppc_current_version.'.</strong> Want to have a look at the <a href="'.self::$post_pay_counter_options_menu_link.'" title="Go to Options page">Options page</a>, or at the <a href="http://wordpress.org/extend/plugins/post-pay-counter/changelog/" title="Go to Changelog">Changelog</a>?</p></div>';
+        }
+            
+        //Just as a comfort, define the word suitable for countings, depending on the chosen counting type 
+        if( self::$general_settings->counting_type_words == 1 )
+            self::$current_counting_method_word = 'words';
+        else
+            self::$current_counting_method_word = 'visits';
+        
+        //Define publication time range depending on chosen settings: if monthly it depends on current month days number, weekly always 7, otherwise custom
+        if( self::$general_settings->publication_time_range_week == 1 ) {
+            self::$publication_time_range_start   = time() - ( ( date( 'N' )-1 )*24*60*60 );
+            self::$publication_time_range_end     = time();
+        } else if( self::$general_settings->publication_time_range_month == 1 ) {
+            self::$publication_time_range_start   = time() - ( ( date( 'j' )-1 )*24*60*60 );
+            self::$publication_time_range_end     = time();
+        } else if( self::$general_settings->publication_time_range_custom == 1 ) {
+            self::$publication_time_range_start   = time() - ( self::$general_settings->publication_time_range_custom_value*24*60*60 );
+            self::$publication_time_range_end     = time();
+        }
+        
+        //...Define allowed post types, status, user roles to include in counting and user roles allowed to see plugin pages
+        post_pay_counter_functions_class::options_changed_vars_update_to_reflect();
+        
+        /*//Define visits time range 
+        if( self::$general_settings->visits_time_range_equal_to_pub ) {
+            self::visits_time_range_start  = self::$general_settings->publication_time_range_start;
+            self::visits_time_range_end    = self::$general_settings->publication_time_range_end;
+        } else if( self::$general_settings->visits_time_range_rules_selection ) {
+            self::visits_time_range_start  = self::$general_settings->publication_time_range_start;
+            self::visits_time_range_end    = self::$general_settings->publication_time_range_end;
+        } */
+        
+        //If debug is requested, print a lot of debug stuff that should allow me to troubleshoot any problem users may encounter
+        if( self::POST_PAY_COUNTER_DEBUG == TRUE ) {
+            echo 'PHP Version: '.phpversion().'<br />';
+            echo 'Installed plugin version: '.self::$ppc_current_version.'<br />';
+            echo 'General settings object: ';var_dump( self::$general_settings );
+            echo 'PPC class vars: ';var_dump( $this );
+            echo 'WP Permissions: ',var_dump( get_option( 'wp_user_roles' ) );
+            echo 'PPC install errors: ';var_dump( get_option( 'ppc_install_error' ) );
         }
         
         //Add left menu entries for both stats and options pages; update procedure
         add_action( 'admin_menu', array( $this, 'post_pay_counter_admin_menus' ) );
         
         //Hook for the install procedure
-        register_activation_hook( __FILE__, array( $this->post_pay_counter_install, 'post_pay_counter_install' ) );
+        register_activation_hook( __FILE__, array( 'post_pay_counter_install_routine', 'post_pay_counter_install' ) );
         
         //Hook on blog adding on multisite wp to install the plugin there either
-        add_action( 'wpmu_new_blog', array( $this->post_pay_counter_install, 'post_pay_counter_new_blog_install' ), 10, 6); 
+        add_action( 'wpmu_new_blog', array( 'post_pay_counter_install_routine', 'post_pay_counter_new_blog_install' ), 10, 6); 
         
         //Hook to update single posts counting on status change
         add_action( 'transition_post_status', array( $this, 'post_pay_counter_update_post_counting' ), 10, 3 );
@@ -90,16 +148,16 @@ class post_pay_counter_core {
         add_action( 'wp_ajax_post_pay_counter_register_view_ajax', array( $this, 'post_pay_counter_register_view_ajax' ) );
         add_action( 'wp_ajax_nopriv_post_pay_counter_register_view_ajax', array( $this, 'post_pay_counter_register_view_ajax' ) );
         //Manage AJAX calls (marking posts as paid)
-        add_action( 'wp_ajax_post_pay_counter_post_paid_status', array( $this->post_pay_counter_functions, 'post_pay_counter_post_paid_update' ) );
+        add_action( 'wp_ajax_post_pay_counter_post_paid_status', array( 'post_pay_counter_functions_class', 'post_pay_counter_post_paid_update' ) );
     }
     
     //Adds first level side menu
     function post_pay_counter_admin_menus() {
         add_menu_page( 'Post Pay Counter', 'Post Pay Counter', 'post_pay_counter_access_stats', 'post_pay_counter_show_stats', array( $this, 'post_pay_counter_show_stats' ) );
         add_submenu_page( 'post_pay_counter_show_stats', 'Post Pay Counter Stats', 'Stats', 'post_pay_counter_access_stats', 'post_pay_counter_show_stats', array( $this, 'post_pay_counter_show_stats' ) );
-        $this->post_pay_counter_stats_menu_link     = 'admin.php?page=post_pay_counter_show_stats';
-        $this->post_pay_counter_options_menu_slug   = add_submenu_page( 'post_pay_counter_show_stats', 'Post Pay Counter Options', 'Options', 'post_pay_counter_manage_options', 'post_pay_counter_options', array( $this, 'post_pay_counter_options' ) );
-        $this->post_pay_counter_options_menu_link   = 'admin.php?page=post_pay_counter_options';
+        self::$post_pay_counter_stats_menu_link     = 'admin.php?page=post_pay_counter_show_stats';
+        self::$post_pay_counter_options_menu_slug   = add_submenu_page( 'post_pay_counter_show_stats', 'Post Pay Counter Options', 'Options', 'post_pay_counter_manage_options', 'post_pay_counter_options', array( $this, 'post_pay_counter_options' ) );
+        self::$post_pay_counter_options_menu_link   = 'admin.php?page=post_pay_counter_options';
     }
     
     function post_pay_counter_head() { ?>        
@@ -161,12 +219,12 @@ class post_pay_counter_core {
     function on_load_post_pay_counter_options_page() {
         //This is metaboxes stuff
         wp_enqueue_script( 'post' );
-        add_meta_box( 'post_pay_counter_counting_settings', 'Counting Settings', array( $this, 'meta_box_counting_settings' ), $this->post_pay_counter_options_menu_slug, 'normal' );
-        add_meta_box( 'post_pay_counter_trial_settings', 'Trial Settings', array( $this, 'meta_box_trial_settings' ), $this->post_pay_counter_options_menu_slug, 'normal' );
-        add_meta_box( 'post_pay_counter_update_countings', 'Update Stats', array( $this, 'meta_box_update_countings' ), $this->post_pay_counter_options_menu_slug, 'normal' );
-        add_meta_box( 'post_pay_counter_personalize_settings', 'Personalize Settings', array( $this, 'meta_box_personalize_settings' ), $this->post_pay_counter_options_menu_slug, 'side' );
-        add_meta_box( 'post_pay_counter_permissions', 'Permissions', array( $this, 'meta_box_permissions' ), $this->post_pay_counter_options_menu_slug, 'side' );
-        add_meta_box( 'post_pay_counter_support', 'Support the author', array( $this, 'meta_box_support_the_author' ), $this->post_pay_counter_options_menu_slug, 'side' );
+        add_meta_box( 'post_pay_counter_counting_settings', 'Counting Settings', array( $this, 'meta_box_counting_settings' ), self::$post_pay_counter_options_menu_slug, 'normal' );
+        add_meta_box( 'post_pay_counter_trial_settings', 'Trial Settings', array( $this, 'meta_box_trial_settings' ), self::$post_pay_counter_options_menu_slug, 'normal' );
+        add_meta_box( 'post_pay_counter_update_countings', 'Update Stats', array( $this, 'meta_box_update_countings' ), self::$post_pay_counter_options_menu_slug, 'normal' );
+        add_meta_box( 'post_pay_counter_personalize_settings', 'Personalize Settings', array( $this, 'meta_box_personalize_settings' ), self::$post_pay_counter_options_menu_slug, 'side' );
+        add_meta_box( 'post_pay_counter_permissions', 'Permissions', array( $this, 'meta_box_permissions' ), self::$post_pay_counter_options_menu_slug, 'side' );
+        add_meta_box( 'post_pay_counter_support', 'Support the author', array( $this, 'meta_box_support_the_author' ), self::$post_pay_counter_options_menu_slug, 'side' );
         
         //And this is for the tooltips
         wp_enqueue_script( 'jquery-tooltip-plugin', plugins_url( 'js/jquery.tiptip.min.js', __FILE__ ), array( 'jquery' ) );
@@ -177,7 +235,7 @@ class post_pay_counter_core {
     function post_pay_counter_settings_meta_link( $links, $file ) {
        //Make sure we are on the right plugin
        if ( $file == plugin_basename( __FILE__ ) )
-            $links[] = '<a href="'.admin_url( $this->post_pay_counter_options_menu_link ).'" title="'.__('Settings').'">'.__('Settings').'</a>';
+            $links[] = '<a href="'.admin_url( self::$post_pay_counter_options_menu_link ).'" title="'.__('Settings').'">'.__('Settings').'</a>';
      
         return $links;
     }
@@ -196,7 +254,7 @@ class post_pay_counter_core {
         global $current_user;
         
         //If posts word count should be showed
-        if( $this->post_pay_counter_functions->get_settings( $current_user->ID, TRUE )->can_view_posts_word_count_post_list == 1 )
+        if( post_pay_counter_functions_class::get_settings( $current_user->ID, TRUE )->can_view_posts_word_count_post_list == 1 )
             $columns['post_pay_counter_word_count'] = 'Word Count';
         
         return $columns;
@@ -207,14 +265,15 @@ class post_pay_counter_core {
         global  $post,
                 $current_user;
         
-        $counting_settings = $this->post_pay_counter_functions->get_settings( $current_user->ID, TRUE );
+        $post               = (object) $post;
+        $counting_settings  = post_pay_counter_functions_class::get_settings( $current_user->ID, TRUE );
         
         //If posts word count should be showed, we check if the counting system zones is in use and, if yes, compare the word count to the first zone count. When word count is below the first zone, its opacity is reduced
         if( $counting_settings->can_view_posts_word_count_post_list == 1 ) {
             if( $name == 'post_pay_counter_word_count' ) {
-                $word_count = $this->post_pay_counter_functions->count_post_words( $post->post_content );
+                $word_count = post_pay_counter_functions_class::count_post_words( $post->post_content );
                 
-                if( $this->post_pay_counter_functions->general_settings->counting_type_words == 1 AND $counting_settings->counting_system_zones == 1 AND $word_count < $this->post_pay_counter_functions->ordinary_zones[1]['zone'] )
+                if( self::$general_settings->counting_type_words == 1 AND $counting_settings->counting_system_zones == 1 AND $word_count < self::$ordinary_zones[1]['zone'] )
                     echo '<span style="opacity: 0.60">'.$word_count.' words</span>';
                 else
                     echo $word_count.' words';
@@ -228,27 +287,34 @@ class post_pay_counter_core {
                $current_user,
                $post;
         
+        //If not a single post page, return
+        if( ! is_singular() )
+            return;
+        
+        //On some blogs the plugin triggered errors because the $post var was an array instead of an object. Dunno how and why it could happen, but this fixes that
+        $post = (object) $post;
+        
         //Intersecate the unserialized array of allowed user groups with the groups the post writer belongs to, then continue only if resulting array is not empty 
-        $user_roles_intersection = array_intersect( unserialize( $this->post_pay_counter_functions->general_settings->user_roles_to_include_in_counting ), get_userdata( $post->post_author )->roles );
+        $user_roles_intersection = array_intersect( unserialize( self::$general_settings->user_roles_to_include_in_counting ), get_userdata( $post->post_author )->roles );
         
         //Only accept posts of the allowed post types, status and user groups
-    	if( strpos( $this->post_pay_counter_functions->allowed_status, $post->post_status ) !== FALSE AND strpos( $this->post_pay_counter_functions->allowed_post_types, $post->post_type ) !== FALSE AND ! empty( $user_roles_intersection ) ) {
+    	if( strpos( self::$allowed_status, $post->post_status ) !== FALSE AND strpos( self::$allowed_post_types, $post->post_type ) !== FALSE AND ! empty( $user_roles_intersection ) ) {
             
             //If chosen counting type is not visits, return. Cannot check this in the construct cause it's too early
-            if( $this->post_pay_counter_functions->general_settings->counting_type_visits_method_plugin == 0 )
+            if( self::$general_settings->counting_type_visits_method_plugin == 0 )
                 return;
             
             //If the post has expired (meaning the number of past days since its publishing exceeds the counting payment time range selected by the admin), return
-            /*if( ( time() - strtotime( $post->post_date ) > ( $this->post_pay_counter_functions->publication_time_range_end - $this->post_pay_counter_functions->publication_time_range_start ) ) )
+            /*if( ( time() - $post->post_pay_counter ) > ( post_pay_counter_functions_class::publication_time_range_end - post_pay_counter_functions_class::publication_time_range_start ) ) )
                 return;*/
     	   
             //Skip visits that shouldn't be counted: logged-in users/authors and guests things
-            if( ( is_user_logged_in() AND ( $this->post_pay_counter_functions->general_settings->count_visits_registered == 0 OR ( $post->post_author == $current_user->ID AND $this->post_pay_counter_functions->general_settings->count_visits_authors == 0 ) ) )
-            OR ( ! is_user_logged_in() AND $this->post_pay_counter_functions->general_settings->count_visits_guests == 0 ) )
+            if( ( is_user_logged_in() AND ( self::$general_settings->count_visits_registered == 0 OR ( $post->post_author == $current_user->ID AND self::$general_settings->count_visits_authors == 0 ) ) )
+            OR ( ! is_user_logged_in() AND self::$general_settings->count_visits_guests == 0 ) )
                 return;
             
             //If bots visits shouldn't be counted, and current visit is from a bot, return
-            if( $this->post_pay_counter_functions->general_settings->count_visits_bots == 0 ) {
+            if( self::$general_settings->count_visits_bots == 0 ) {
                 
                 //Thanks to Wp-Postviews for the array list
     			$bots_to_exclude = array( 
@@ -319,7 +385,7 @@ class post_pay_counter_core {
         
         //Set cookie and update db visits value
         setcookie( 'post_pay_counter_view-'.$_REQUEST['post_id'], 'post_pay_counter_view-'.home_url().'-'.$_REQUEST['post_id'], time()+86400, '/' );
-        $this->post_pay_counter_functions->update_single_counting( $_REQUEST['post_id'], $_REQUEST['post_status'], $_REQUEST['post_date'], $_REQUEST['post_author'], $_REQUEST['post_pay_counter_date'], $_REQUEST['post_pay_counter_count'] );
+        post_pay_counter_functions_class::update_single_counting( $_REQUEST['post_id'], $_REQUEST['post_status'], $_REQUEST['post_date'], $_REQUEST['post_author'], $_REQUEST['post_pay_counter_date'], $_REQUEST['post_pay_counter_count'] );
         exit;
     }
     
@@ -330,22 +396,22 @@ class post_pay_counter_core {
         if ( ! isset($wp_roles) )
             $wp_roles = new WP_Roles();
         
-        if( $this->edit_options_counter_settings->userID == 'general' ) { ?>
+        if( self::$edit_options_counter_settings->userID == 'general' ) { ?>
         <div class="section_title" style="margin-top: 0px;">Counting type</div>
-            <?php $this->post_pay_counter_options_functions->echo_p_field( 'Count posts pay basing on their words', $this->edit_options_counter_settings->counting_type_words, 'radio', 'counting_type', 'The words that make up posts content will be used to compute the right pay, basing on the next bunch of settings. Change will automatically trigger a stats regenerate.', 'Words', 'counting_type_words' );
-            $this->post_pay_counter_options_functions->echo_p_field( 'Count posts pay basing on their visits', $this->edit_options_counter_settings->counting_type_visits, 'radio', 'counting_type', 'Unique daily visits will be used to compute the right pay, basing on the next bunch of settings. A simple cookie is used (<strong>notice</strong> that deleting it and refreshing the post page make the counter to log a new visit), and you can define what kinds of visits you want to be counted. Change will automatically trigger a stats regenerate.', 'Visits', 'counting_type_visits' ); ?>
+            <?php post_pay_counter_options_functions_class::echo_p_field( 'Count posts pay basing on their words', self::$edit_options_counter_settings->counting_type_words, 'radio', 'counting_type', 'The words that make up posts content will be used to compute the right pay, basing on the next bunch of settings. Change will automatically trigger a stats regenerate.', 'Words', 'counting_type_words' );
+            post_pay_counter_options_functions_class::echo_p_field( 'Count posts pay basing on their visits', self::$edit_options_counter_settings->counting_type_visits, 'radio', 'counting_type', 'Unique daily visits will be used to compute the right pay, basing on the next bunch of settings. A simple cookie is used (<strong>notice</strong> that deleting it and refreshing the post page make the counter to log a new visit), and you can define what kinds of visits you want to be counted. Change will automatically trigger a stats regenerate.', 'Visits', 'counting_type_visits' ); ?>
             
         <!-- <div id="counting_type_visits_methods">
             <div class="section_title">Counting method</div>
-        <?php /*$this->post_pay_counter_options_functions->echo_p_field( 'Count visits using the plugin\'s built-in system', $this->edit_options_counter_settings->counting_type_visits_method_plugin, 'radio', 'counting_type_visits_method', 'A simple cookie is used (<strong>notice</strong> that deleting it and refreshing the post page make the counter to log a new visit), and you can define what kinds of visits you want to be counted. This is the simplest method, that does not need you to be registered anywhere.', 'counting_type_visits_method_plugin', 'counting_type_visits_method_plugin' );
-        $this->post_pay_counter_options_functions->echo_p_field( 'Count visits using Google Analytics', $this->edit_options_counter_settings->counting_type_visits_method_google_analytics, 'radio', 'counting_type_visits_method', 'Use your Google Analytics account to count the visits related to each post and use those data to compute payments. Your domain obviously has to be already registered on Google Analytics. No data (including your authentication credentials) will be sent to the plugin\'s author nor to any third parties. ', 'counting_type_visits_method_google_analytics', 'counting_type_visits_method_google_analytics' );*/ ?>
+        <?php /*post_pay_counter_options_functions_class::echo_p_field( 'Count visits using the plugin\'s built-in system', self::$edit_options_counter_settings->counting_type_visits_method_plugin, 'radio', 'counting_type_visits_method', 'A simple cookie is used (<strong>notice</strong> that deleting it and refreshing the post page make the counter to log a new visit), and you can define what kinds of visits you want to be counted. This is the simplest method, that does not need you to be registered anywhere.', 'counting_type_visits_method_plugin', 'counting_type_visits_method_plugin' );
+        post_pay_counter_options_functions_class::echo_p_field( 'Count visits using Google Analytics', self::$edit_options_counter_settings->counting_type_visits_method_google_analytics, 'radio', 'counting_type_visits_method', 'Use your Google Analytics account to count the visits related to each post and use those data to compute payments. Your domain obviously has to be already registered on Google Analytics. No data (including your authentication credentials) will be sent to the plugin\'s author nor to any third parties. ', 'counting_type_visits_method_google_analytics', 'counting_type_visits_method_google_analytics' );*/ ?>
         </div> -->
         
         <div class="section_title">Counting system</div>
         <?php } else { ?>
         <div class="section_title" style="margin-top: 0px;">Counting system</div>
         <?php }
-        $this->post_pay_counter_options_functions->echo_p_field( 'Use the multiple zones system', $this->edit_options_counter_settings->counting_system_zones, 'radio', 'counting_system', 'With this system you can define up to 5 zones of retribution, so that from X words/visits to Y words/visits the same pay will be applied (eg. from 200 words to 300 words pay 2.00). It does not matter how many words/visits a post has, but only in what zone it lies on.', 'counting_system_zones', 'counting_system_zones' ); ?>
+        post_pay_counter_options_functions_class::echo_p_field( 'Use the multiple zones system', self::$edit_options_counter_settings->counting_system_zones, 'radio', 'counting_system', 'With this system you can define up to 5 zones of retribution, so that from X words/visits to Y words/visits the same pay will be applied (eg. from 200 words to 300 words pay 2.00). It does not matter how many words/visits a post has, but only in what zone it lies on.', 'counting_system_zones', 'counting_system_zones' ); ?>
         <div id="counting_system_zones_content">
             <table style="border: none; margin-left: 3em; width: 100%;">
     			<thead>
@@ -359,8 +425,8 @@ class post_pay_counter_core {
         <?php $n = 1; 
         while( $n <= 5 ) { ?>
                     <tr>
-                        <td width="50%"><input type="text" name="zone<?php echo $n; ?>_count" value="<?php echo $this->post_pay_counter_functions->ordinary_zones[$n]['zone']; ?>" /></td>
-                        <td width="50%"><input type="text" name="zone<?php echo $n; ?>_payment" value="<?php printf( '%.2f', $this->post_pay_counter_functions->ordinary_zones[$n]['payment'] ); ?>" /></td>
+                        <td width="50%"><input type="text" name="zone<?php echo $n; ?>_count" value="<?php echo self::$ordinary_zones[$n]['zone']; ?>" /></td>
+                        <td width="50%"><input type="text" name="zone<?php echo $n; ?>_payment" value="<?php printf( '%.2f', self::$ordinary_zones[$n]['payment'] ); ?>" /></td>
                     </tr>
             <?php ++$n;
         } ?>
@@ -368,7 +434,7 @@ class post_pay_counter_core {
                 </tbody>
     		</table>
             
-            <?php if( count( $this->post_pay_counter_functions->ordinary_zones ) > 5 ) {
+            <?php if( count( self::$ordinary_zones ) > 5 ) {
                 $add_five_more_zones_checked = ' checked="checked"';
             } ?>
             
@@ -398,8 +464,8 @@ class post_pay_counter_core {
                     
             <?php while( $n <= 10 ) { ?>
                     <tr>
-                        <td width="50%"><input type="text" name="zone<?php echo $n; ?>_count" value="<?php echo @$this->post_pay_counter_functions->ordinary_zones[$n]['zone']; ?>" /></td>
-                        <td width="50%"><input type="text" name="zone<?php echo $n; ?>_payment" value="<?php printf( '%.2f', @$this->post_pay_counter_functions->ordinary_zones[$n]['payment'] ); ?>" /></td>
+                        <td width="50%"><input type="text" name="zone<?php echo $n; ?>_count" value="<?php echo @self::$ordinary_zones[$n]['zone']; ?>" /></td>
+                        <td width="50%"><input type="text" name="zone<?php echo $n; ?>_payment" value="<?php printf( '%.2f', @self::$ordinary_zones[$n]['payment'] ); ?>" /></td>
                     </tr>
                 <?php ++$n;
             } ?>
@@ -409,64 +475,64 @@ class post_pay_counter_core {
             </div>
             
         </div>
-        <?php $this->post_pay_counter_options_functions->echo_p_field( 'Use the unique payment system', $this->edit_options_counter_settings->counting_system_unique_payment, 'radio', 'counting_system', 'With this system, every word/visit is important since each single one more means a higher pay. Just think that the words/visits number will be multiplied for the unique payment value you enter.', 'counting_system_unique_payment', 'counting_system_unique_payment' ); ?>
+        <?php post_pay_counter_options_functions_class::echo_p_field( 'Use the unique payment system', self::$edit_options_counter_settings->counting_system_unique_payment, 'radio', 'counting_system', 'With this system, every word/visit is important since each single one more means a higher pay. Just think that the words/visits number will be multiplied for the unique payment value you enter.', 'counting_system_unique_payment', 'counting_system_unique_payment' ); ?>
         <div style="margin-left: 3em;" id="counting_system_unique_payment_content">
-            <label>Unique payment value <input type="text" name="unique_payment_value" value="<?php echo $this->edit_options_counter_settings->unique_payment ?>" /></label>
+            <label>Unique payment value <input type="text" name="unique_payment_value" value="<?php echo self::$edit_options_counter_settings->unique_payment ?>" /></label>
             
         </div>
         
-        <?php if( $this->edit_options_counter_settings->userID == 'general' ) { ?>
+        <?php if( self::$edit_options_counter_settings->userID == 'general' ) { ?>
         <div class="section_title">Counting options</div>
         <div id="counting_type_visits_options">
             <!--<div id="counting_type_visits_method_plugin_content">-->
-        <?php $this->post_pay_counter_options_functions->echo_p_field( 'Count visits from guests', $this->edit_options_counter_settings->count_visits_guests, 'checkbox', 'count_visits_guests', 'Define whether visits coming from <em>non</em> logged-in users should be counted or not.' );
-        $this->post_pay_counter_options_functions->echo_p_field( 'Count visits from registered users', $this->edit_options_counter_settings->count_visits_registered, 'checkbox', 'count_visits_registered', 'Define whether visits coming from logged-in users should be counted or not.' );
-        $this->post_pay_counter_options_functions->echo_p_field( 'Count visits from the post author', $this->edit_options_counter_settings->count_visits_authors, 'checkbox', 'count_visits_authors', 'Define whether visits coming from the author of the selected post should be counted or not.' );
-        $this->post_pay_counter_options_functions->echo_p_field( 'Count visits from bots', $this->edit_options_counter_settings->count_visits_bots, 'checkbox', 'count_visits_bots', 'Define whether visits coming from search engines crawlers should be counted or not.' ); ?>
+        <?php post_pay_counter_options_functions_class::echo_p_field( 'Count visits from guests', self::$edit_options_counter_settings->count_visits_guests, 'checkbox', 'count_visits_guests', 'Define whether visits coming from <em>non</em> logged-in users should be counted or not.' );
+        post_pay_counter_options_functions_class::echo_p_field( 'Count visits from registered users', self::$edit_options_counter_settings->count_visits_registered, 'checkbox', 'count_visits_registered', 'Define whether visits coming from logged-in users should be counted or not.' );
+        post_pay_counter_options_functions_class::echo_p_field( 'Count visits from the post author', self::$edit_options_counter_settings->count_visits_authors, 'checkbox', 'count_visits_authors', 'Define whether visits coming from the author of the selected post should be counted or not.' );
+        post_pay_counter_options_functions_class::echo_p_field( 'Count visits from bots', self::$edit_options_counter_settings->count_visits_bots, 'checkbox', 'count_visits_bots', 'Define whether visits coming from search engines crawlers should be counted or not.' ); ?>
             <!--</div>
             <div id="counting_type_visits_method_google_analytics_content">
                 <label for="counting_type_visits_system_google_analytics_email" style="width: 125px; float: left; margin-top: 12px;">Analytics email:</label>
-                <input style="height: 20px; margin-top: 12px;" type="text" id="counting_type_visits_method_google_analytics_email" name="counting_type_visits_method_google_analytics_email" size="30" value="<?php //echo $this->edit_options_counter_settings->counting_type_visits_method_google_analytics_email ?>" />
+                <input style="height: 20px; margin-top: 12px;" type="text" id="counting_type_visits_method_google_analytics_email" name="counting_type_visits_method_google_analytics_email" size="30" value="<?php //echo self::$edit_options_counter_settings->counting_type_visits_method_google_analytics_email ?>" />
                 <span style="float: right; width: 20px; text-align: right; margin-top: 12px;">
                     <img src="<?php //echo plugins_url( 'style/images/info.png', __FILE__ ); ?>" title="Put here the email address associated with the Google Analytics account you use to monitor this website. It will not be used anywhere but for the authentication to your Google account to retrieve the visits data (nor it will be sent to any remote server)." class="tooltip_container" />
                 </span>
                 <br />
                 <label for="counting_type_visits_method_google_analytics_password" style="width: 125px; float: left;">Analytics password:</label>
-                <input style="height: 20px;" type="text" id="counting_type_visits_method_google_analytics_password" name="counting_type_visits_method_google_analytics_password" size="30" value="<?php //echo $this->edit_options_counter_settings->counting_type_visits_method_google_analytics_password ?>" />
+                <input style="height: 20px;" type="text" id="counting_type_visits_method_google_analytics_password" name="counting_type_visits_method_google_analytics_password" size="30" value="<?php //echo self::$edit_options_counter_settings->counting_type_visits_method_google_analytics_password ?>" />
                 <span style="float: right; width: 20px; height: 13px; text-align: right;">
                     <img src="<?php //echo plugins_url( 'style/images/info.png', __FILE__ ); ?>" title="Put here the password associated with the Google Analytics account you use to monitor this website. It will not be used anywhere but for the authentication to your Google account to retrieve the visits data (nor it will be sent to any remote server)." class="tooltip_container" />
                 </span>
                 <br />
                 <label for="counting_type_visits_method_google_analytics_profile_id" style="width: 125px; float: left;">Analytics profile ID:</label>
                 <input style="height: 20px;" type="text" id="counting_type_visits_method_google_analytics_profile_id" name="counting_type_visits_method_google_analytics_profile_id" size="30"
-                 value="<?php //echo $this->edit_options_counter_settings->counting_type_visits_method_google_analytics_profile_id ?>" />
+                 value="<?php //echo self::$edit_options_counter_settings->counting_type_visits_method_google_analytics_profile_id ?>" />
                  <span style="float: right; width: 20px; height: 13px; text-align: right;">
                     <img src="<?php //echo plugins_url( 'style/images/info.png', __FILE__ ); ?>" title="Put here the profile ID associated with the this website in Google Analytics. If you do not know <strong>where to find it</strong>, go to the plugin's FAQs or Google a bit, just know that it is not the UA-xxxxxxx-x one." class="tooltip_container" />
                 </span>
-        <?php /*$this->post_pay_counter_options_functions->echo_p_field( 'Use pageviews', $this->edit_options_counter_settings->counting_type_visits_method_google_analytics_pageviews, 'radio', 'counting_type_visits_method_google_analytics_pageviews', 'Quoting Google Support: \'A pageview is defined as a view of a page on your site that is being tracked by the Analytics tracking code. If a visitor hits reload after reaching the page, this will be counted as an additional pageview\'', 'counting_type_visits_method_google_analytics_pageviews', 'counting_type_visits_method_google_analytics_pageviews' );
-            $this->post_pay_counter_options_functions->echo_p_field( 'Use unique pageviews', $this->edit_options_counter_settings->counting_type_visits_method_google_analytics_unique_pageviews, 'radio', 'counting_type_visits_method_google_analytics_pageviews', 'Quoting Google Support: \'A unique pageview, as seen in the Top Content report, aggregates pageviews that are generated by the same user during the same session. A unique pageview represents the number of sessions during which that page was viewed one or more times\'', 'counting_type_visits_method_google_analytics_unique_pageviews', 'counting_type_visits_method_google_analytics_unique_pageviews' );*/ ?>
+        <?php /*post_pay_counter_options_functions_class::echo_p_field( 'Use pageviews', self::$edit_options_counter_settings->counting_type_visits_method_google_analytics_pageviews, 'radio', 'counting_type_visits_method_google_analytics_pageviews', 'Quoting Google Support: \'A pageview is defined as a view of a page on your site that is being tracked by the Analytics tracking code. If a visitor hits reload after reaching the page, this will be counted as an additional pageview\'', 'counting_type_visits_method_google_analytics_pageviews', 'counting_type_visits_method_google_analytics_pageviews' );
+            post_pay_counter_options_functions_class::echo_p_field( 'Use unique pageviews', self::$edit_options_counter_settings->counting_type_visits_method_google_analytics_unique_pageviews, 'radio', 'counting_type_visits_method_google_analytics_pageviews', 'Quoting Google Support: \'A unique pageview, as seen in the Top Content report, aggregates pageviews that are generated by the same user during the same session. A unique pageview represents the number of sessions during which that page was viewed one or more times\'', 'counting_type_visits_method_google_analytics_unique_pageviews', 'counting_type_visits_method_google_analytics_unique_pageviews' );*/ ?>
                 <div class="section_title">Update frequency</div>
-        <?php /*$this->post_pay_counter_options_functions->echo_p_field( 'Update data every request', $this->edit_options_counter_settings->counting_type_visits_method_google_analytics_update_request, 'radio', 'counting_type_visits_method_google_analytics_update_time', 'Choose this if you want the plugin to always provide updated data from Google Analytics. Your countings will always be as updated as possible, but it will be slower since it will have to request data from Google every time stats are viewed. Overall stats, when shown, always rely on the local database not to slow down the whole page.', 'counting_type_visits_method_google_analytics_update_request', 'counting_type_visits_method_google_analytics_update_request' );
-            $this->post_pay_counter_options_functions->echo_p_field( 'Update data every hour', $this->edit_options_counter_settings->counting_type_visits_method_google_analytics_update_hour, 'radio', 'counting_type_visits_method_google_analytics_update_time', 'Choose this if you want the plugin to update from Google Analytics every hour. Countings will not be as updated as if data were requested each stats view, but plugin\'s pages will be faster while still having decent updated countings. Overall stats, when shown, always rely on the local database not to slow down the whole page.', 'counting_type_visits_method_google_analytics_update_hour', 'counting_type_visits_method_google_analytics_update_hour' );
-            $this->post_pay_counter_options_functions->echo_p_field( 'Update data every day', $this->edit_options_counter_settings->counting_type_visits_method_google_analytics_update_day, 'radio', 'counting_type_visits_method_google_analytics_update_time', 'Choose this if you want the plugin to update data from Google Analytics every day. This will provide the least updated data among the three choices, but since it relies most on the local database, it is the fastest. Overall stats, when shown, always rely on the local database not to slow down the whole page.', 'counting_type_visits_method_google_analytics_update_day', 'counting_type_visits_method_google_analytics_update_day' );*/ ?>
+        <?php /*post_pay_counter_options_functions_class::echo_p_field( 'Update data every request', self::$edit_options_counter_settings->counting_type_visits_method_google_analytics_update_request, 'radio', 'counting_type_visits_method_google_analytics_update_time', 'Choose this if you want the plugin to always provide updated data from Google Analytics. Your countings will always be as updated as possible, but it will be slower since it will have to request data from Google every time stats are viewed. Overall stats, when shown, always rely on the local database not to slow down the whole page.', 'counting_type_visits_method_google_analytics_update_request', 'counting_type_visits_method_google_analytics_update_request' );
+            post_pay_counter_options_functions_class::echo_p_field( 'Update data every hour', self::$edit_options_counter_settings->counting_type_visits_method_google_analytics_update_hour, 'radio', 'counting_type_visits_method_google_analytics_update_time', 'Choose this if you want the plugin to update from Google Analytics every hour. Countings will not be as updated as if data were requested each stats view, but plugin\'s pages will be faster while still having decent updated countings. Overall stats, when shown, always rely on the local database not to slow down the whole page.', 'counting_type_visits_method_google_analytics_update_hour', 'counting_type_visits_method_google_analytics_update_hour' );
+            post_pay_counter_options_functions_class::echo_p_field( 'Update data every day', self::$edit_options_counter_settings->counting_type_visits_method_google_analytics_update_day, 'radio', 'counting_type_visits_method_google_analytics_update_time', 'Choose this if you want the plugin to update data from Google Analytics every day. This will provide the least updated data among the three choices, but since it relies most on the local database, it is the fastest. Overall stats, when shown, always rely on the local database not to slow down the whole page.', 'counting_type_visits_method_google_analytics_update_day', 'counting_type_visits_method_google_analytics_update_day' );*/ ?>
                 <div class="section_title">Visits time range</div>
-        <?php /*$this->post_pay_counter_options_functions->echo_p_field( 'Visits range is equal to publication range', $this->edit_options_counter_settings->visits_time_range_equal_to_pub, 'radio', 'visits_time_range', 'When computing stats, the default setting will work as follows: given a publication time range, all the posts which publication date falls into that range are selected. Then, the related visits are retrieved from Google Analytics taking into account the visits recorded in the selected publication time range. E.g.: you ask for posts published from 1<sup>st</sup> May to 31<sup>st</sup> May: to compute their payments visits from 1<sup>st</sup> May to 31<sup>st</sup> May are taken into account, even for a post that was published on 31<sup>st</sup>. However, this will be the default setting: it will still be possible to change the visits time range the way you want.', 'visits_time_range_equal_to_pub', 'visits_time_range_equal_to_pub' );
-        $this->post_pay_counter_options_functions->echo_p_field( 'Given a publication range, the visits one is defined accordingly', $this->edit_options_counter_settings->visits_time_range_each_post_accordingly, 'radio', 'visits_time_range', 'When computing stats, the default setting will work as follows: given a publication time range, visits that were recorded between the publication date of a certain post and the desired number of days after are retrieved. In this way, each post will have a different visits time range, making sure that every post is paid basing on the same time frame. In the stats page, different graphics will highlight the posts of which the visits time range is complete, and the ones of which it is not. E.g.: If you choose this option, and set the related input field to 30 days, it will mean that a post published on 1<sup>st</sup> May will have taken into account all the visits recorded between 1<sup>st</sup> and 31<sup>rd</sup> May; and if you will look at stats on 20<sup>th</sup>, the plugin will tell you that only 20 days have been taken into account, and that thus the counting is not really complete. However, this will be the default setting: it will still be possible to change the visits time range the way you want.', 'visits_time_range_each_post_accordingly', 'visits_time_range_each_post_accordingly' );*/ ?>
+        <?php /*post_pay_counter_options_functions_class::echo_p_field( 'Visits range is equal to publication range', self::$edit_options_counter_settings->visits_time_range_equal_to_pub, 'radio', 'visits_time_range', 'When computing stats, the default setting will work as follows: given a publication time range, all the posts which publication date falls into that range are selected. Then, the related visits are retrieved from Google Analytics taking into account the visits recorded in the selected publication time range. E.g.: you ask for posts published from 1<sup>st</sup> May to 31<sup>st</sup> May: to compute their payments visits from 1<sup>st</sup> May to 31<sup>st</sup> May are taken into account, even for a post that was published on 31<sup>st</sup>. However, this will be the default setting: it will still be possible to change the visits time range the way you want.', 'visits_time_range_equal_to_pub', 'visits_time_range_equal_to_pub' );
+        post_pay_counter_options_functions_class::echo_p_field( 'Given a publication range, the visits one is defined accordingly', self::$edit_options_counter_settings->visits_time_range_each_post_accordingly, 'radio', 'visits_time_range', 'When computing stats, the default setting will work as follows: given a publication time range, visits that were recorded between the publication date of a certain post and the desired number of days after are retrieved. In this way, each post will have a different visits time range, making sure that every post is paid basing on the same time frame. In the stats page, different graphics will highlight the posts of which the visits time range is complete, and the ones of which it is not. E.g.: If you choose this option, and set the related input field to 30 days, it will mean that a post published on 1<sup>st</sup> May will have taken into account all the visits recorded between 1<sup>st</sup> and 31<sup>rd</sup> May; and if you will look at stats on 20<sup>th</sup>, the plugin will tell you that only 20 days have been taken into account, and that thus the counting is not really complete. However, this will be the default setting: it will still be possible to change the visits time range the way you want.', 'visits_time_range_each_post_accordingly', 'visits_time_range_each_post_accordingly' );*/ ?>
                 <div id="visits_time_range_each_post_accordingly_content">
                     <label for="visits_time_range_each_post_accordingly_value" style="width: 230px; float: left; margin-left: 3em;">Take into account visits for the following (days):</label>
                     <input style="height: 20px;" type="text" id="visits_time_range_each_post_accordingly_value" name="visits_time_range_each_post_accordingly_value" size="5" maxlength="5"
-                     value="<?php //echo $this->edit_options_counter_settings->visits_time_range_each_post_accordingly_value ?>" />
+                     value="<?php //echo self::$edit_options_counter_settings->visits_time_range_each_post_accordingly_value ?>" />
                      <span style="float: right; width: 20px; height: 13px; text-align: right;">
                         <img src="<?php //echo plugins_url( 'style/images/info.png', __FILE__ ); ?>" title="Put here the number of days (max 5 digits) of which you want the plugin to take into account visits when computing payments." class="tooltip_container" />
                     </span>
                 </div>
-        <?php /*$this->post_pay_counter_options_functions->echo_p_field( 'Given a visits range, all the posts having visits are selected', $this->edit_options_counter_settings->visits_time_range_rules_selection, 'radio', 'visits_time_range', 'When computing stats, the default settings will work as follows: given a visits time range, all the posts having visits recorded in that time frame will be selected. This way you will be sure that every single visit, even after years the post has been published, will be paid and rewarded. This could be an incentive for your writers to write less but better posts. However, this will be the default setting: it will still be possible to change the visits time range the way you want.', 'visits_time_range_rules_selection', 'visits_time_range_rules_selection' );*/ ?>
+        <?php /*post_pay_counter_options_functions_class::echo_p_field( 'Given a visits range, all the posts having visits are selected', self::$edit_options_counter_settings->visits_time_range_rules_selection, 'radio', 'visits_time_range', 'When computing stats, the default settings will work as follows: given a visits time range, all the posts having visits recorded in that time frame will be selected. This way you will be sure that every single visit, even after years the post has been published, will be paid and rewarded. This could be an incentive for your writers to write less but better posts. However, this will be the default setting: it will still be possible to change the visits time range the way you want.', 'visits_time_range_rules_selection', 'visits_time_range_rules_selection' );*/ ?>
             </div>-->
         </div>
         <div id="counting_type_words_options">
-        <?php $this->post_pay_counter_options_functions->echo_p_field( 'Count pending revision posts', $this->edit_options_counter_settings->count_pending_revision_posts, 'checkbox', 'count_pending_revision_posts', 'While published posts are automatically counted, you can decide to include pending revision ones or not. Change will automatically trigger a stats regenerate.' );
-        $this->post_pay_counter_options_functions->echo_p_field( 'Count future scheduled posts', $this->edit_options_counter_settings->count_future_scheduled_posts, 'checkbox', 'count_future_scheduled_posts', 'While published posts are automatically counted, you can decide to include future planned ones or not. Change will automatically trigger a stats regenerate.' );
-        $this->post_pay_counter_options_functions->echo_p_field( 'Exclude quoted content from word counting', $this->edit_options_counter_settings->exclude_quotations_from_countings, 'checkbox', 'exclude_quotations_from_countings', 'If checked all the words contained into a <em>quote</em> tag will not be taken into account when counting. Use this to prevent interviews and such stuff to be counted as normal words. Change will automatically trigger a stats regenerate.' ); ?>
+        <?php post_pay_counter_options_functions_class::echo_p_field( 'Count pending revision posts', self::$edit_options_counter_settings->count_pending_revision_posts, 'checkbox', 'count_pending_revision_posts', 'While published posts are automatically counted, you can decide to include pending revision ones or not. Change will automatically trigger a stats regenerate.' );
+        post_pay_counter_options_functions_class::echo_p_field( 'Count future scheduled posts', self::$edit_options_counter_settings->count_future_scheduled_posts, 'checkbox', 'count_future_scheduled_posts', 'While published posts are automatically counted, you can decide to include future planned ones or not. Change will automatically trigger a stats regenerate.' );
+        post_pay_counter_options_functions_class::echo_p_field( 'Exclude quoted content from word counting', self::$edit_options_counter_settings->exclude_quotations_from_countings, 'checkbox', 'exclude_quotations_from_countings', 'If checked all the words contained into a <em>quote</em> tag will not be taken into account when counting. Use this to prevent interviews and such stuff to be counted as normal words. Change will automatically trigger a stats regenerate.' ); ?>
         </div>
         
         <div class="section_title">Post types to include in counting</div>
@@ -476,7 +542,7 @@ class post_pay_counter_core {
         
         <?php //Get WP post types and current included ones
         $custom_post_types          = get_post_types();
-        $custom_post_types_current  = unserialize( $this->edit_options_counter_settings->post_types_to_include_in_counting );
+        $custom_post_types_current  = unserialize( self::$edit_options_counter_settings->post_types_to_include_in_counting );
         
         //Cycle through the WP post types and display a list of them, checking the related checkbox when post type is also present in the current allowed ones array
         foreach ( $custom_post_types as $single ) {
@@ -498,13 +564,10 @@ class post_pay_counter_core {
             <img src="<?php echo plugins_url( 'style/images/info.png', __FILE__ ); ?>" title="All the posts of the post types below that you will check will be included in counting. There are some you may have never seen: they are Wordpress built-in ones. Post relates to normal posts and Page to normal pages. Change will automatically trigger a stats regenerate." class="tooltip_container" />
         </span>
         
-        <?php //Get current allowed user roles
-        $user_roles_current = unserialize( $this->edit_options_counter_settings->user_roles_to_include_in_counting ); 
-        
-        //Foreach user roles and show them
+        <?php //Foreach user roles and show them
         foreach( $wp_roles->role_names as $key => $value ) {
             
-            if( in_array( $key, $user_roles_current ) ) {
+            if( in_array( $key, unserialize( self::$general_settings->user_roles_to_include_in_counting ) ) ) {
                 $checked = 'checked="checked"';
             } ?>
             
@@ -517,13 +580,13 @@ class post_pay_counter_core {
         } ?>
         
         <div class="section_title">Publication time range</div>
-        <?php $this->post_pay_counter_options_functions->echo_p_field( 'Payment takes place weekly', $this->edit_options_counter_settings->publication_time_range_week, 'radio', 'publication_time_range', 'With this, the plugin will display in the stats all the published posts from the beginning of the week to the current day (week starts on Monday). This will be the default settings: you will still be able to change the time range the way you want it. You should select this if you usually pay your writers weekly.', 'publication_time_range_week', 'publication_time_range_week' );
-        $this->post_pay_counter_options_functions->echo_p_field( 'Payment takes place monthly', $this->edit_options_counter_settings->publication_time_range_month, 'radio', 'publication_time_range', 'With this, the plugin will display in the stats all the published posts from the beginning of the month to the current day. This will be the default settings: you will still be able to change the time range the way you want it. You should select this if you usually pay your writers monthly.', 'publication_time_range_month', 'publication_time_range_month' );
-        $this->post_pay_counter_options_functions->echo_p_field( 'Payment takes place on a custom basis', $this->edit_options_counter_settings->publication_time_range_custom, 'radio', 'publication_time_range', 'With this, you can manually customize the rime range for the published posts the plugin will display in the stats. This will be the default settings: you will still be able to change the time range the way you want it. So, for example, if you set this to 365 days, in the stats page it will automatically be selected a time frame that goes from the current day to the previous 365 days', 'publication_time_range_custom', 'publication_time_range_custom' ); ?>
+        <?php post_pay_counter_options_functions_class::echo_p_field( 'Payment takes place weekly', self::$edit_options_counter_settings->publication_time_range_week, 'radio', 'publication_time_range', 'With this, the plugin will display in the stats all the published posts from the beginning of the week to the current day (week starts on Monday). This will be the default settings: you will still be able to change the time range the way you want it. You should select this if you usually pay your writers weekly.', 'publication_time_range_week', 'publication_time_range_week' );
+        post_pay_counter_options_functions_class::echo_p_field( 'Payment takes place monthly', self::$edit_options_counter_settings->publication_time_range_month, 'radio', 'publication_time_range', 'With this, the plugin will display in the stats all the published posts from the beginning of the month to the current day. This will be the default settings: you will still be able to change the time range the way you want it. You should select this if you usually pay your writers monthly.', 'publication_time_range_month', 'publication_time_range_month' );
+        post_pay_counter_options_functions_class::echo_p_field( 'Payment takes place on a custom basis', self::$edit_options_counter_settings->publication_time_range_custom, 'radio', 'publication_time_range', 'With this, you can manually customize the rime range for the published posts the plugin will display in the stats. This will be the default settings: you will still be able to change the time range the way you want it. So, for example, if you set this to 365 days, in the stats page it will automatically be selected a time frame that goes from the current day to the previous 365 days', 'publication_time_range_custom', 'publication_time_range_custom' ); ?>
         <div id="publication_time_range_custom_content">
             <label for="payment_data_range_custom_value" style="width: 230px; float: left; margin-left: 3em;">How often payment takes place (days):</label>
             <input style="height: 20px;" type="text" id="publication_time_range_custom_value" name="publication_time_range_custom_value" size="5" maxlength="5"
-             value="<?php echo $this->edit_options_counter_settings->publication_time_range_custom_value ?>" />
+             value="<?php echo self::$edit_options_counter_settings->publication_time_range_custom_value ?>" />
              <span style="float: right; width: 20px; height: 13px; text-align: right;">
                 <img src="<?php echo plugins_url( 'style/images/info.png', __FILE__ ); ?>" title="Put here the number of days (max 5 digits) you want the plugin to take into account when selecting posts." class="tooltip_container" />
             </span>
@@ -532,23 +595,23 @@ class post_pay_counter_core {
         
         <div class="section_title">Additional settings</div>
         <p>
-            <label>Award a &euro; <input type="text" name="bonus_comment_payment" value="<?php echo $this->edit_options_counter_settings->bonus_comment_payment ?>" size="2" /> bonus</label> <label>when a post goes over <input type="text" name="bonus_comment_count" value="<?php echo $this->edit_options_counter_settings->bonus_comment_count ?>" size="1" /> comments</label>
+            <label>Award a &euro; <input type="text" name="bonus_comment_payment" value="<?php echo self::$edit_options_counter_settings->bonus_comment_payment ?>" size="2" /> bonus</label> <label>when a post goes over <input type="text" name="bonus_comment_count" value="<?php echo self::$edit_options_counter_settings->bonus_comment_count ?>" size="1" /> comments</label>
             <br />
-            <label>After the first image, credit &euro; <input type="text" name="bonus_image_payment" value="<?php echo $this->edit_options_counter_settings->bonus_image_payment ?>" size="3" /> for each image more</label>
+            <label>After the first image, credit &euro; <input type="text" name="bonus_image_payment" value="<?php echo self::$edit_options_counter_settings->bonus_image_payment ?>" size="3" /> for each image more</label>
         </p>
-        <?php $this->post_pay_counter_options_functions->echo_p_field( 'Allow single post payment bonuses', $this->edit_options_counter_settings->allow_payment_bonuses, 'checkbox', 'allow_payment_bonuses', 'If checked, a custom field will allow to award a post bonus in the writing page. Do this by creating a new custom field named <em>payment_bonus</em> with the value you want to be the bonus (read the FAQ for details). <strong>Take care</strong> because everyone who can edit posts can also handle this custom field, potentially having their posts payed more without your authorization. In the stats page you will anyway see what posts have bonuses.' ); 
-        $this->post_pay_counter_options_functions->echo_p_field( 'Enable minimum fee', $this->edit_options_counter_settings->minimum_fee_enable, 'checkbox', 'minimum_fee_enable', 'The minimum fee function allows to always credit writers a fixed amout of money of your choice. When enabled, the posts which do not reach the minimum fee thresold will be rounded to that. So if the minimum fee value is set to &euro; 1.00 and a given post would only account for &euro; 0.50, the payment will be rounded to &euro; 1.00. When active, no posts will be paid less than the value you specify below.', 'minimum_fee_enable', 'minimum_fee_enable' ); ?>
+        <?php post_pay_counter_options_functions_class::echo_p_field( 'Allow single post payment bonuses', self::$edit_options_counter_settings->allow_payment_bonuses, 'checkbox', 'allow_payment_bonuses', 'If checked, a custom field will allow to award a post bonus in the writing page. Do this by creating a new custom field named <em>payment_bonus</em> with the value you want to be the bonus (read the FAQ for details). <strong>Take care</strong> because everyone who can edit posts can also handle this custom field, potentially having their posts payed more without your authorization. In the stats page you will anyway see what posts have bonuses.' ); 
+        post_pay_counter_options_functions_class::echo_p_field( 'Enable minimum fee', self::$edit_options_counter_settings->minimum_fee_enable, 'checkbox', 'minimum_fee_enable', 'The minimum fee function allows to always credit writers a fixed amout of money of your choice. When enabled, the posts which do not reach the minimum fee thresold will be rounded to that. So if the minimum fee value is set to &euro; 1.00 and a given post would only account for &euro; 0.50, the payment will be rounded to &euro; 1.00. When active, no posts will be paid less than the value you specify below.', 'minimum_fee_enable', 'minimum_fee_enable' ); ?>
         <div style="margin-left: 3em;" id="minimum_fee_enable_content">
             <p>
-                <label>Minimum fee value <input type="text" name="minimum_fee_value" value="<?php echo $this->edit_options_counter_settings->minimum_fee_value; ?>"></label>
+                <label>Minimum fee value <input type="text" name="minimum_fee_value" value="<?php echo self::$edit_options_counter_settings->minimum_fee_value; ?>"></label>
             </p>
         </div>
         <p>
         
         <?php //Show this only if we're in a particular author settings page (paypal address input field)
-        if( is_numeric( $this->edit_options_counter_settings->userID ) ) { ?>
+        if( is_numeric( self::$edit_options_counter_settings->userID ) ) { ?>
             <p>
-                <label>Add here the user's paypal address for an easier payment <input type="text" name="paypal_address" size="28" value="<?php echo $this->edit_options_counter_settings->paypal_address ?>" /></label>
+                <label>Add here the user's paypal address for an easier payment <input type="text" name="paypal_address" size="28" value="<?php echo self::$edit_options_counter_settings->paypal_address ?>" /></label>
             </p>
          <?php }
     }
@@ -560,19 +623,19 @@ class post_pay_counter_core {
             $wp_roles = new WP_Roles(); ?>
         
         <p>Just a few fields to help you keeping users away from where they should not be. Remember that administrators override all these permissions even if their settings have been personalized.</p>
-        <?php $this->post_pay_counter_options_functions->echo_p_field( 'Make other users\' general stats viewable', $this->edit_options_counter_settings->can_view_others_general_stats, 'checkbox', 'can_view_others_general_stats', 'If unchecked, users will only be able to see their stats in the general page. Other users\' names, posts and pay counts will not be displayed.' );
-        $this->post_pay_counter_options_functions->echo_p_field( 'Make other users\' detailed stats viewable', $this->edit_options_counter_settings->can_view_others_detailed_stats, 'checkbox', 'can_view_others_detailed_stats', 'If unchecked, other users will not be able to see other user\'s detailed stats (ie. written posts details) but still able to see general ones. ' );
-        $this->post_pay_counter_options_functions->echo_p_field( 'Make overall stats viewable', $this->edit_options_counter_settings->can_view_overall_stats, 'checkbox', 'can_view_overall_stats', 'Responsible of the <em>Overall Stats</em> box displaying. It shows some interesting data regarding your blog since you started it, but their generation it is quite heavy since it selects all the counted posts ever. <strong>For Google Analytics users:</strong> do not worry, overall stats never need further Google requests, it just always retrieves all the data from your own database.' );
-        $this->post_pay_counter_options_functions->echo_p_field( 'Make viewable the use of special settings in countings', $this->edit_options_counter_settings->can_view_special_settings_countings, 'checkbox', 'can_view_special_settings_countings', 'If you personalize settings by user, keep this in mind. If unchecked, users will not see personalized settings in countings, they will believe everybody is still using general settings. Anyway, the selected posts author will see them.' );
-        $this->post_pay_counter_options_functions->echo_p_field( 'Make countings details viewable as overlay', $this->edit_options_counter_settings->can_view_overlay_counting_details, 'checkbox', 'can_view_overlay_counting_details', 'When checked, it will be possible to see how the final payment amount is generated, from what sections the money come from.' );
-        $this->post_pay_counter_options_functions->echo_p_field( 'Make paid amount visible (no marking allowed)', $this->edit_options_counter_settings->can_view_paid_amount, 'checkbox', 'can_view_paid_amount', 'When checked, it will be possible to see how how much a post has already been paid. Only administrators will be able to mark/unmark posts as paid, though.' );
-        $this->post_pay_counter_options_functions->echo_p_field( 'Make posts word count visible in post list', $this->edit_options_counter_settings->can_view_posts_word_count_post_list, 'checkbox', 'can_view_posts_word_count_post_list', 'Check this if you want the word counts for each post to be showed as a column in the Wordpress post list. If using the zones counting system and the word count for a post is below the first zone, its opcaity will be reduced.' );
-        $this->post_pay_counter_options_functions->echo_p_field( 'Allow stats to be downloadable as csv files', $this->edit_options_counter_settings->can_csv_export, 'checkbox', 'can_csv_export', 'If checked, a link in the bottom of the stats table will allow to download the displayed data as a csv file for offline consulting.' );
+        <?php post_pay_counter_options_functions_class::echo_p_field( 'Make other users\' general stats viewable', self::$edit_options_counter_settings->can_view_others_general_stats, 'checkbox', 'can_view_others_general_stats', 'If unchecked, users will only be able to see their stats in the general page. Other users\' names, posts and pay counts will not be displayed.' );
+        post_pay_counter_options_functions_class::echo_p_field( 'Make other users\' detailed stats viewable', self::$edit_options_counter_settings->can_view_others_detailed_stats, 'checkbox', 'can_view_others_detailed_stats', 'If unchecked, other users will not be able to see other user\'s detailed stats (ie. written posts details) but still able to see general ones. ' );
+        post_pay_counter_options_functions_class::echo_p_field( 'Make overall stats viewable', self::$edit_options_counter_settings->can_view_overall_stats, 'checkbox', 'can_view_overall_stats', 'Responsible of the <em>Overall Stats</em> box displaying. It shows some interesting data regarding your blog since you started it, but their generation it is quite heavy since it selects all the counted posts ever. <strong>For Google Analytics users:</strong> do not worry, overall stats never need further Google requests, it just always retrieves all the data from your own database.' );
+        post_pay_counter_options_functions_class::echo_p_field( 'Make viewable the use of special settings in countings', self::$edit_options_counter_settings->can_view_special_settings_countings, 'checkbox', 'can_view_special_settings_countings', 'If you personalize settings by user, keep this in mind. If unchecked, users will not see personalized settings in countings, they will believe everybody is still using general settings. Anyway, the selected posts author will see them.' );
+        post_pay_counter_options_functions_class::echo_p_field( 'Make countings details viewable as overlay', self::$edit_options_counter_settings->can_view_overlay_counting_details, 'checkbox', 'can_view_overlay_counting_details', 'When checked, it will be possible to see how the final payment amount is generated, from what sections the money come from.' );
+        post_pay_counter_options_functions_class::echo_p_field( 'Make paid amount visible (no marking allowed)', self::$edit_options_counter_settings->can_view_paid_amount, 'checkbox', 'can_view_paid_amount', 'When checked, it will be possible to see how how much a post has already been paid. Only administrators will be able to mark/unmark posts as paid, though.' );
+        post_pay_counter_options_functions_class::echo_p_field( 'Make posts word count visible in post list', self::$edit_options_counter_settings->can_view_posts_word_count_post_list, 'checkbox', 'can_view_posts_word_count_post_list', 'Check this if you want the word counts for each post to be showed as a column in the Wordpress post list. If using the zones counting system and the word count for a post is below the first zone, its opcaity will be reduced.' );
+        post_pay_counter_options_functions_class::echo_p_field( 'Allow stats to be downloadable as csv files', self::$edit_options_counter_settings->can_csv_export, 'checkbox', 'can_csv_export', 'If checked, a link in the bottom of the stats table will allow to download the displayed data as a csv file for offline consulting.' );
         
-        if( $this->edit_options_counter_settings->userID == 'general' ) {
+        if( self::$edit_options_counter_settings->userID == 'general' ) {
             echo '<p style="margin-top: 20px;">Plugin Options can be viewed and edited by following user roles</p>';
             foreach( $wp_roles->role_names as $key => $value ) {
-                if( in_array( $key, $this->post_pay_counter_functions->allowed_user_roles_options_page ) )
+                if( in_array( $key, self::$allowed_user_roles_options_page ) )
                     $checked = ' checked="checked"';
                 
                 echo '<p style="height: 10px;"><label><input type="checkbox" name="permission_options_page_user_roles_'.$key.'" value="'.$key.'"'.@$checked.'> '.$value.'</label></p>';
@@ -580,7 +643,7 @@ class post_pay_counter_core {
             }
             echo '<p style="margin-top: 20px;">Plugin Stats page can be viewed by following user roles</p>';
             foreach( $wp_roles->role_names as $key => $value ) {
-                if( in_array( $key, $this->post_pay_counter_functions->allowed_user_roles_stats_page ) )
+                if( in_array( $key, self::$allowed_user_roles_stats_page ) )
                     $checked = ' checked="checked"';
                 
                 echo '<p style="height: 10px;"><label><input type="checkbox" name="permission_stats_page_user_roles_'.$key.'" value="'.$key.'"'.@$checked.'> '.$value.'</label></p>';
@@ -607,20 +670,20 @@ class post_pay_counter_core {
     
     function meta_box_trial_settings() { ?>
         <p>Did you know you can also define some trial settings, so that new authors will be payed differently for their first writing period (and also have diverse permissions and everything)? </p>
-        <p>First of all, define the trial counting settings from <a href="<?php echo admin_url( $this->post_pay_counter_options_menu_link.'&amp;userid=trial' ) ?>" title="Trial settings">this page</a>.</p>
-        <?php $this->post_pay_counter_options_functions->echo_p_field( 'Automatic trial', $this->edit_options_counter_settings->trial_auto, 'radio', 'trial_type', 'This way, the plugin will handle all the trial stuff by itself. After you will have defined how long you want it to last (days or posts since user subscribed), forget it.', 'trial_auto', 'trial_auto' ); ?>
+        <p>First of all, define the trial counting settings from <a href="<?php echo admin_url( self::$post_pay_counter_options_menu_link.'&amp;userid=trial' ) ?>" title="Trial settings">this page</a>.</p>
+        <?php post_pay_counter_options_functions_class::echo_p_field( 'Automatic trial', self::$edit_options_counter_settings->trial_auto, 'radio', 'trial_type', 'This way, the plugin will handle all the trial stuff by itself. After you will have defined how long you want it to last (days or posts since user subscribed), forget it.', 'trial_auto', 'trial_auto' ); ?>
         <p style="margin-left: 3em;" id="trial_auto_content">
-            <label>Define the period you want it to run: <br /> <input type="text" name="trial_period" value="<?php echo $this->edit_options_counter_settings->trial_period ?>" size="5" /></label>
+            <label>Define the period you want it to run: <br /> <input type="text" name="trial_period" value="<?php echo self::$edit_options_counter_settings->trial_period ?>" size="5" /></label>
             <span style="margin-left: 2em;"><label>
-        <?php echo $this->post_pay_counter_options_functions->checked_or_not( $this->edit_options_counter_settings->trial_period_days, 'radio', 'trial_period_type', 'Days' ); ?> Days </label> <label> Posts <?php echo $this->post_pay_counter_options_functions->checked_or_not( $this->edit_options_counter_settings->trial_period_posts, 'radio', 'trial_period_type', 'Posts' ); ?>
+        <?php echo post_pay_counter_options_functions_class::checked_or_not( self::$edit_options_counter_settings->trial_period_days, 'radio', 'trial_period_type', 'Days' ); ?> Days </label> <label> Posts <?php echo post_pay_counter_options_functions_class::checked_or_not( self::$edit_options_counter_settings->trial_period_posts, 'radio', 'trial_period_type', 'Posts' ); ?>
             </label>
             </span>
         </p>
-        <?php $this->post_pay_counter_options_functions->echo_p_field( 'Manual trial', $this->edit_options_counter_settings->trial_manual, 'radio', 'trial_type', 'Else, if you prefer to have a little more control over it, you can just select this and manually opt-in and out the trial option from the single users\' pages.', 'trial_manual', 'trial_manual' );
+        <?php post_pay_counter_options_functions_class::echo_p_field( 'Manual trial', self::$edit_options_counter_settings->trial_manual, 'radio', 'trial_type', 'Else, if you prefer to have a little more control over it, you can just select this and manually opt-in and out the trial option from the single users\' pages.', 'trial_manual', 'trial_manual' );
         //Show the "enable trial for this user" only if in a user's page
-        if( is_numeric( $this->edit_options_counter_settings->userID ) ) { ?>
+        if( is_numeric( self::$edit_options_counter_settings->userID ) ) { ?>
         <div style="margin-left: 3em;" id="trial_manual_content">
-            <?php $this->post_pay_counter_options_functions->echo_p_field( 'Enable trial for the selected user', $this->edit_options_counter_settings->trial_enable, 'checkbox', 'trial_enable', 'Opt-in/out trial settings for the selected user' ); ?>
+            <?php post_pay_counter_options_functions_class::echo_p_field( 'Enable trial for the selected user', self::$edit_options_counter_settings->trial_enable, 'checkbox', 'trial_enable', 'Opt-in/out trial settings for the selected user' ); ?>
         </div>
         <?php }
     }
@@ -629,12 +692,12 @@ class post_pay_counter_core {
         global $wpdb;
         
         //General settings, valid for every editor. Showing users with personalized settings on the right
-    	if( ! is_numeric( $this->edit_options_counter_settings->userID ) ) {
+    	if( ! is_numeric( self::$edit_options_counter_settings->userID ) ) {
     		  
           //Select all users who have different settings already in place
-          $personalized_users = $wpdb->get_results( 'SELECT userID FROM '.$wpdb->prefix.'post_pay_counter WHERE userID != "general" AND userID != "trial"', ARRAY_A ); 
+          $personalized_users = $wpdb->get_results( 'SELECT userID FROM '.self::$post_pay_counter_db_table.' WHERE userID != "general" AND userID != "trial"', ARRAY_A ); 
           
-          echo '<strong>Showing '.$this->edit_options_counter_settings->userID.' settings</strong>';
+          echo '<strong>Showing '.self::$edit_options_counter_settings->userID.' settings</strong>';
           
           //If special users are detected, show them
           if( $wpdb->num_rows > 0 ) { ?>
@@ -654,7 +717,7 @@ class post_pay_counter_core {
                 else
                     echo '<span style="float: right; width: 33%;">';
                 
-                echo '<a href="'.admin_url( $this->post_pay_counter_options_menu_link.'&amp;userid='.$single['userID'] ).'" title="View and edit special settings for \''.htmlspecialchars( $userdata->display_name ).'\'">'.$userdata->display_name.'</a>
+                echo '<a href="'.admin_url( self::$post_pay_counter_options_menu_link.'&amp;userid='.$single['userID'] ).'" title="View and edit special settings for \''.htmlspecialchars( $userdata->display_name ).'\'">'.$userdata->display_name.'</a>
                 </span>';
                 
                 $already_personalized[$single['userID']] = $single['userID'];
@@ -672,8 +735,8 @@ class post_pay_counter_core {
 		} else { ?>
 		<strong>Showing settings for "<a href="<?php echo admin_url( 'user-edit.php?user_id='.$_GET['userid'] ); ?>" title="Go to user page" style="color: #000000; text-decoration: none;"><?php echo get_userdata( $_GET['userid'] )->display_name; ?></a>"</strong>
         <p>
-            <a href="<?php echo admin_url( $this->post_pay_counter_options_menu_link ); ?>" title="General settings">Go back to general settings</a><br />
-            <a href="<?php echo wp_nonce_url( admin_url( $this->post_pay_counter_options_menu_link.'&amp;delete='.$_GET['userid'] ), 'post_pay_counter_options_delete_user_settings' ); ?>" title="Delete this user's settings">Delete this user's settings</a>
+            <a href="<?php echo admin_url( self::$post_pay_counter_options_menu_link ); ?>" title="General settings">Go back to general settings</a><br />
+            <a href="<?php echo wp_nonce_url( admin_url( self::$post_pay_counter_options_menu_link.'&amp;delete='.$_GET['userid'] ), 'post_pay_counter_options_delete_user_settings' ); ?>" title="Delete this user's settings">Delete this user's settings</a>
         </p>
 		<?php }
         
@@ -742,7 +805,7 @@ class post_pay_counter_core {
             if( $n % 2 == 0 )
                 echo '<tr>';
                 
-                echo '<td style="font-size: 12px;"><a href="'.admin_url( $this->post_pay_counter_options_menu_link.'&amp;userid='.$single->ID ).'" title="'.$userdata->display_name.'">'.$userdata->display_name.'</a></td>
+                echo '<td style="font-size: 12px;"><a href="'.admin_url( self::$post_pay_counter_options_menu_link.'&amp;userid='.$single->ID ).'" title="'.$userdata->display_name.'">'.$userdata->display_name.'</a></td>
                 <td style="font-size: 11px;"><a href="'.@get_permalink( $last_post->ID ).'" title="Go to last post" style="color: #000000; text-decoration: none;">'.$last_post_date.'</a></td>';
             
             if( $n % 2 != 0 )
@@ -775,7 +838,7 @@ class post_pay_counter_core {
         //Nonce check
         check_admin_referer( 'post_pay_counter_main_form_update' );
         
-        $current_counting_settings  = $this->post_pay_counter_functions->get_settings( $_POST['userID'] );
+        $current_counting_settings  = post_pay_counter_functions_class::get_settings( $_POST['userID'] );
         $new_settings               = array();
         
         /* COUNTING SETTINGS BOX */
@@ -809,7 +872,7 @@ class post_pay_counter_core {
                 'payment'   => (float) str_replace( ',', '.', $_POST['zone5_payment'] )
             )
         );
-        $add_five_more_zones = @$this->post_pay_counter_options_functions->update_options_checkbox_value( $_POST['add_five_more_zones'] );
+        $add_five_more_zones = @post_pay_counter_options_functions_class::update_options_checkbox_value( $_POST['add_five_more_zones'] );
         
         //If add five more zones is selected, to it all over again for supplementary zones
         if( $add_five_more_zones == 1 ) {
@@ -855,9 +918,9 @@ class post_pay_counter_core {
                     break;
                     
                 default:
-                    $new_settings['counting_type_words']                = $this->post_pay_counter_functions->general_settings->counting_type_words;
-                    $new_settings['counting_type_visits']               = $this->post_pay_counter_functions->general_settings->counting_type_visits;
-                    $new_settings['counting_type_visits_method_plugin'] = $this->post_pay_counter_functions->general_settings->counting_type_visits_method_plugin;
+                    $new_settings['counting_type_words']                = self::$general_settings->counting_type_words;
+                    $new_settings['counting_type_visits']               = self::$general_settings->counting_type_visits;
+                    $new_settings['counting_type_visits_method_plugin'] = self::$general_settings->counting_type_visits_method_plugin;
                     break;
             }
             
@@ -875,10 +938,10 @@ class post_pay_counter_core {
                         $new_settings['counting_type_visits_method_google_analytics']   = 1;
                         
                         //If Google Analytics settings have been changed, verify if they are valid
-                        if( $new_settings['counting_type_visits_method_google_analytics']       != $this->post_pay_counter_functions->general_settings->counting_type_visits_method_google_analytics
-                        OR $_POST['counting_type_visits_method_google_analytics_email']         != $this->post_pay_counter_functions->general_settings->counting_type_visits_method_google_analytics_email
-                        OR $_POST['counting_type_visits_method_google_analytics_password']      != $this->post_pay_counter_functions->general_settings->counting_type_visits_method_google_analytics_password
-                        OR $_POST['counting_type_visits_method_google_analytics_profile_id']    != $this->post_pay_counter_functions->general_settings->counting_type_visits_method_google_analytics_profile_id ) {                        
+                        if( $new_settings['counting_type_visits_method_google_analytics']       != self::$general_settings->counting_type_visits_method_google_analytics
+                        OR $_POST['counting_type_visits_method_google_analytics_email']         != self::$general_settings->counting_type_visits_method_google_analytics_email
+                        OR $_POST['counting_type_visits_method_google_analytics_password']      != self::$general_settings->counting_type_visits_method_google_analytics_password
+                        OR $_POST['counting_type_visits_method_google_analytics_profile_id']    != self::$general_settings->counting_type_visits_method_google_analytics_profile_id ) {                        
                             try {
                                 //Login
                                 $ga = new gapi( $_POST['counting_type_visits_method_google_analytics_email'], $_POST['counting_type_visits_method_google_analytics_password'] );
@@ -915,9 +978,9 @@ class post_pay_counter_core {
                                 break;
                                 
                             default:
-                                $new_settings['counting_type_visits_method_google_analytics_update_request']    = $this->post_pay_counter_functions->general_settings->counting_type_visits_method_google_analytics_update_request;
-                                $new_settings['counting_type_visits_method_google_analytics_update_hour']       = $this->post_pay_counter_functions->general_settings->counting_type_visits_method_google_analytics_update_hour;
-                                $new_settings['counting_type_visits_method_google_analytics_update_day']        = $this->post_pay_counter_functions->general_settings->counting_type_visits_method_google_analytics_update_hour;
+                                $new_settings['counting_type_visits_method_google_analytics_update_request']    = self::$general_settings->counting_type_visits_method_google_analytics_update_request;
+                                $new_settings['counting_type_visits_method_google_analytics_update_hour']       = self::$general_settings->counting_type_visits_method_google_analytics_update_hour;
+                                $new_settings['counting_type_visits_method_google_analytics_update_day']        = self::$general_settings->counting_type_visits_method_google_analytics_update_hour;
                                 break;
                         }
                         
@@ -933,16 +996,16 @@ class post_pay_counter_core {
                                 break;
                                 
                             default:
-                                $new_settings['counting_type_visits_method_google_analytics_pageviews']         = $this->post_pay_counter_functions->general_settings->counting_type_visits_method_google_analytics_pageviews;
-                                $new_settings['counting_type_visits_method_google_analytics_unique_pageviews']  = $this->post_pay_counter_functions->general_settings->counting_type_visits_method_google_analytics_unique_pageviews;
+                                $new_settings['counting_type_visits_method_google_analytics_pageviews']         = self::$general_settings->counting_type_visits_method_google_analytics_pageviews;
+                                $new_settings['counting_type_visits_method_google_analytics_unique_pageviews']  = self::$general_settings->counting_type_visits_method_google_analytics_unique_pageviews;
                                 break;
                         }
                         
                         break;
                         
                     default:
-                        $new_settings['counting_type_visits_method_plugin']             = $this->post_pay_counter_functions->general_settings->counting_type_visits_method_plugin;
-                        $new_settings['counting_type_visits_method_google_analytics']   = $this->post_pay_counter_functions->general_settings->counting_type_visits_method_google_analytics;
+                        $new_settings['counting_type_visits_method_plugin']             = self::$general_settings->counting_type_visits_method_plugin;
+                        $new_settings['counting_type_visits_method_google_analytics']   = self::$general_settings->counting_type_visits_method_google_analytics;
                         break;
                 }
             }*/
@@ -974,13 +1037,13 @@ class post_pay_counter_core {
                     break;
             }
             
-            $new_settings['count_pending_revision_posts']       = @$this->post_pay_counter_options_functions->update_options_checkbox_value( $_POST['count_pending_revision_posts'] );
-            $new_settings['count_future_scheduled_posts']       = @$this->post_pay_counter_options_functions->update_options_checkbox_value( $_POST['count_future_scheduled_posts'] );
-            $new_settings['exclude_quotations_from_countings']  = @$this->post_pay_counter_options_functions->update_options_checkbox_value( $_POST['exclude_quotations_from_countings'] );
-            $new_settings['count_visits_guests']                = @$this->post_pay_counter_options_functions->update_options_checkbox_value( $_POST['count_visits_guests'] );
-            $new_settings['count_visits_registered']            = @$this->post_pay_counter_options_functions->update_options_checkbox_value( $_POST['count_visits_registered'] );
-            $new_settings['count_visits_authors']               = @$this->post_pay_counter_options_functions->update_options_checkbox_value( $_POST['count_visits_authors'] );
-            $new_settings['count_visits_bots']                  = @$this->post_pay_counter_options_functions->update_options_checkbox_value( $_POST['count_visits_bots'] );
+            $new_settings['count_pending_revision_posts']       = @post_pay_counter_options_functions_class::update_options_checkbox_value( $_POST['count_pending_revision_posts'] );
+            $new_settings['count_future_scheduled_posts']       = @post_pay_counter_options_functions_class::update_options_checkbox_value( $_POST['count_future_scheduled_posts'] );
+            $new_settings['exclude_quotations_from_countings']  = @post_pay_counter_options_functions_class::update_options_checkbox_value( $_POST['exclude_quotations_from_countings'] );
+            $new_settings['count_visits_guests']                = @post_pay_counter_options_functions_class::update_options_checkbox_value( $_POST['count_visits_guests'] );
+            $new_settings['count_visits_registered']            = @post_pay_counter_options_functions_class::update_options_checkbox_value( $_POST['count_visits_registered'] );
+            $new_settings['count_visits_authors']               = @post_pay_counter_options_functions_class::update_options_checkbox_value( $_POST['count_visits_authors'] );
+            $new_settings['count_visits_bots']                  = @post_pay_counter_options_functions_class::update_options_checkbox_value( $_POST['count_visits_bots'] );
         
             //Cycle through $_POST global variable and take into account all the fields that start with 'custom_post_type_' or 'user_role_'
             //Add each of them to an array that will be serialized and put into the database. 
@@ -1017,7 +1080,7 @@ class post_pay_counter_core {
                     return;
                 }
             
-            $this->post_pay_counter_functions->manage_cap_allowed_user_groups_plugin_pages( $permission_options_page_user_roles, $permission_stats_page_user_roles );
+            post_pay_counter_functions_class::manage_cap_allowed_user_groups_plugin_pages( $permission_options_page_user_roles, $permission_stats_page_user_roles );
         }
         
         switch( $_POST['counting_system'] ) {
@@ -1037,8 +1100,8 @@ class post_pay_counter_core {
                 break;
         }
         
-        $new_settings['minimum_fee_enable']     = @$this->post_pay_counter_options_functions->update_options_checkbox_value( $_POST['minimum_fee_enable'] );
-        $new_settings['allow_payment_bonuses']  = @$this->post_pay_counter_options_functions->update_options_checkbox_value( $_POST['allow_payment_bonuses'] );
+        $new_settings['minimum_fee_enable']     = @post_pay_counter_options_functions_class::update_options_checkbox_value( $_POST['minimum_fee_enable'] );
+        $new_settings['allow_payment_bonuses']  = @post_pay_counter_options_functions_class::update_options_checkbox_value( $_POST['allow_payment_bonuses'] );
                     
         //If we're dealing with personalized options, check paypal address and add it to the query array
         if( is_int( $_POST['userID'] ) AND get_userdata( $_POST['userID'] ) ) {
@@ -1053,14 +1116,14 @@ class post_pay_counter_core {
         }
         
         /* PERMISSIONS BOX */
-        $new_settings['can_view_others_general_stats']          = @$this->post_pay_counter_options_functions->update_options_checkbox_value( $_POST['can_view_others_general_stats'] );
-        $new_settings['can_view_others_detailed_stats']         = @$this->post_pay_counter_options_functions->update_options_checkbox_value( $_POST['can_view_others_detailed_stats'] );
-        $new_settings['can_view_overall_stats']                 = @$this->post_pay_counter_options_functions->update_options_checkbox_value( $_POST['can_view_overall_stats'] );
-        $new_settings['can_view_special_settings_countings']    = @$this->post_pay_counter_options_functions->update_options_checkbox_value( $_POST['can_view_special_settings_countings'] );
-        $new_settings['can_view_overlay_counting_details']      = @$this->post_pay_counter_options_functions->update_options_checkbox_value( $_POST['can_view_overlay_counting_details'] );
-        $new_settings['can_view_paid_amount']                   = @$this->post_pay_counter_options_functions->update_options_checkbox_value( $_POST['can_view_paid_amount'] );
-        $new_settings['can_view_posts_word_count_post_list']    = @$this->post_pay_counter_options_functions->update_options_checkbox_value( $_POST['can_view_posts_word_count_post_list'] );
-        $new_settings['can_csv_export']                         = @$this->post_pay_counter_options_functions->update_options_checkbox_value( $_POST['can_csv_export'] );
+        $new_settings['can_view_others_general_stats']          = @post_pay_counter_options_functions_class::update_options_checkbox_value( $_POST['can_view_others_general_stats'] );
+        $new_settings['can_view_others_detailed_stats']         = @post_pay_counter_options_functions_class::update_options_checkbox_value( $_POST['can_view_others_detailed_stats'] );
+        $new_settings['can_view_overall_stats']                 = @post_pay_counter_options_functions_class::update_options_checkbox_value( $_POST['can_view_overall_stats'] );
+        $new_settings['can_view_special_settings_countings']    = @post_pay_counter_options_functions_class::update_options_checkbox_value( $_POST['can_view_special_settings_countings'] );
+        $new_settings['can_view_overlay_counting_details']      = @post_pay_counter_options_functions_class::update_options_checkbox_value( $_POST['can_view_overlay_counting_details'] );
+        $new_settings['can_view_paid_amount']                   = @post_pay_counter_options_functions_class::update_options_checkbox_value( $_POST['can_view_paid_amount'] );
+        $new_settings['can_view_posts_word_count_post_list']    = @post_pay_counter_options_functions_class::update_options_checkbox_value( $_POST['can_view_posts_word_count_post_list'] );
+        $new_settings['can_csv_export']                         = @post_pay_counter_options_functions_class::update_options_checkbox_value( $_POST['can_csv_export'] );
         
         /* TRIAL BOX (only if not referring from trial settings page) */
         if( $_POST['userID'] != 'trial' ) {  
@@ -1101,7 +1164,7 @@ class post_pay_counter_core {
             }
             
             if( is_int( $_POST['userID'] ) AND get_userdata( $_POST['userID'] ) ) {
-                $new_settings['trial_enable'] = @$this->post_pay_counter_options_functions->update_options_checkbox_value( $_POST['trial_enable'] );
+                $new_settings['trial_enable'] = @post_pay_counter_options_functions_class::update_options_checkbox_value( $_POST['trial_enable'] );
             }
         }
                         
@@ -1112,12 +1175,12 @@ class post_pay_counter_core {
             $wpdb->insert( $wpdb->prefix.'post_pay_counter', $new_settings );
         
         //If the counting type or pending revision/future scheduled counting status or exclude quotations has changed or list of post types to include in counting, update all the database posts records to reflect changes
-        if( isset( $new_settings['counting_type_words'] ) AND $new_settings['counting_type_words'] != @$this->post_pay_counter_functions->general_settings->counting_type_words
-        OR isset( $new_settings['counting_type_visits'] ) AND $new_settings['counting_type_visits'] != @$this->post_pay_counter_functions->general_settings->counting_type_visits 
-        /*OR isset( $new_settings['counting_type_visits_method_google_analytics'] ) AND $new_settings['counting_type_visits_method_google_analytics'] != @$this->post_pay_counter_functions->general_settings->counting_type_visits_method_google_analytics
-        OR isset( $new_settings['counting_type_visits_method_google_analytics_pageviews'] ) AND $new_settings['counting_type_visits_method_google_analytics_pageviews'] != @$this->post_pay_counter_functions->general_settings->counting_type_visits_method_google_analytics_pageviews*/
-        OR isset( $new_settings['count_pending_revision_posts'] ) AND $new_settings['count_pending_revision_posts'] != @$this->post_pay_counter_functions->general_settings->count_pending_revision_posts
-        OR isset( $new_settings['count_future_scheduled_posts'] ) AND $new_settings['count_future_scheduled_posts'] != @$this->post_pay_counter_functions->general_settings->count_future_scheduled_posts
+        if( isset( $new_settings['counting_type_words'] ) AND $new_settings['counting_type_words'] != @self::$general_settings->counting_type_words
+        OR isset( $new_settings['counting_type_visits'] ) AND $new_settings['counting_type_visits'] != @self::$general_settings->counting_type_visits 
+        /*OR isset( $new_settings['counting_type_visits_method_google_analytics'] ) AND $new_settings['counting_type_visits_method_google_analytics'] != @self::$general_settings->counting_type_visits_method_google_analytics
+        OR isset( $new_settings['counting_type_visits_method_google_analytics_pageviews'] ) AND $new_settings['counting_type_visits_method_google_analytics_pageviews'] != @self::$general_settings->counting_type_visits_method_google_analytics_pageviews*/
+        OR isset( $new_settings['count_pending_revision_posts'] ) AND $new_settings['count_pending_revision_posts'] != @self::$general_settings->count_pending_revision_posts
+        OR isset( $new_settings['count_future_scheduled_posts'] ) AND $new_settings['count_future_scheduled_posts'] != @self::$general_settings->count_future_scheduled_posts
         /*OR isset( $new_settings['publication_time_range_week'] ) AND $new_settings['publication_time_range_week'] != @$current_counting_settings->publication_time_range_week
         OR isset( $new_settings['publication_time_range_custom_value'] ) AND $new_settings['publication_time_range_custom_value'] != @$current_counting_settings->publication_time_range_custom_value*/
         OR isset( $new_settings['exclude_quotations_from_countings'] ) AND $new_settings['exclude_quotations_from_countings'] != @$current_counting_settings->exclude_quotations_from_countings
@@ -1127,7 +1190,7 @@ class post_pay_counter_core {
             //If updating general settings, also update the relative class object. Can't do this before because we wouldn't be able to do all those condition checks
             //Need it to properly update all posts, othwerise old settings would be used for the task
             if( $new_settings['userID'] == 'general' ) {
-                $this->post_pay_counter_functions->options_changed_vars_update_to_reflect( TRUE );
+                post_pay_counter_functions_class::options_changed_vars_update_to_reflect( TRUE );
             }
             
             /*//If current settings are personalized (valid user id), only update that authors' posts, else everybody's
@@ -1135,24 +1198,26 @@ class post_pay_counter_core {
             //AS OF NOW, THE SETTINGS THAT WOULD REQUIRE A STATS UPDATE CAN'T BE PERSONALIZED BY USER
             
             if( is_numeric( $new_settings['userID'] ) )
-                $this->post_pay_counter_functions->update_all_posts_count( FALSE, $new_settings['userID'] );
+                post_pay_counter_functions_class::update_all_posts_count( FALSE, $new_settings['userID'] );
             else*/
-                $this->post_pay_counter_functions->update_all_posts_count();
+                post_pay_counter_functions_class::update_all_posts_count();
 		}
         
         //If updating general settings, also update the relative class object. Doing this again because it may not have been done before...
         //Need it to show the new settings in the options page, othwerise old settings would be used
         if( $new_settings['userID'] == 'general' ) {
-            $this->post_pay_counter_functions->options_changed_vars_update_to_reflect( TRUE );
+            post_pay_counter_functions_class::options_changed_vars_update_to_reflect( TRUE );
         }
         
-        echo '<div id="message" class="updated fade"><p><strong>Post Pay Counter settings updated.</strong> New settings take place immediately! <a href="'.admin_url( $this->post_pay_counter_stats_menu_link ).'">Go to stats now &raquo;</a></p></div>';
+        echo '<div id="message" class="updated fade"><p><strong>Post Pay Counter settings updated.</strong> New settings take place immediately! <a href="'.admin_url( self::$post_pay_counter_stats_menu_link ).'">Go to stats now &raquo;</a></p></div>';
     }
     
     //Function to show the options page
     function post_pay_counter_options() {
         global $wpdb,
                $current_user;
+        
+        post_pay_counter_functions_class::fix_messed_up_stuff();
         
         /** DELETE USER'S SETTINGS **/
         if( isset( $_GET['delete'] ) AND $vaporized_userdata = get_userdata( (int) $_GET['delete'] ) AND $current_user->user_level >= 7 ) {
@@ -1162,11 +1227,11 @@ class post_pay_counter_core {
             check_admin_referer( 'post_pay_counter_options_delete_user_settings' );
             
             //Check if requested personalized settings do exist, if yes, delete it
-            if( is_object( $this->post_pay_counter_functions->get_settings( $_GET['delete'] ) ) ) {
-                $wpdb->query( $wpdb->prepare( 'DELETE FROM '.$wpdb->prefix.'post_pay_counter WHERE userID = '.$_GET['delete'] ) );
+            if( is_object( post_pay_counter_functions_class::get_settings( $_GET['delete'] ) ) ) {
+                $wpdb->query( $wpdb->prepare( 'DELETE FROM '.self::$post_pay_counter_db_table.' WHERE userID = '.$_GET['delete'] ) );
                 
                 //Update user's posts countings
-                $this->post_pay_counter_functions->update_all_posts_count( FALSE, $_GET['delete'] );
+                post_pay_counter_functions_class::update_all_posts_count( FALSE, $_GET['delete'] );
                 
                 echo '<div id="message" class="updated fade"><p><strong>Personalized settings for user "'.$vaporized_userdata->display_name.'" deleted successfully.</strong></p></div>';
             } else {
@@ -1189,11 +1254,11 @@ class post_pay_counter_core {
             
             //Distinguish between all posts update (second) and only one author's posts update (first) depending on the page that triggers the update
             if( is_numeric( $_POST['userID'] ) )
-                $this->post_pay_counter_functions->update_all_posts_count( FALSE, $_POST['userID'] );
+                post_pay_counter_functions_class::update_all_posts_count( FALSE, $_POST['userID'] );
             else
-                $this->post_pay_counter_functions->update_all_posts_count();
+                post_pay_counter_functions_class::update_all_posts_count();
                 
-            echo '<div id="message" class="updated fade"><p><strong>Stats successfully updated.</strong> <a href="'.admin_url( $this->post_pay_counter_stats_menu_link ).'">Go to stats now &raquo;</a></p></div>';
+            echo '<div id="message" class="updated fade"><p><strong>Stats successfully updated.</strong> <a href="'.admin_url( self::$post_pay_counter_stats_menu_link ).'">Go to stats now &raquo;</a></p></div>';
         
         //Stats countings and dates update
         } else if( isset( $_POST['post_pay_counter_update_stats_countings_and_dates'] ) ) {
@@ -1202,15 +1267,15 @@ class post_pay_counter_core {
             
             //Distinguish between all posts update (second) and only one author's posts update (first) depending on the page that triggers the update
             if( is_numeric( $_POST['userID'] ) )
-                $this->post_pay_counter_functions->update_all_posts_count( TRUE, $_POST['userID'] );
+                post_pay_counter_functions_class::update_all_posts_count( TRUE, $_POST['userID'] );
             else
-                $this->post_pay_counter_functions->update_all_posts_count( TRUE );
+                post_pay_counter_functions_class::update_all_posts_count( TRUE );
                 
-            echo '<div id="message" class="updated fade"><p><strong>Stats successfully updated.</strong> <a href="'.admin_url( $this->post_pay_counter_stats_menu_link ).'">Go to stats now &raquo;</a></p></div>';
+            echo '<div id="message" class="updated fade"><p><strong>Stats successfully updated.</strong> <a href="'.admin_url( self::$post_pay_counter_stats_menu_link ).'">Go to stats now &raquo;</a></p></div>';
         } ?>
         
             <h2>Post Pay Counter Options</h2>
-            <p>From this page you can configure the Post Pay Counter plug-in. You will find all the information you need inside each following box and, for each available function, clicking on the info icon on the right of them. Generated stats are always available at <a href="<?php echo admin_url( $this->post_pay_counter_stats_menu_link ) ?>" title="Go to Stats">this page</a>, where you will find many details about each post (its post type, status, date, <?php echo $this->post_pay_counter_functions->current_counting_method_word ?>, images and comments count, payment value, paid amount) with tons of general statistics and the ability to browse old stats. If you want to be able to see stats since the first published post, use the Update Stats box below.</p>
+            <p>From this page you can configure the Post Pay Counter plug-in. You will find all the information you need inside each following box and, for each available function, clicking on the info icon on the right of them. Generated stats are always available at <a href="<?php echo admin_url( self::$post_pay_counter_stats_menu_link ) ?>" title="Go to Stats">this page</a>, where you will find many details about each post (its post type, status, date, <?php echo self::$current_counting_method_word ?>, images and comments count, payment value, paid amount) with tons of general statistics and the ability to browse old stats. If you want to be able to see stats since the first published post, use the Update Stats box below.</p>
             
             <script type="text/javascript">
             //Javascript snippet to hide two different set of settings depending on the selected radio
@@ -1300,7 +1365,7 @@ class post_pay_counter_core {
         //if it isn't numeric, simply take general settings.
 		
         if( isset( $_GET['userid'] ) AND $_GET['userid'] == 'trial' ) {
-            $this->edit_options_counter_settings = $this->post_pay_counter_functions->get_settings( 'trial' );
+            self::$edit_options_counter_settings = post_pay_counter_functions_class::get_settings( 'trial' );
             
             //If trial settings, strip the trial options and update stats boxes; move the permission one to the left 
             remove_meta_box( 'post_pay_counter_trial_settings', $this->post_pay_counter_options_menu_slug, 'normal' );
@@ -1317,14 +1382,17 @@ class post_pay_counter_core {
                     return;
                 }
                 
-                $this->edit_options_counter_settings = $this->post_pay_counter_functions->get_settings( (int) $_GET['userid'], TRUE );
+                self::$edit_options_counter_settings = post_pay_counter_functions_class::get_settings( (int) $_GET['userid'], TRUE );
                 
-                //If current page is a new userid special settings, take general settings but change the userid
-                if( $this->edit_options_counter_settings->userID == 'general' )
-                    $this->edit_options_counter_settings->userID = $_GET['userid'];
+                //If current page is a new userid special settings or has trial settings, take general/trial settings but change the userid
+                if( self::$edit_options_counter_settings->userID == 'general' ) {
+                    self::$edit_options_counter_settings->userID = $_GET['userid'];
+                 } else if( self::$edit_options_counter_settings->userID == 'trial' ) {
+                    self::$edit_options_counter_settings->userID = $_GET['userid'];
+                 }
                                 
             } else {
-                $this->edit_options_counter_settings = $this->post_pay_counter_functions->general_settings;
+                self::$edit_options_counter_settings = self::$general_settings;
             }
         }
         
@@ -1335,16 +1403,16 @@ class post_pay_counter_core {
         
             <div id="poststuff" class="metabox-holder has-right-sidebar">
                 <div id="side-info-column" class="inner-sidebar">
-            	<?php do_meta_boxes( $this->post_pay_counter_options_menu_slug, 'side', null ); ?>
+            	<?php do_meta_boxes( self::$post_pay_counter_options_menu_slug, 'side', null ); ?>
                 </div>
                 <div id="post-body" class="has-sidebar">
                     <div id="post-body-content" class="has-sidebar-content">
-            	<?php do_meta_boxes( $this->post_pay_counter_options_menu_slug, 'normal', null ); ?>
+            	<?php do_meta_boxes( self::$post_pay_counter_options_menu_slug, 'normal', null ); ?>
                     </div>
                 </div>
             </div>
             <div class="clear"></div>
-            <input type="hidden" name="userID" value="<?php echo $this->edit_options_counter_settings->userID ?>" />
+            <input type="hidden" name="userID" value="<?php echo self::$edit_options_counter_settings->userID ?>" />
             <input type="submit" class="button-primary" name="post_pay_counter_options_save" id="post_pay_counter_options_save" value="<?php _e( 'Save options' ) ?>" />
         </form>
         </div>
@@ -1353,14 +1421,16 @@ class post_pay_counter_core {
     //Function to update the counting payment on post_save
     function post_pay_counter_update_post_counting( $new_status, $old_status, $post ) {
         
+        $post = (object) $post;
+        
         //Intersecate the unserialized array of allowed user groups with the groups the post writer belongs to, then continue only if resulting array is not empty 
-        $user_roles_intersection = array_intersect( unserialize( $this->post_pay_counter_functions->general_settings->user_roles_to_include_in_counting ), get_userdata( $post->post_author )->roles );
+        $user_roles_intersection = array_intersect( unserialize( self::$general_settings->user_roles_to_include_in_counting ), get_userdata( $post->post_author )->roles );
         
         //Only accept posts of the allowed post types, status and user groups
-        if( strpos( $this->post_pay_counter_functions->allowed_status, $new_status ) !== FALSE AND strpos( $this->post_pay_counter_functions->allowed_post_types, $post->post_type ) !== FALSE AND ! empty( $user_roles_intersection ) ) {
+        if( strpos( self::$allowed_status, $new_status ) !== FALSE AND strpos( self::$allowed_post_types, $post->post_type ) !== FALSE AND ! empty( $user_roles_intersection ) ) {
             
             //Call update counter value function
-            $this->post_pay_counter_functions->update_single_counting( $post->ID, $post->post_status, $post->post_date, $post->post_author, $post->post_pay_counter, $post->post_pay_counter_count, $post->post_content );
+            post_pay_counter_functions_class::update_single_counting( $post->ID, $post->post_status, $post->post_date, $post->post_author, $post->post_pay_counter, $post->post_pay_counter_count, $post->post_content );
         
         //If the post is a draft or anyway shoudn't be counted, set the fields to null. Do this because: publish a post, it gets counted; 
         //put the same post in draft, you don't lose the counting values and thus even if you republish it it still has the old date
@@ -1374,6 +1444,8 @@ class post_pay_counter_core {
     function post_pay_counter_show_stats() {
         global $wpdb,
                $current_user;
+        
+        post_pay_counter_functions_class::fix_messed_up_stuff();
         
         //Merging _GET and _POST data due to the time range form available in the stats page header. 
         //We don't know whether the user is choosing the time frame from the form (via POST data) or if they arrived to this page following a link (via GET data)
@@ -1389,17 +1461,17 @@ class post_pay_counter_core {
                 $get_and_post['tstart'] = strtotime( $get_and_post['tstart'].' 00:00:01' );
                 $get_and_post['tend']   = strtotime( $get_and_post['tend'].' 23:59:59' );
             } else {
-                $get_and_post['tstart'] = mktime( 0, 0, 1, date( 'm', $this->post_pay_counter_functions->publication_time_range_start ), date( 'd', $this->post_pay_counter_functions->publication_time_range_start ), date( 'Y', $this->post_pay_counter_functions->publication_time_range_start ) );
-                $get_and_post['tend']   = mktime( 23, 59, 59, date( 'm', $this->post_pay_counter_functions->publication_time_range_end ), date( 'd', $this->post_pay_counter_functions->publication_time_range_end ), date( 'Y', $this->post_pay_counter_functions->publication_time_range_end ) );
+                $get_and_post['tstart'] = mktime( 0, 0, 1, date( 'm', self::$publication_time_range_start ), date( 'd', self::$publication_time_range_start ), date( 'Y', self::$publication_time_range_start ) );
+                $get_and_post['tend']   = mktime( 23, 59, 59, date( 'm', self::$publication_time_range_end ), date( 'd', self::$publication_time_range_end ), date( 'Y', self::$publication_time_range_end ) );
             }
         }
         
-        $current_user_settings  = $this->post_pay_counter_functions->get_settings( $current_user->ID, TRUE );
+        $current_user_settings  = post_pay_counter_functions_class::get_settings( $current_user->ID, TRUE );
         $alternate              = '';
         
         //CSV file exporting feature
         if( isset( $get_and_post['export'] ) AND $get_and_post['export'] == 'csv' AND ( $current_user->user_level >= 7 OR $current_user_settings->can_csv_export == 1 ) ) {
-            $this->post_pay_counter_functions->csv_export( @$get_and_post['author'], @$get_and_post['tstart'], @$get_and_post['tend'] );
+            post_pay_counter_functions_class::csv_export( @$get_and_post['author'], @$get_and_post['tstart'], @$get_and_post['tend'] );
         } ?>
         
         <div class="wrap">
@@ -1408,10 +1480,10 @@ class post_pay_counter_core {
         <?php if( isset( $get_and_post['author'] ) AND is_numeric( $get_and_post['author'] ) AND $userdata = get_userdata( $get_and_post['author'] ) ) {
                 
                 //Generate stats for the requested month (which could also be the current one) and asked author. Then show the header part
-                $generated_stats    = $this->post_pay_counter_functions->generate_stats( $get_and_post['author'], $get_and_post['tstart'], $get_and_post['tend'] );
+                $generated_stats    = post_pay_counter_functions_class::generate_stats( $get_and_post['author'], $get_and_post['tstart'], $get_and_post['tend'] );
                 $user_display_name  = $userdata->display_name;
                 
-                $this->post_pay_counter_functions->show_stats_page_header( $user_display_name, admin_url( $this->post_pay_counter_stats_menu_link.'&amp;author='.$get_and_post['author'].'&amp;tstart='.$get_and_post['tstart'].'&amp;tend='.$get_and_post['tend'] ), $get_and_post['tstart'], $get_and_post['tend'] ); ?>
+                post_pay_counter_functions_class::show_stats_page_header( $user_display_name, admin_url( self::$post_pay_counter_stats_menu_link.'&amp;author='.$get_and_post['author'].'&amp;tstart='.$get_and_post['tstart'].'&amp;tend='.$get_and_post['tend'] ), $get_and_post['tstart'], $get_and_post['tend'] ); ?>
                 
                 <?php //If the returned value is a string, it means we had an error, and we show it
                 if( is_string( $generated_stats ) ) {
@@ -1425,7 +1497,7 @@ class post_pay_counter_core {
                                 <th scope="col" width="10%">Post type</th>
                                 <th scope="col" width="8%">Status</th>
                                 <th scope="col" width="8%">Date</th>
-                                <th scope="col" width="7%"><?php echo ucfirst( $this->post_pay_counter_functions->current_counting_method_word ); ?></th>                                
+                                <th scope="col" width="7%"><?php echo ucfirst( self::$current_counting_method_word ); ?></th>                                
                                 <th scope="col" width="11%">Comments</th>
                                 <th scope="col" width="6%">Imgs</th>
                                 <th scope="col" width="9%">Payment</th>
@@ -1448,7 +1520,7 @@ class post_pay_counter_core {
                                 <th scope="col" width="10%">Post type</th>
                                 <th scope="col" width="8%">Status</th>
                                 <th scope="col" width="8%">Date</th>
-                                <th scope="col" width="7%"><?php echo ucfirst( $this->post_pay_counter_functions->current_counting_method_word ); ?></th>                                
+                                <th scope="col" width="7%"><?php echo ucfirst( self::$current_counting_method_word ); ?></th>                                
                                 <th scope="col" width="11%">Comments</th>
                                 <th scope="col" width="6%">Imgs</th>
                                 <th scope="col" width="9%">Payment</th>
@@ -1637,8 +1709,8 @@ class post_pay_counter_core {
         } else {
                 
                 //Generate stats for the requested month (which could also be the current one), but no author. Then show the header part
-                $generated_stats = $this->post_pay_counter_functions->generate_stats( false, $get_and_post['tstart'], $get_and_post['tend'] ); 
-                $this->post_pay_counter_functions->show_stats_page_header( 'General', admin_url( $this->post_pay_counter_stats_menu_link.'&amp;tstart='.$get_and_post['tstart'].'&amp;tend='.$get_and_post['tend'] ), $get_and_post['tstart'], $get_and_post['tend'] );
+                $generated_stats = post_pay_counter_functions_class::generate_stats( false, $get_and_post['tstart'], $get_and_post['tend'] ); 
+                post_pay_counter_functions_class::show_stats_page_header( 'General', admin_url( self::$post_pay_counter_stats_menu_link.'&amp;tstart='.$get_and_post['tstart'].'&amp;tend='.$get_and_post['tend'] ), $get_and_post['tstart'], $get_and_post['tend'] );
                         
                 //If the returned value is a string, it means we had an error
                 if( is_string( $generated_stats ) ) {
@@ -1677,7 +1749,7 @@ class post_pay_counter_core {
                 foreach( $generated_stats['general_stats'] as $key => $value ) {
     
                     $author_display_name    = get_userdata( $key )->display_name;
-                    $author_paypal_address  = @$this->post_pay_counter_functions->get_settings( $key )->paypal_address;
+                    $author_paypal_address  = @post_pay_counter_functions_class::get_settings( $key )->paypal_address;
                     
                     //If user can, prepare span with all the counting details for overlay display
                     if( $current_user_settings->can_view_overlay_counting_details == 1 OR $current_user->user_level >= 7 ) {
@@ -1699,9 +1771,9 @@ class post_pay_counter_core {
                     
                     //If current user can't see detailed stats, user's names aren't links but its one
                     if( $current_user_settings->can_view_others_detailed_stats == 0 AND $current_user->user_level < 7 AND $key != $current_user->ID ) { ?>
-                    <td><?php echo $author_display_name ?></td>
+                    <td><?php echo $author_display_name; ?></td>
                     <?php } else { ?>
-                    <td><a href="<?php echo admin_url( $this->post_pay_counter_stats_menu_link.'&amp;author='.$key.'&amp;tstart='.$get_and_post['tstart'].'&amp;tend='.$get_and_post['tend'] ) ?>" title="<?php echo $author_display_name ?>"><?php echo $author_display_name ?></a></td>
+                    <td><a href="<?php echo admin_url( self::$post_pay_counter_stats_menu_link.'&amp;author='.$key.'&amp;tstart='.$get_and_post['tstart'].'&amp;tend='.$get_and_post['tend'] ) ?>" title="<?php echo $author_display_name ?>"><?php echo $author_display_name ?></a></td>
                     <?php } ?>
                     
                     <td><?php echo $value['posts'] ?></td>
@@ -1725,7 +1797,7 @@ class post_pay_counter_core {
         
         //Showing overall stats, since blog started (if current user is allowed to)
         if( $current_user_settings->can_view_overall_stats == 1 OR $current_user->user_level >= 7 )
-            $this->post_pay_counter_functions->generate_overall_stats();
+            post_pay_counter_functions_class::generate_overall_stats();
         
     }
     
@@ -1742,7 +1814,7 @@ class post_pay_counter_core {
                 <td align="left" width="15%">&euro; <?php echo $total_stats['total_payment']; echo @$total_stats['payment_bonus']; ?></td>
             </tr>
             <tr>
-                <td width="40%">Total displayed <?php echo $this->post_pay_counter_functions->current_counting_method_word; ?>:</td>
+                <td width="40%">Total displayed <?php echo self::$current_counting_method_word; ?>:</td>
                 <td align="left" width="10%"><?php echo $total_stats['total_counting'] ?></td>
                 <td width="35%">Total displayed admin bonus:</td>
                 <td align="left" width="15%">&euro; <?php echo $total_stats['total_bonus']; ?></td>
@@ -1750,42 +1822,42 @@ class post_pay_counter_core {
         <?php //Show the other rows only if using zones as counting system 
         if( $current_user_settings->counting_system_zones == 1 ) { ?>
             <tr class="alternate">
-    			<td width="40%">N&deg; of posts below the first zone (<<?php echo $this->post_pay_counter_functions->ordinary_zones[1]['zone'] ?> words):</td>
+    			<td width="40%">N&deg; of posts below the first zone (<<?php echo self::$ordinary_zones[1]['zone'] ?> words):</td>
     			<td align="left" width="10%"><?php echo @(int) $total_stats['0zone'] ?></td>
-                <td width="40%">N&deg; of posts in the first zone (<?php echo $this->post_pay_counter_functions->ordinary_zones[1]['zone'].'-'.$this->post_pay_counter_functions->ordinary_zones[2]['zone'] ?> words):</td>
+                <td width="40%">N&deg; of posts in the first zone (<?php echo self::$ordinary_zones[1]['zone'].'-'.self::$ordinary_zones[2]['zone'] ?> words):</td>
     			<td align="left" width="10%"><?php echo @(int) $total_stats['1zone'] ?></td>
     		</tr>
             <tr>
-                <td width="40%">N&deg; of posts in the second zone (<?php echo $this->post_pay_counter_functions->ordinary_zones[2]['zone'].'-'.$this->post_pay_counter_functions->ordinary_zones[3]['zone'] ?> words):</td>
+                <td width="40%">N&deg; of posts in the second zone (<?php echo self::$ordinary_zones[2]['zone'].'-'.self::$ordinary_zones[3]['zone'] ?> words):</td>
     			<td align="left" width="10%"><?php echo @(int) $total_stats['2zone'] ?></td>
-    			<td width="40%">N&deg; of posts in the third zone (<?php echo $this->post_pay_counter_functions->ordinary_zones[3]['zone'].'-'.$this->post_pay_counter_functions->ordinary_zones[4]['zone'] ?> words):</td>
+    			<td width="40%">N&deg; of posts in the third zone (<?php echo self::$ordinary_zones[3]['zone'].'-'.self::$ordinary_zones[4]['zone'] ?> words):</td>
     			<td align="left" width="10%"><?php echo @(int) $total_stats['3zone'] ?></td>
     		</tr>
             <tr class="alternate">
-                <td width="40%">N&deg; of posts in the fourth zone (<?php echo $this->post_pay_counter_functions->ordinary_zones[4]['zone'].'-'.$this->post_pay_counter_functions->ordinary_zones[5]['zone'] ?> words):</td>
+                <td width="40%">N&deg; of posts in the fourth zone (<?php echo self::$ordinary_zones[4]['zone'].'-'.self::$ordinary_zones[5]['zone'] ?> words):</td>
     			<td align="left" width="10%"><?php echo @(int) $total_stats['4zone'] ?></td>
-    	<?php if( $this->post_pay_counter_functions->general_settings->add_five_more_zones == 1 ) { ?>
-    			<td width="40%">N&deg; of posts in the fifth zone (<?php echo $this->post_pay_counter_functions->ordinary_zones[5]['zone'].'-'.$this->post_pay_counter_functions->ordinary_zones[6]['zone'] ?> words):</td>
+    	<?php if( self::$general_settings->add_five_more_zones == 1 ) { ?>
+    			<td width="40%">N&deg; of posts in the fifth zone (<?php echo self::$ordinary_zones[5]['zone'].'-'.self::$ordinary_zones[6]['zone'] ?> words):</td>
     	<?php } else { ?>
-                <td width="40%">N&deg; of posts in the fifth zone (<?php echo $this->post_pay_counter_functions->ordinary_zones[5]['zone'] ?>+ words):</td>
+                <td width="40%">N&deg; of posts in the fifth zone (<?php echo self::$ordinary_zones[5]['zone'] ?>+ words):</td>
         <?php } ?>
                 <td align="left" width="10%"><?php echo @(int) $total_stats['5zone'] ?></td>
             </tr>
-        <?php if( count( $this->post_pay_counter_functions->ordinary_zones ) > 5 ) { ?>
+        <?php if( count( self::$ordinary_zones ) > 5 ) { ?>
             <tr>
-                <td width="40%">N&deg; of posts in the sixth zone (<?php echo $this->post_pay_counter_functions->ordinary_zones[6]['zone'].'-'.$this->post_pay_counter_functions->ordinary_zones[7]['zone'] ?> words):</td>
+                <td width="40%">N&deg; of posts in the sixth zone (<?php echo self::$ordinary_zones[6]['zone'].'-'.self::$ordinary_zones[7]['zone'] ?> words):</td>
     			<td align="left" width="10%"><?php echo @(int) $total_stats['6zone'] ?></td>
-                <td width="40%">N&deg; of posts in the seventh zone (<?php echo $this->post_pay_counter_functions->ordinary_zones[7]['zone'].'-'.$this->post_pay_counter_functions->ordinary_zones[8]['zone'] ?> words):</td>
+                <td width="40%">N&deg; of posts in the seventh zone (<?php echo self::$ordinary_zones[7]['zone'].'-'.self::$ordinary_zones[8]['zone'] ?> words):</td>
                 <td align="left" width="10%"><?php echo @(int) $total_stats['7zone'] ?></td>
             </tr>
             <tr class="alternate">
-                <td width="40%">N&deg; of posts in the eigth zone (<?php echo $this->post_pay_counter_functions->ordinary_zones[8]['zone'].'-'.$this->post_pay_counter_functions->ordinary_zones[9]['zone'] ?> words):</td>
+                <td width="40%">N&deg; of posts in the eigth zone (<?php echo self::$ordinary_zones[8]['zone'].'-'.self::$ordinary_zones[9]['zone'] ?> words):</td>
     			<td align="left" width="10%"><?php echo @(int) $total_stats['8zone'] ?></td>
-                <td width="40%">N&deg; of posts in the ninth zone (<?php echo $this->post_pay_counter_functions->ordinary_zones[9]['zone'].'-'.$this->post_pay_counter_functions->ordinary_zones[10]['zone'] ?> words):</td>
+                <td width="40%">N&deg; of posts in the ninth zone (<?php echo self::$ordinary_zones[9]['zone'].'-'.self::$ordinary_zones[10]['zone'] ?> words):</td>
                 <td align="left" width="10%"><?php echo @(int) $total_stats['9zone'] ?></td>
             </tr>
             <tr>
-                <td align="center" width="80%" colspan="2">N&deg; of posts in the tenth zone (<?php echo $this->post_pay_counter_functions->ordinary_zones[10]['zone'] ?>+ words):</td>
+                <td align="center" width="80%" colspan="2">N&deg; of posts in the tenth zone (<?php echo self::$ordinary_zones[10]['zone'] ?>+ words):</td>
                 <td align="center" width="20%" colspan="2"><?php echo @(int) $total_stats['10zone'] ?></td>
             </tr>
        <?php } ?>
@@ -1796,9 +1868,9 @@ class post_pay_counter_core {
             if( $current_user_settings->can_csv_export == 1 OR $current_user->user_level >= 7 ) { ?>
             <tr>
                 <?php if( isset( $get_and_post['author'] ) ) { ?>
-                <td colspan="4" align="center"><a href="<?php echo wp_nonce_url( admin_url( $this->post_pay_counter_stats_menu_link.'&amp;author='.$get_and_post['author'].'&amp;tstart='.$get_and_post['tstart'].'&amp;tend='.$get_and_post['tend'].'&amp;export=csv&amp;noheader=true' ), 'post_pay_counter_csv_export_author' ) ?>" title="Export to csv">Export stats to csv</a></td>
+                <td colspan="4" align="center"><a href="<?php echo wp_nonce_url( admin_url( self::$post_pay_counter_stats_menu_link.'&amp;author='.$get_and_post['author'].'&amp;tstart='.$get_and_post['tstart'].'&amp;tend='.$get_and_post['tend'].'&amp;export=csv&amp;noheader=true' ), 'post_pay_counter_csv_export_author' ) ?>" title="Export to csv">Export stats to csv</a></td>
                 <?php } else { ?>
-                <td colspan="4" align="center"><a href="<?php echo wp_nonce_url( admin_url( $this->post_pay_counter_stats_menu_link.'&amp;tstart='.$get_and_post['tstart'].'&amp;tend='.$get_and_post['tend'].'&amp;export=csv&amp;noheader=true' ), 'post_pay_counter_csv_export_general' ) ?>" title="Export to csv">Export stats to csv</a></td>
+                <td colspan="4" align="center"><a href="<?php echo wp_nonce_url( admin_url( self::$post_pay_counter_stats_menu_link.'&amp;tstart='.$get_and_post['tstart'].'&amp;tend='.$get_and_post['tend'].'&amp;export=csv&amp;noheader=true' ), 'post_pay_counter_csv_export_general' ) ?>" title="Export to csv">Export stats to csv</a></td>
                 <?php } ?>
             </tr>
             <?php } ?>

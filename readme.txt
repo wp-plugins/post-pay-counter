@@ -1,9 +1,9 @@
 ﻿=== Post Pay Counter ===
 Contributors: Ste_95
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=7UH3J3CLVHP8L
-Tags: counter, authors, payment, stats, multi author, post management
+Tags: counter, authors, payment, stats, multi author, post management, post
 Tested up to: 3.4.1
-Stable tag: 1.3.3
+Stable tag: 1.3.4
 Requires at least: 3.0
 
 Easily calculate and handle author's pay on a multi-author blog by computing every written post remuneration basing on admin defined rules.
@@ -56,6 +56,14 @@ Only the first 250 are shown in the list to prevent the plugin from hanging or s
 Well, the obvious answer is [Contact me](http://www.thecrowned.org/contact-me "Contact me")! But apart from detailing the problem you are experiencing, I also need some debug data to troubleshoot the problem and solve it quickly. To do so, you should open your *post-pay-counter-functions.php* file, either by FTP or by the Wordpress plugin editor, and change line 17 *const POST_PAY_COUNTER_DEBUG = FALSE;* and change it to *const POST_PAY_COUNTER_DEBUG = TRUE;* (note the semicolon is still there). Reload the page, and you will get a lot of debugging stuff: it does not contain any sensitive information, it just contains the plugin general settings and other similar things. If you feel like censoring something, you are free to do it, but please, do not delete the whole row, only replace the sensitive data with *xxxxxx* or similar. Send me the screenshot of the data, or copy it in a document, and let's see what we can do!
 
 == Changelog ==
+= 1.3.4 =
+* As of 1.3.3, no problems were still to be solved (not big ones, at least). This is a *working version* of 1.3.3, to say that solves every problem that 1.3, 1.3.1 and 1.3.2 created.
+* If plugin table or its default settings are missing, they are automatically added when either the options page or the stats page are loaded.
+* Update procedure now works with multisite - can not believe this was not introduced when the multisite capability was introduced!
+* I took the chance to redesign the class structure of the plugin, using class inheritance and making everything cleaner.
+* The debugging feature has been moved to the *post-pay-counter.php* file.
+* Every time the global *$post* variable is used, is now casted to object: in some cases I found it being an array and breaking everything.
+
 = 1.3.3 =
 * Little problem (not so little, since prevented activation) with user roles permissions is fixed now! If you were experiencing the has_cap() fatal error, it should be ok now. If you were experiencing the array_intersect warning, that should be fixed too. For the latter, should it persist, try to save options and reload the page, and see if that solves.
 * For the future (or the present, who knows), I have added a debug functionality that will make troubleshooting problems on my part far easier than now. It can be enabled and disabled at will, though not via a user interface as of the present release. Default option is disabled. Instructions to enable it are in the FAQ.
@@ -136,7 +144,7 @@ Well, the obvious answer is [Contact me](http://www.thecrowned.org/contact-me "C
 = 1.0 =
 The plugin is highly derived from Monthly Post Counter, which has almost been re-written from scratch to optimize performance, include new tasty functions and carry many many bug and security fixes. Look has been restyled too, using wordpress metaboxes for the settings page.
 
-* These the changes from the old Monthly Post Counter:
+These the changes from the old Monthly Post Counter:
 * Added possibility to set different settings for each user. Stats which do involve different settings are shown only to the writer itself or the admins by default.
 * The admin can define permissions for old, overall and other's stats (general and detailed), csv exporting and special settings in countings.
 * The counting type can be chosen between visits and words (the latter used by default), and during the installation all the posts in database are selected and updated.

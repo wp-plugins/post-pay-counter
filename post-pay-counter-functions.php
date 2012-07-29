@@ -1,138 +1,58 @@
 <?php
 
-class post_pay_counter_functions_class {
-    public  $general_settings,
-            $current_counting_method_word,
-            $allowed_status,
-            $allowed_post_types,
-            $allowed_user_roles,
-            $ordinary_zones,
-            $allowed_user_roles_options_page,
-            $allowed_user_roles_stats_page,
-            $publication_time_range_start,
-            $publication_time_range_end,
-            $ppc_current_version,
-            $ppc_newest_version;
-    
-    const POST_PAY_COUNTER_DEBUG = FALSE;
-    
-    public function __construct() {
-        global $wpdb;
-        
-        $this->ppc_newest_version = '1.3.3';
-        
-        //If there is a possibility the plugin has already been installed once, and its table is there...
-        if( $wpdb->query( 'SHOW TABLES FROM '.$wpdb->dbname.' LIKE "'.$wpdb->prefix.'post_pay_counter"' ) ) {
-        
-            //...Select general settings (if they exist).
-            $this->general_settings = $this->get_settings( 'general' );
-        
-            //...If current_version option does not exist or is DIFFERENT from the latest release number, launch the update procedures. If update is run, also updates all the class variables and the option in the db
-            if( ! ( $this->ppc_current_version = get_option( 'ppc_current_version' ) ) OR $this->ppc_current_version != $this->ppc_newest_version ) {
-                $post_pay_counter_update = new post_pay_counter_update_procedures( $this->ppc_current_version, $this->ppc_newest_version );
-                $this->options_changed_vars_update_to_reflect( TRUE );
-                $this->manage_cap_allowed_user_groups_plugin_pages( $this->allowed_user_roles_options_page, $this->allowed_user_roles_stats_page );
-                update_option( 'ppc_current_version', $this->ppc_newest_version );
-                $this->ppc_current_version = $this->ppc_newest_version;
-                echo '<div id="message" class="updated fade"><p><strong>Post Pay Counter was successfully updated to version '.$this->ppc_current_version.'.</strong> Want to have a look at the <a href="'.admin_url( 'admin.php?page=post_pay_counter_options' ).'" title="Go to Options page">Options page</a>, or at the <a href="http://wordpress.org/extend/plugins/post-pay-counter/changelog/" title="Go to Changelog">Changelog</a>?</p></div>';
-            }
-            
-        }
-        
-        if( is_object( $this->general_settings ) ) {
-            //Just as a comfort, define the word suitable for countings, depending on the chosen counting type 
-            if( $this->general_settings->counting_type_words == 1 )
-                $this->current_counting_method_word = 'words';
-            else
-                $this->current_counting_method_word = 'visits';
-            
-            //Define publication time range depending on chosen settings: if monthly it depends on current month days number, weekly always 7, otherwise custom
-            if( $this->general_settings->publication_time_range_week == 1 ) {
-                $this->publication_time_range_start   = time() - ( ( date( 'N' )-1 )*24*60*60 );
-                $this->publication_time_range_end     = time();
-            } else if( $this->general_settings->publication_time_range_month == 1 ) {
-                $this->publication_time_range_start   = time() - ( ( date( 'j' )-1 )*24*60*60 );
-                $this->publication_time_range_end     = time();
-            } else if( $this->general_settings->publication_time_range_custom == 1 ) {
-                $this->publication_time_range_start   = time() - ( $this->general_settings->publication_time_range_custom_value*24*60*60 );
-                $this->publication_time_range_end     = time();
-            }
-            
-            //...Define allowed post types, status, user roles to include in counting and user roles allowed to see plugin pages
-            $this->options_changed_vars_update_to_reflect();
-            
-            /*//Define visits time range 
-            if( $this->general_settings->visits_time_range_equal_to_pub ) {
-                $this->visits_time_range_start  = $this->general_settings->publication_time_range_start;
-                $this->visits_time_range_end    = $this->general_settings->publication_time_range_end;
-            } else if( $this->general_settings->visits_time_range_rules_selection ) {
-                $this->visits_time_range_start  = $this->general_settings->publication_time_range_start;
-                $this->visits_time_range_end    = $this->general_settings->publication_time_range_end;
-            } */
-        }
-        
-        //If debug is requested, print a lot of debug stuff that should allow me to troubleshoot any problem users may encounter
-        if( self::POST_PAY_COUNTER_DEBUG == TRUE ) {
-            echo 'PHP Version: '.phpversion().'<br />';
-            echo 'Installed plugin version: '.$this->ppc_current_version.'<br />';
-            echo 'General settings object: ';var_dump( $this->general_settings );
-            echo 'PPC Functions class vars: ';var_dump( $this );
-            echo 'WP Permissions: ',var_dump( get_option( 'wp_user_roles' ) );
-            echo 'PPC install errors: ';var_dump( get_option( 'ppc_install_error' ) );
-        }
-    }
+class post_pay_counter_functions_class extends post_pay_counter_core {
     
     //Define a string of allowed status to use into queries and data selection routines. Need to be a function itself due to stats regenerate after settings update
     function define_allowed_status() {
-        $this->allowed_status = '"publish"';
-        if( isset( $this->general_settings->count_future_scheduled_posts ) AND $this->general_settings->count_future_scheduled_posts == 1 )
-            $this->allowed_status .= ',"future"';
-        if( isset( $this->general_settings->count_pending_revision_posts ) AND $this->general_settings->count_pending_revision_posts == 1 )
-            $this->allowed_status .= ',"pending"';
+        parent::$allowed_status = '"publish"';
+        if( isset( parent::$general_settings->count_future_scheduled_posts ) AND parent::$general_settings->count_future_scheduled_posts == 1 )
+            parent::$allowed_status .= ',"future"';
+        if( isset( parent::$general_settings->count_pending_revision_posts ) AND parent::$general_settings->count_pending_revision_posts == 1 )
+            parent::$allowed_status .= ',"pending"';
     }
     
     //Turn the unserialized array of allowed post types into a string to use into queries. Need to be a function itself due to stats regenerate after settings update
     function define_allowed_post_types() {
-        if( isset( $this->general_settings->post_types_to_include_in_counting ) AND strlen( $this->general_settings->post_types_to_include_in_counting ) > 0 )
-            $this->allowed_post_types = '"'.@implode( '","', unserialize( $this->general_settings->post_types_to_include_in_counting ) ).'"';
+        if( isset( parent::$general_settings->post_types_to_include_in_counting ) AND strlen( parent::$general_settings->post_types_to_include_in_counting ) > 0 )
+            parent::$allowed_post_types = '"'.@implode( '","', unserialize( parent::$general_settings->post_types_to_include_in_counting ) ).'"';
     }
     
     //Turn the unserialized array of allowed post types into a string to use into queries. Need to be a function itself due to stats regenerate after settings update
     function define_allowed_user_roles() {
-        if( isset( $this->general_settings->user_roles_to_include_in_counting ) AND strlen( $this->general_settings->user_roles_to_include_in_counting ) > 0 )
-            $this->allowed_user_roles = @implode( '|', unserialize( $this->general_settings->user_roles_to_include_in_counting ) );
+        if( isset( parent::$general_settings->user_roles_to_include_in_counting ) AND strlen( parent::$general_settings->user_roles_to_include_in_counting ) > 0 )
+            parent::$allowed_user_roles = @implode( '|', unserialize( parent::$general_settings->user_roles_to_include_in_counting ) );
     }
     
     //Provides unserialized arrays of zones
     function unserialize_zones() {
-        if( isset( $this->general_settings->ordinary_zones ) AND strlen( $this->general_settings->ordinary_zones ) > 0 )
-            $this->ordinary_zones = unserialize( $this->general_settings->ordinary_zones );
+        if( isset( parent::$general_settings->ordinary_zones ) AND strlen( parent::$general_settings->ordinary_zones ) > 0 )
+            parent::$ordinary_zones = unserialize( parent::$general_settings->ordinary_zones );
     }
     
     //Provides unserialized arrays of user roles allowed to view options page
     function define_allowed_user_roles_options_page() {
-        if( isset( $this->general_settings->permission_options_page_user_roles ) AND strlen( $this->general_settings->permission_options_page_user_roles ) > 0 )
-            $this->allowed_user_roles_options_page = unserialize( $this->general_settings->permission_options_page_user_roles );
+        if( isset( parent::$general_settings->permission_options_page_user_roles ) AND strlen( parent::$general_settings->permission_options_page_user_roles ) > 0 )
+            parent::$allowed_user_roles_options_page = unserialize( parent::$general_settings->permission_options_page_user_roles );
     }
     
     //Provides unserialized arrays of user roles allowed to view stats page
     function define_allowed_user_roles_stats_page() {
-        if( isset( $this->general_settings->permission_stats_page_user_roles ) AND strlen( $this->general_settings->permission_stats_page_user_roles ) > 0 )
-            $this->allowed_user_roles_stats_page = unserialize( $this->general_settings->permission_stats_page_user_roles );
+        if( isset( parent::$general_settings->permission_stats_page_user_roles ) AND strlen( parent::$general_settings->permission_stats_page_user_roles ) > 0 )
+            parent::$allowed_user_roles_stats_page = unserialize( parent::$general_settings->permission_stats_page_user_roles );
     }
     
     function options_changed_vars_update_to_reflect( $get_settings = FALSE ) {
         
         //Update general_settings var only if expressly requested
         if( $get_settings == TRUE )
-            $this->general_settings = $this->get_settings( 'general' );
+            parent::$general_settings = self::get_settings( 'general' );
         
-        $this->define_allowed_post_types();
-        $this->define_allowed_status();
-        $this->define_allowed_user_roles();
-        $this->unserialize_zones();
-        $this->define_allowed_user_roles_options_page();
-        $this->define_allowed_user_roles_stats_page();
+        self::define_allowed_post_types();
+        self::define_allowed_status();
+        self::define_allowed_user_roles();
+        self::unserialize_zones();
+        self::define_allowed_user_roles_options_page();
+        self::define_allowed_user_roles_stats_page();
     }
     
     //Makes sure each user role has or has not the requested capability to see options and stats pages. Called when updating settings and updating/installing.
@@ -153,25 +73,25 @@ class post_pay_counter_functions_class {
         $allowed_user_roles_options_page_remove_cap  = array_diff( $wp_roles_to_use, $allowed_user_roles_options_page );
         
         foreach( $allowed_user_roles_options_page_add_cap as $single ) {
-            $current_role = get_role( $this->lcfirst( $single ) );
+            $current_role = get_role( self::lcfirst( $single ) );
             
             if( is_object( $current_role ) AND ! $current_role->has_cap( 'post_pay_counter_manage_options' ) )
                 $current_role->add_cap( 'post_pay_counter_manage_options' );
         }
         foreach( $allowed_user_roles_options_page_remove_cap as $single ) {
-            $current_role = get_role( $this->lcfirst( $single ) );
+            $current_role = get_role( self::lcfirst( $single ) );
             
             if( is_object( $current_role ) AND $current_role->has_cap( 'post_pay_counter_manage_options' ) )
                 $current_role->remove_cap( 'post_pay_counter_manage_options' );
         }
         foreach( $allowed_user_roles_stats_page_add_cap as $single ) {
-            $current_role = get_role( $this->lcfirst( $single ) );
+            $current_role = get_role( self::lcfirst( $single ) );
             
             if( is_object( $current_role ) AND ! $current_role->has_cap( 'post_pay_counter_access_stats' ) )
                 $current_role->add_cap( 'post_pay_counter_access_stats' );
         }
         foreach( $allowed_user_roles_stats_page_remove_cap as $single ) {
-            $current_role = get_role( $this->lcfirst( $single ) );
+            $current_role = get_role( self::lcfirst( $single ) );
             
             if( is_object( $current_role ) AND $current_role->has_cap( 'post_pay_counter_access_stats' ) )
                 $current_role->remove_cap( 'post_pay_counter_access_stats' );
@@ -185,6 +105,25 @@ class post_pay_counter_functions_class {
             return (string) ( strtolower( substr( $string, 0, 1 ) ).substr( $string, 1 ) );
     }
     
+    //Fix things like missing plugin table and default settings
+    function fix_messed_up_stuff() {
+        global $wpdb;
+        
+        if( ! $wpdb->query( 'SHOW TABLES FROM '.$wpdb->dbname.' LIKE "'.parent::$post_pay_counter_db_table.'"' ) )
+            post_pay_counter_install_routine::post_pay_counter_create_table();
+             
+        if( ! is_object( parent::$general_settings ) OR ! is_object( self::get_settings( 'trial' ) ) ) {
+            post_pay_counter_install_routine::post_pay_counter_insert_default_settings();
+            self::options_changed_vars_update_to_reflect( TRUE );
+            self::manage_cap_allowed_user_groups_plugin_pages( parent::$allowed_user_roles_options_page, parent::$allowed_user_roles_stats_page );
+        }
+        
+        if( ( ! $wpdb->query( "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '".$wpdb->posts."' AND TABLE_SCHEMA = '".$wpdb->dbname."' AND COLUMN_NAME = 'post_pay_counter'" ) )
+        OR ( ! $wpdb->query( "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '".$wpdb->posts."' AND TABLE_SCHEMA = '".$wpdb->dbname."' AND COLUMN_NAME = 'post_pay_counter_count'" ) )
+        OR ( ! $wpdb->query( "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '".$wpdb->posts."' AND TABLE_SCHEMA = '".$wpdb->dbname."' AND COLUMN_NAME = 'post_pay_counter_paid'" ) ) )
+            post_pay_counter_install_routine::add_wp_posts_plugin_columns();
+    }
+    
     //Select settings. Gets in one facoltative parameter, userID, and returns the counting settings as an object
     function get_settings( $user_id, $return_general = FALSE ) {
         global $wpdb;
@@ -194,12 +133,12 @@ class post_pay_counter_functions_class {
             
             //Select requested user's trial settings 
             $author_settings   = $wpdb->get_row( 
-                                   $wpdb->prepare( 'SELECT trial_manual, trial_auto, trial_period_days, trial_period_posts, trial_period, trial_enable FROM '.$wpdb->prefix.'post_pay_counter WHERE userID="'.$user_id.'"' )
+                                   $wpdb->prepare( 'SELECT trial_manual, trial_auto, trial_period_days, trial_period_posts, trial_period, trial_enable FROM '.parent::$post_pay_counter_db_table.' WHERE userID="'.$user_id.'"' )
                                 );
             
             //If requested user doesn't have special settings, take general ones
             if( ! is_object( $author_settings ) )
-                $author_settings = $this->general_settings;
+                $author_settings = parent::$general_settings;
             
             //If trial manual is selected and author trial is enabled
             if( $author_settings->trial_manual == 1 AND $author_settings->trial_enable == 1 ) {
@@ -230,13 +169,13 @@ class post_pay_counter_functions_class {
         
         //Query the database for user settings (where user could also be 'general' or 'trial')
         $counting_settings = $wpdb->get_row(
-                              $wpdb->prepare( 'SELECT * FROM '.$wpdb->prefix.'post_pay_counter WHERE userID = "'.$user_id.'"' )
+                              $wpdb->prepare( 'SELECT * FROM '.parent::$post_pay_counter_db_table.' WHERE userID = "'.$user_id.'"' )
                              );
                              
         
         //If for some reason (like not having special settings for a particular user) special settings are not avaiable, and $return_general is TRUE, return general ones
         if( ! is_object( $counting_settings ) AND $return_general == TRUE ) 
-            $counting_settings = $this->general_settings;
+            $counting_settings = parent::$general_settings;
 		
         return $counting_settings;
     }
@@ -247,7 +186,7 @@ class post_pay_counter_functions_class {
                $current_user;
         
         //Select plugin settings of current user or, if unavailable, general settings
-        $user_settings = $this->get_settings( $current_user->ID, TRUE );
+        $user_settings = self::get_settings( $current_user->ID, TRUE );
         
         /** PERMISSION CHECK **/
         //Check if the requested user exists and if current user is allowed to see others' detailed stats
@@ -263,11 +202,11 @@ class post_pay_counter_functions_class {
         
         /** POST SELECT **/
         //If no post types are available, return
-        if( $this->allowed_post_types == '""' )
+        if( parent::$allowed_post_types == '""' )
             return 'No posts were selected because no post types were chosen in the Options to be included in counting.';
            
         //If no user groups are available, return
-        if( $this->allowed_user_roles == '' )
+        if( parent::$allowed_user_roles == '' )
             return 'No posts were selected because no user groups were chosen in the Options to be included in counting.';      
         
         //Query the database for posts from a defined author ...
@@ -277,11 +216,11 @@ class post_pay_counter_functions_class {
                 FROM '.$wpdb->posts.' INNER JOIN '.$wpdb->usermeta.' 
                     ON '.$wpdb->usermeta.'.user_id = '.$wpdb->posts.'.post_author 
                     WHERE '.$wpdb->usermeta.'.meta_key = "wp_capabilities" 
-                    AND '.$wpdb->usermeta.'.meta_value REGEXP ("'.$this->allowed_user_roles.'") 
+                    AND '.$wpdb->usermeta.'.meta_value REGEXP ("'.parent::$allowed_user_roles.'") 
                     AND '.$wpdb->posts.'.post_author = "'.$author.'" 
-                    AND '.$wpdb->posts.'.post_type IN ('.$this->allowed_post_types.') 
+                    AND '.$wpdb->posts.'.post_type IN ('.parent::$allowed_post_types.') 
                     AND '.$wpdb->posts.'.post_pay_counter BETWEEN '.$time_start.' AND '.$time_end.' 
-                    AND '.$wpdb->posts.'.post_status IN ('.$this->allowed_status.') 
+                    AND '.$wpdb->posts.'.post_status IN ('.parent::$allowed_status.') 
                 ORDER BY '.$wpdb->posts.'.post_date DESC' )
             );
         
@@ -292,10 +231,10 @@ class post_pay_counter_functions_class {
                 FROM '.$wpdb->posts.' INNER JOIN '.$wpdb->usermeta.'
                     ON '.$wpdb->usermeta.'.user_id = '.$wpdb->posts.'.post_author 
                     WHERE '.$wpdb->usermeta.'.meta_key = "wp_capabilities" 
-                    AND '.$wpdb->usermeta.'.meta_value REGEXP ("'.$this->allowed_user_roles.'") 
-                    AND '.$wpdb->posts.'.post_type IN ('.$this->allowed_post_types.') 
+                    AND '.$wpdb->usermeta.'.meta_value REGEXP ("'.parent::$allowed_user_roles.'") 
+                    AND '.$wpdb->posts.'.post_type IN ('.parent::$allowed_post_types.') 
                     AND '.$wpdb->posts.'.post_pay_counter BETWEEN '.$time_start.' AND '.$time_end.'
-                    AND '.$wpdb->posts.'.post_status IN ('.$this->allowed_status.')' )
+                    AND '.$wpdb->posts.'.post_status IN ('.parent::$allowed_status.')' )
             );
         }
                
@@ -315,7 +254,7 @@ class post_pay_counter_functions_class {
             $ids_to_request[] = $single->ID;
         }
         
-        $ids_content2cash = $this->content2cash( $ids_to_request/*, $time_start, $time_end*/ );
+        $ids_content2cash = self::content2cash( $ids_to_request/*, $time_start, $time_end*/ );
         
         //If content2cash does not return any value, return
         if( count( $ids_content2cash ) == 0 )
@@ -353,7 +292,7 @@ class post_pay_counter_functions_class {
                 if( $user_settings->counting_system_zones == 1 ) {
                     
                     //If post is below lowest zone, mark it as such and go to next
-                    if( $ids_content2cash[$single->ID]['content_count'] < $this->ordinary_zones[1]['zone'] ) {
+                    if( $ids_content2cash[$single->ID]['content_count'] < parent::$ordinary_zones[1]['zone'] ) {
                         @$overall_stats['0zone']++;
                         continue;
                     }
@@ -362,12 +301,12 @@ class post_pay_counter_functions_class {
                     while( $n <= 5 ) { //Run 5 times
                         //If post lies in the last available zone (the fifth), do not specify a roof for its counting
                         //I.e. it is not between x and y words but only "above x". Only if not using supplementary zones
-                        if( $n == 5 AND count( $this->ordinary_zones ) < 5 ) {
-                            if( $ids_content2cash[$single->ID]['content_count'] >= $this->ordinary_zones[$n]['zone'] ) {
+                        if( $n == 5 AND count( parent::$ordinary_zones ) < 5 ) {
+                            if( $ids_content2cash[$single->ID]['content_count'] >= parent::$ordinary_zones[$n]['zone'] ) {
                                 @$overall_stats[$n.'zone']++;
                             }
                         } else {
-                            if( $ids_content2cash[$single->ID]['content_count'] >= $this->ordinary_zones[$n]['zone'] AND $ids_content2cash[$single->ID]['content_count'] < $this->ordinary_zones[$n+1]['zone'] ) {
+                            if( $ids_content2cash[$single->ID]['content_count'] >= parent::$ordinary_zones[$n]['zone'] AND $ids_content2cash[$single->ID]['content_count'] < parent::$ordinary_zones[$n+1]['zone'] ) {
                                 @$overall_stats[$n.'zone']++;
                             }
                         }
@@ -375,16 +314,16 @@ class post_pay_counter_functions_class {
                     ++$n;
                     }
                     
-                    if( count( $this->ordinary_zones ) > 5 ) {
+                    if( count( parent::$ordinary_zones ) > 5 ) {
                         while( $n <= 10 ) { //Run 5 more times
                             //If post lies in the last available zone (the fifth), do not specify a roof for its counting
                             //I.e. it is not between x and y words but only "above x".
                             if( $n == 10 ) {
-                                if( $ids_content2cash[$single->ID]['content_count'] >= $this->ordinary_zones[$n]['zone'] ) {
+                                if( $ids_content2cash[$single->ID]['content_count'] >= parent::$ordinary_zones[$n]['zone'] ) {
                                     @$overall_stats[$n.'zone']++;
                                 }
                             } else {
-                                if( $ids_content2cash[$single->ID]['content_count'] >= $this->ordinary_zones[$n]['zone'] AND $ids_content2cash[$single->ID]['content_count'] < $this->ordinary_zones[$n+1]['zone'] ) {
+                                if( $ids_content2cash[$single->ID]['content_count'] >= parent::$ordinary_zones[$n]['zone'] AND $ids_content2cash[$single->ID]['content_count'] < parent::$ordinary_zones[$n+1]['zone'] ) {
                                     @$overall_stats[$n.'zone']++;
                                 }
                             }
@@ -433,7 +372,7 @@ class post_pay_counter_functions_class {
                 if( $user_settings->counting_system_zones == 1 ) {
                     
                     //If post is below lowest zone, mark it as such and go to next
-                    if( $ids_content2cash[$single->ID]['content_count'] < $this->ordinary_zones[1]['zone'] ) {
+                    if( $ids_content2cash[$single->ID]['content_count'] < parent::$ordinary_zones[1]['zone'] ) {
                         @$overall_stats['0zone']++;
                         continue;
                     }
@@ -442,12 +381,12 @@ class post_pay_counter_functions_class {
                     while( $n <= 5 ) { //Run 5 times
                         //If post lies in the last available zone (the fifth), do not specify a roof for its counting
                         //I.e. it is not between x and y words but only "above x". Only if not using supplementary zones
-                        if( $n == 5 AND count( $this->ordinary_zones ) < 5 ) {
-                            if( $ids_content2cash[$single->ID]['content_count'] >= $this->ordinary_zones[$n]['zone'] ) {
+                        if( $n == 5 AND count( parent::$ordinary_zones ) < 5 ) {
+                            if( $ids_content2cash[$single->ID]['content_count'] >= parent::$ordinary_zones[$n]['zone'] ) {
                                 @$overall_stats[$n.'zone']++;
                             }
                         } else {
-                            if( $ids_content2cash[$single->ID]['content_count'] >= $this->ordinary_zones[$n]['zone'] AND $ids_content2cash[$single->ID]['content_count'] < $this->ordinary_zones[$n+1]['zone'] ) {
+                            if( $ids_content2cash[$single->ID]['content_count'] >= parent::$ordinary_zones[$n]['zone'] AND $ids_content2cash[$single->ID]['content_count'] < parent::$ordinary_zones[$n+1]['zone'] ) {
                                 @$overall_stats[$n.'zone']++;
                             }
                         }
@@ -455,16 +394,16 @@ class post_pay_counter_functions_class {
                     ++$n;
                     }
                     
-                    if( count( $this->ordinary_zones ) > 5 ) {
+                    if( count( parent::$ordinary_zones ) > 5 ) {
                         while( $n <= 10 ) { //Run 5 more times
                             //If post lies in the last available zone (the fifth), do not specify a roof for its counting
                             //I.e. it is not between x and y words but only "above x".
                             if( $n == 10 ) {
-                                if( $ids_content2cash[$single->ID]['content_count'] >= $this->ordinary_zones[$n]['zone'] ) {
+                                if( $ids_content2cash[$single->ID]['content_count'] >= parent::$ordinary_zones[$n]['zone'] ) {
                                     @$overall_stats[$n.'zone']++;
                                 }
                             } else {
-                                if( $ids_content2cash[$single->ID]['content_count'] >= $this->ordinary_zones[$n]['zone'] AND $ids_content2cash[$single->ID]['content_count'] < $this->ordinary_zones[$n+1]['zone'] ) {
+                                if( $ids_content2cash[$single->ID]['content_count'] >= parent::$ordinary_zones[$n]['zone'] AND $ids_content2cash[$single->ID]['content_count'] < parent::$ordinary_zones[$n+1]['zone'] ) {
                                     @$overall_stats[$n.'zone']++;
                                 }
                             }
@@ -520,8 +459,8 @@ class post_pay_counter_functions_class {
             check_admin_referer( 'post_pay_counter_csv_export_author' );
             
             //Generate stats author
-            $generated_stats    = $this->generate_stats( $author, $time_start, $time_end );
-            $csv_file          .= '"Post title";;"Post type";;"Status";;"Date";;"'.ucfirst( $this->current_counting_method_word ).'";;"Comments";;"Images";;"Payment";;';
+            $generated_stats    = self::generate_stats( $author, $time_start, $time_end );
+            $csv_file          .= '"Post title";;"Post type";;"Status";;"Date";;"'.ucfirst( parent::$current_counting_method_word ).'";;"Comments";;"Images";;"Payment";;';
         
         //General stats
         } else {
@@ -530,7 +469,7 @@ class post_pay_counter_functions_class {
             check_admin_referer( 'post_pay_counter_csv_export_general' );
             
             //Generate stats general
-            $generated_stats    = $this->generate_stats( false, $time_start, $time_end );
+            $generated_stats    = self::generate_stats( false, $time_start, $time_end );
             $csv_file           .= '"Author";;"Written posts";;"Total payment";';
             if( $current_user->user_level >= 7 )
                 $csv_file  .= ';"Paypal address";';
@@ -554,7 +493,7 @@ class post_pay_counter_functions_class {
                 $csv_file .= '"'.utf8_decode( get_userdata( $key )->display_name ).'";;"'.$value['posts'].'";;"'.$value['total_payment'].'";';
                 
                 if( $current_user->user_level >= 7 )
-                    $csv_file .= ';"'.@$this->get_settings( $key )->paypal_address.'";';
+                    $csv_file .= ';"'.@self::get_settings( $key )->paypal_address.'";';
                     
                 $csv_file .= '
 ';
@@ -583,16 +522,16 @@ class post_pay_counter_functions_class {
     function show_stats_page_header( $current_page, $page_permalink, $current_time_start, $current_time_end ) {
         global $wpdb;
         
-        $first_available_post = $wpdb->get_row( 'SELECT post_pay_counter FROM '.$wpdb->posts.' WHERE post_pay_counter IS NOT NULL ORDER BY post_pay_counter ASC LIMIT 0,1' );
+        $first_available_post = $wpdb->get_var( 'SELECT post_pay_counter FROM '.$wpdb->posts.' WHERE post_pay_counter IS NOT NULL ORDER BY post_pay_counter ASC LIMIT 0,1' );
 		
-		if( $first_available_post == '' )
-            $first_available_post->post_pay_counter = time(); ?>
+		if( $first_available_post == NULL )
+            $first_available_post = time(); ?>
 
         <script type="text/javascript">
             jQuery(document).ready(function() {
                 jQuery('#post_pay_counter_time_start').datepicker({
                     dateFormat : 'yy/mm/dd',
-                    minDate : '<?php echo date( 'y/m/d', $first_available_post->post_pay_counter ); ?>',
+                    minDate : '<?php echo date( 'y/m/d', $first_available_post ); ?>',
                     maxDate: '<?php echo date( 'y/m/d' ); ?>',
                     changeMonth : true,
                     changeYear : true,
@@ -606,7 +545,7 @@ class post_pay_counter_functions_class {
                 });
                 jQuery('#post_pay_counter_time_end').datepicker({
                     dateFormat : 'yy/mm/dd',
-                    minDate : '<?php echo date( 'y/m/d', $first_available_post->post_pay_counter ); ?>',
+                    minDate : '<?php echo date( 'y/m/d', $first_available_post ); ?>',
                     maxDate : '<?php echo date( 'y/m/d' ); ?>',
                     changeMonth : true,
                     changeYear : true,
@@ -651,7 +590,7 @@ class post_pay_counter_functions_class {
     function google_analytics_get_data( $post_ids ) {
         $micro1= microtime(true);
         //Assure we are just using the right counting type and method, otherwise return
-        if( $this->general_settings->counting_type_visits == 1 AND $this->general_settings->counting_type_visits_method_google_analytics == 1 ) {
+        if( parent::$general_settings->counting_type_visits == 1 AND parent::$general_settings->counting_type_visits_method_google_analytics == 1 ) {
             
             set_time_limit( 300 );
             $max_results    = 10000;    //Analytics doesn't allow more than 10000 rows at once to be pulled
@@ -674,14 +613,14 @@ class post_pay_counter_functions_class {
             }
             
             //Define data to retrieve (pageviews or unique pageviews) depending on settings
-            if( $this->general_settings->counting_type_visits_method_google_analytics_pageviews == 1 )
+            if( parent::$general_settings->counting_type_visits_method_google_analytics_pageviews == 1 )
                 $metrics = array( 'pageviews' );
-            else if ( $this->general_settings->counting_type_visits_method_google_analytics_unique_pageviews == 1 )
+            else if ( parent::$general_settings->counting_type_visits_method_google_analytics_unique_pageviews == 1 )
                 $metrics = array( 'uniquePageviews' );
             
             //Login to Google Analytics, throw exception on failure
             try {
-                $ga = new gapi( $this->general_settings->counting_type_visits_method_google_analytics_email, $this->general_settings->counting_type_visits_method_google_analytics_password);
+                $ga = new gapi( parent::$general_settings->counting_type_visits_method_google_analytics_email, parent::$general_settings->counting_type_visits_method_google_analytics_password);
             } catch ( Exception $e ) {
                 echo '<div id="message" class="error fade"><p><strong>There was a problem logging into Google Analytics: '.$e->getMessage().'.</strong></p></div>';
             }
@@ -699,10 +638,10 @@ class post_pay_counter_functions_class {
                     //Asking for pagePath and pageviews/uniquePageviews for every page seen between the payment start date and end date, in blocks of 10000 rows.
                     //All those data are stored into an array depending on the number of necessary requests 
                     //$total_results is then set to the request total rows, so that if there are more than 10000 results we throw a new request from results n° 10000 to n° 20000, and so on...
-                    $ga->requestReportData( $this->general_settings->counting_type_visits_method_google_analytics_profile_id, array( 'pagePath' ), $metrics, '', '', date( 'Y-m-d', $this->publication_time_range_start ), date( 'Y-m-d', $this->publication_time_range_end ), 1+$max_results*$n, $max_results*( $n+1 ) );
+                    $ga->requestReportData( parent::$general_settings->counting_type_visits_method_google_analytics_profile_id, array( 'pagePath' ), $metrics, '', '', date( 'Y-m-d', parent::$publication_time_range_start ), date( 'Y-m-d', parent::$publication_time_range_end ), 1+$max_results*$n, $max_results*( $n+1 ) );
                     var_dump($ga_results_array[$n] = $ga->getResults());
-                    var_dump($this->publication_time_range_start);
-                    var_dump($this->publication_time_range_end);
+                    var_dump(parent::$publication_time_range_start);
+                    var_dump(parent::$publication_time_range_end);
                     $total_results = $ga->getTotalResults();
                 } catch ( Exception $e ) {
                     echo '<div id="message" class="error fade"><p><strong>There was a problem selecting Google Analytics data: '.$e->getMessage().'.</strong></p></div>';
@@ -730,9 +669,9 @@ class post_pay_counter_functions_class {
                     $current_id     = array_search( $ga_dimensions['pagePath'], $ids_paths );
                     
                     //Then, for $array_countings, create a new index with the current ID and the pageview/uniquePageview related to the ID previously got
-                    if( $this->general_settings->counting_type_visits_method_google_analytics_pageviews == 1 )
+                    if( parent::$general_settings->counting_type_visits_method_google_analytics_pageviews == 1 )
                         $ids_countings[$current_id] = $single->getPageviews();
-                    else if ( $this->general_settings->counting_type_visits_method_google_analytics_unique_pageviews == 1 )
+                    else if ( parent::$general_settings->counting_type_visits_method_google_analytics_unique_pageviews == 1 )
                         $ids_countings[$current_id] = $single->getUniquePageviews();
                 
                 //If the result doesn't have any value, set its counting to 0
@@ -775,7 +714,7 @@ class post_pay_counter_functions_class {
                 $current_user;
         
         /*//If used method is Google Analytics and data should not be updated every request, select last update time. If last update time option doesn't exist, add it
-        if( $this->general_settings->counting_type_visits == 1 AND $this->general_settings->counting_type_visits_method_google_analytics == 1 AND $this->general_settings->counting_type_visits_method_google_analytics_update_request == 0 ) {
+        if( parent::$general_settings->counting_type_visits == 1 AND parent::$general_settings->counting_type_visits_method_google_analytics == 1 AND parent::$general_settings->counting_type_visits_method_google_analytics_update_request == 0 ) {
             if( ! $ga_last_update = get_option( 'ppc_ga_last_update' ) ) { //If exists, ppc_ga_last_update is retrieved and stored in $ga_last_update
                 add_option( 'ppc_ga_last_update', time() );
                 $ga_last_update = time();
@@ -783,13 +722,13 @@ class post_pay_counter_functions_class {
         }
         
         //If counting type is visits and counting method is Google Analytics, retrieve the remote data all at once to avoid slowness. Only get and update GA data if requested 
-        if(  $this->general_settings->counting_type_visits == 1 AND $this->general_settings->counting_type_visits_method_google_analytics == 1 AND $overall_stats == FALSE AND 
-           ( $this->general_settings->counting_type_visits_method_google_analytics_update_request   == 1
-        OR ( $this->general_settings->counting_type_visits_method_google_analytics_update_hour      == 1    AND $ga_last_update + 3600  < time() )
-        OR ( $this->general_settings->counting_type_visits_method_google_analytics_update_day       == 1    AND $ga_last_update + 86400 < time() ) ) ) {
+        if(  parent::$general_settings->counting_type_visits == 1 AND parent::$general_settings->counting_type_visits_method_google_analytics == 1 AND $overall_stats == FALSE AND 
+           ( parent::$general_settings->counting_type_visits_method_google_analytics_update_request   == 1
+        OR ( parent::$general_settings->counting_type_visits_method_google_analytics_update_hour      == 1    AND $ga_last_update + 3600  < time() )
+        OR ( parent::$general_settings->counting_type_visits_method_google_analytics_update_day       == 1    AND $ga_last_update + 86400 < time() ) ) ) {
             
-            $ids_countings = $this->google_analytics_get_data( $post_ids );
-            $this->google_analytics_update_database( $ids_countings );
+            $ids_countings = self::google_analytics_get_data( $post_ids );
+            self::google_analytics_update_database( $ids_countings );
             update_option( 'ppc_ga_last_update', time() );
             
         } else {*/
@@ -802,12 +741,12 @@ class post_pay_counter_functions_class {
             }
         //}
         
-        $counting_settings  = $this->get_settings( $current_user->ID, TRUE );
+        $counting_settings  = self::get_settings( $current_user->ID, TRUE );
         $ids_payments       = array();
         
         foreach( $ids_countings as $key => $single ) {
             $post_data              = get_post( $key );
-            $author_settings        = $this->get_settings( $post_data->post_author, TRUE );
+            $author_settings        = self::get_settings( $post_data->post_author, TRUE );
             $post_payment           = 0;
             $admin_bonus            = 0;
             
@@ -816,10 +755,10 @@ class post_pay_counter_functions_class {
                 $counting_settings = $author_settings;
             
             //Only accept posts of the allowed post types and status
-            if( strpos( $this->allowed_status, $post_data->post_status ) AND strpos( $this->allowed_post_types, $post_data->post_type ) !== FALSE ) {
+            if( strpos( parent::$allowed_status, $post_data->post_status ) AND strpos( parent::$allowed_post_types, $post_data->post_type ) !== FALSE ) {
                 
                 //If using unique payment system, get the value and multiply it for the number of words/visits of the post
-                if( $this->general_settings->counting_system_unique_payment == 1 ) {
+                if( parent::$general_settings->counting_system_unique_payment == 1 ) {
                     $post_payment = round( $counting_settings->unique_payment * $ids_countings[$key], 2 );
                 
                 //If using zones system, define what payment area the post fits in
@@ -830,31 +769,31 @@ class post_pay_counter_functions_class {
                             
                             //If post lies in the last available zone (the fifth), do not specify a roof for its counting
                             //I.e. it is not between x and y words but only "above x". Only if not using supplementary zones
-                            if( $n == 5 AND count( $this->ordinary_zones ) > 5 ) {
-                                if( $ids_countings[$key] >= ( $this->ordinary_zones[$n]['zone'] ) ) {
-                                    $post_payment = $this->ordinary_zones[$n]['payment'];
+                            if( $n == 5 AND count( parent::$ordinary_zones ) > 5 ) {
+                                if( $ids_countings[$key] >= ( parent::$ordinary_zones[$n]['zone'] ) ) {
+                                    $post_payment = parent::$ordinary_zones[$n]['payment'];
                                 }
                             } else {
-                                if( $ids_countings[$key] >= ( $this->ordinary_zones[$n]['zone'] ) AND $ids_countings[$key] < $this->ordinary_zones[$n+1]['zone'] ) {
-                                    $post_payment = $this->ordinary_zones[$n]['payment'];
+                                if( $ids_countings[$key] >= ( parent::$ordinary_zones[$n]['zone'] ) AND $ids_countings[$key] < parent::$ordinary_zones[$n+1]['zone'] ) {
+                                    $post_payment = parent::$ordinary_zones[$n]['payment'];
                         		}
                             }
                             
                             ++$n;
                         }
                         
-                    if( count( $this->ordinary_zones ) > 5 ) { //Also using supplementary zones
+                    if( count( parent::$ordinary_zones ) > 5 ) { //Also using supplementary zones
                         while( $n <= 10 ) { //Run 5 more times
                             
                             //If post lies in the last available zone (the tenth), do not specify a roof for its counting
                             //I.e. it is not between x and y words but only "above x".
                             if( $n == 10 ) {
-                                if( $ids_countings[$key] >= ( $this->ordinary_zones[$n]['zone'] ) ) {
-                                    $post_payment = $this->ordinary_zones[$n]['payment'];
+                                if( $ids_countings[$key] >= ( parent::$ordinary_zones[$n]['zone'] ) ) {
+                                    $post_payment = parent::$ordinary_zones[$n]['payment'];
                                 }
                             } else {
-                                if( $ids_countings[$key] >= ( $this->ordinary_zones[$n]['zone'] ) AND $ids_countings[$key] < $this->ordinary_zones[$n+1]['zone'] ) {
-                                    $post_payment = $this->ordinary_zones[$n]['payment'];
+                                if( $ids_countings[$key] >= ( parent::$ordinary_zones[$n]['zone'] ) AND $ids_countings[$key] < parent::$ordinary_zones[$n+1]['zone'] ) {
+                                    $post_payment = parent::$ordinary_zones[$n]['payment'];
                         		}
                             }
                             ++$n;
@@ -941,9 +880,9 @@ class post_pay_counter_functions_class {
                 FROM '.$wpdb->posts.' INNER JOIN '.$wpdb->usermeta.'
                     ON '.$wpdb->usermeta.'.user_id = '.$wpdb->posts.'.post_author 
                     WHERE '.$wpdb->usermeta.'.meta_key = "wp_capabilities" 
-                    AND '.$wpdb->usermeta.'.meta_value REGEXP ("'.$this->allowed_user_roles.'") 
-                    AND '.$wpdb->posts.'.post_status IN ('.$this->allowed_status.')
-                    AND '.$wpdb->posts.'.post_type IN ('.$this->allowed_post_types.')
+                    AND '.$wpdb->usermeta.'.meta_value REGEXP ("'.parent::$allowed_user_roles.'") 
+                    AND '.$wpdb->posts.'.post_status IN ('.parent::$allowed_status.')
+                    AND '.$wpdb->posts.'.post_type IN ('.parent::$allowed_post_types.')
                     AND '.$wpdb->posts.'.post_author = '.$author_id.' 
             ' );
         } else {
@@ -951,14 +890,14 @@ class post_pay_counter_functions_class {
                 FROM '.$wpdb->posts.' INNER JOIN '.$wpdb->usermeta.'
                     ON '.$wpdb->usermeta.'.user_id = '.$wpdb->posts.'.post_author 
                     WHERE '.$wpdb->usermeta.'.meta_key = "wp_capabilities" 
-                    AND '.$wpdb->usermeta.'.meta_value REGEXP ("'.$this->allowed_user_roles.'") 
-                    AND '.$wpdb->posts.'.post_status IN ('.$this->allowed_status.')
-                    AND '.$wpdb->posts.'.post_type IN ('.$this->allowed_post_types.')
+                    AND '.$wpdb->usermeta.'.meta_value REGEXP ("'.parent::$allowed_user_roles.'") 
+                    AND '.$wpdb->posts.'.post_status IN ('.parent::$allowed_status.')
+                    AND '.$wpdb->posts.'.post_type IN ('.parent::$allowed_post_types.')
             ' );
         }
         
         /*//If using google analytics method, we need to get data from ga first, and then to update the local database with the new information
-        if( $this->general_settings->counting_type_visits == 1 AND $this->general_settings->counting_type_visits_method_google_analytics == 1 ) {
+        if( parent::$general_settings->counting_type_visits == 1 AND parent::$general_settings->counting_type_visits_method_google_analytics == 1 ) {
             
             //Create an array of ids to pass to analytics functions
             $ids_to_request = array();
@@ -966,13 +905,13 @@ class post_pay_counter_functions_class {
                 $ids_to_request[] = $single->ID;
             }
             
-            $ids_countings = $this->google_analytics_get_data( $ids_to_request );
-            $this->google_analytics_update_database( $ids_countings, TRUE );
+            $ids_countings = self::google_analytics_get_data( $ids_to_request );
+            self::google_analytics_update_database( $ids_countings, TRUE );
         
         //Otherwise, for plugin method visits or words counting type, just run through selected posts and update database fields
         } else {*/
             foreach( $old_posts as $single ) {
-                $this->update_single_counting( $single->ID, $single->post_status, $single->post_date, $single->post_author, $single->post_pay_counter, $single->post_pay_counter_count, $single->post_content );
+                self::update_single_counting( $single->ID, $single->post_status, $single->post_date, $single->post_author, $single->post_pay_counter, $single->post_pay_counter_count, $single->post_content );
             }
         //}
     }
@@ -986,10 +925,10 @@ class post_pay_counter_functions_class {
                 //$wpdb->query( 'UPDATE '.$wpdb->posts.' SET post_pay_counter = NULL, post_pay_counter_count = NULL, post_pay_counter_paid = NULL WHERE ID = '.$post_id );
         
         //Define the suitable counting value and do the maths
-        if( $this->general_settings->counting_type_words == 1 ) {
-            $count_value = $this->count_post_words( $post_content );
+        if( parent::$general_settings->counting_type_words == 1 ) {
+            $count_value = self::count_post_words( $post_content );
         
-        } else if ( $this->general_settings->counting_type_visits == 1 AND $this->general_settings->counting_type_visits_method_plugin == 1 ) {
+        } else if ( parent::$general_settings->counting_type_visits == 1 AND parent::$general_settings->counting_type_visits_method_plugin == 1 ) {
             $count_value = $post_pay_counter_count + 1;
         }
                     
@@ -1016,7 +955,7 @@ class post_pay_counter_functions_class {
     //Routine that determines the number of effective words for a given post content
     function count_post_words( $post_content ) {
         //Trim blockquotes if requested
-        if( $this->general_settings->exclude_quotations_from_countings == 1 )
+        if( parent::$general_settings->exclude_quotations_from_countings == 1 )
             $post_content = preg_replace( '/<blockquote>.*<\/blockquote>/s', '', $post_content );
         
         //Strip HTML tags, then regex: reduce all kind of white spaces to one " ", trim punctuation and account a word as "some non-blank chars which have a space before or after" 
@@ -1079,7 +1018,7 @@ class post_pay_counter_functions_class {
             $overall_avaiable_months[]  = date( 'm/Y', $single['post_pay_counter'] );
         }
         
-        $ids_content2cash = $this->content2cash( $ids_to_request, /*strtotime( $raw_stats[0]['post_date'] ), time(),*/ TRUE );
+        $ids_content2cash = self::content2cash( $ids_to_request, /*strtotime( $raw_stats[0]['post_date'] ), time(),*/ TRUE );
         foreach( $ids_content2cash as $single ) {
             $overall_payment_value      = $overall_payment_value + $single['total_payment'];
             $total_words_ever           = $total_words_ever + $single['content_count'];
@@ -1110,7 +1049,7 @@ class post_pay_counter_functions_class {
     		<tr>
     			<td width="40%">Total spent money:</td>
     			<td width="10%">&euro; <?php printf( '%.2f', $overall_payment_value ) ?></td>
-                <td width="33%">Total <?php echo $this->current_counting_method_word ?> ever:</td>
+                <td width="33%">Total <?php echo parent::$current_counting_method_word ?> ever:</td>
     			<td width="17%"><?php echo (int) $total_words_ever ?></td>
     		</tr>
     		<tr class="alternate">
@@ -1122,7 +1061,7 @@ class post_pay_counter_functions_class {
             <tr>
                 <td width="40%">Single post payment average:</td>
     			<td width="10%">&euro; <?php printf( '%.2f', $payment_average_per_post ) ?></td>
-                <td width="33%">Single post <?php echo $this->current_counting_method_word ?> average:</td>
+                <td width="33%">Single post <?php echo parent::$current_counting_method_word ?> average:</td>
     			<td width="17%"><?php echo (int) $words_average_per_post ?></td>
             </tr>
             <tr class="alternate">

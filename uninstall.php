@@ -20,8 +20,8 @@ function post_pay_counter_uninstall_procedure() {
     if( $wpdb->query( "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '".$wpdb->posts."' AND TABLE_SCHEMA = '".$wpdb->dbname."' AND COLUMN_NAME = 'post_pay_counter_paid'" ) )
         $wpdb->query( 'ALTER TABLE '.$wpdb->posts.' DROP post_pay_counter_paid' );
     
-    if( $wpdb->query( 'SHOW TABLES FROM '.$wpdb->dbname.' LIKE "'.$wpdb->prefix.'post_pay_counter"' ) )
-        $wpdb->query( 'DROP TABLE '.$wpdb->prefix.'post_pay_counter' );
+    if( $wpdb->query( 'SHOW TABLES FROM '.$wpdb->dbname.' LIKE "'.parent::$post_pay_counter_db_table.'"' ) )
+        $wpdb->query( 'DROP TABLE '.parent::$post_pay_counter_db_table.'' );
     
     if( get_option( 'ppc_current_version' ) )
         delete_option( 'ppc_current_version' );
@@ -49,7 +49,7 @@ if( function_exists( 'is_multisite' ) AND is_multisite() ) {
         post_pay_counter_uninstall_procedure();
 	}
     
-    //Go back to the main blog and return - so that if not multisite or not network activation, run the procedure once
+    //Go back to the main blog and return
 	restore_current_blog();
 	return;
 }

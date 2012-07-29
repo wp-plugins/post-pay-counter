@@ -1,5 +1,6 @@
 <?php
-class post_pay_counter_options_functions_class {
+
+class post_pay_counter_options_functions_class extends post_pay_counter_core {
     //Outputs the html code for checkbox and radio fields checking whether the field should be checked or not
     function checked_or_not( $setting, $field, $name, $value = NULL, $id = NULL ) {
         if( $field == 'radio' ) {
@@ -25,7 +26,7 @@ class post_pay_counter_options_functions_class {
             </span>
             <label>
                 <span style="float: left; width: 5%;">    
-        <?php echo $this->checked_or_not( $setting, $field, $name, $value, $id ); ?>
+        <?php echo self::checked_or_not( $setting, $field, $name, $value, $id ); ?>
                 </span>
                 <span style="width: 90%;"><?php echo $text ?></span>
             </label>
