@@ -66,10 +66,13 @@ class post_pay_counter_core {
         
         //If current_version option does not exist or is DIFFERENT from the latest release number, launch the update procedures. If update is run, also updates all the class variables and the option in the db
         if( ! ( self::$ppc_current_version = get_option( 'ppc_current_version' ) ) OR self::$ppc_current_version != self::$ppc_newest_version ) {
+            //exit;
             post_pay_counter_update_procedures::update();
+            //exit;
             post_pay_counter_functions_class::options_changed_vars_update_to_reflect( TRUE );
             post_pay_counter_functions_class::manage_cap_allowed_user_groups_plugin_pages( self::$allowed_user_roles_options_page, self::$allowed_user_roles_stats_page );
-            update_option( 'ppc_current_version', self::$ppc_newest_version );
+            
+            //update_option( 'ppc_current_version', self::$ppc_newest_version );
             self::$ppc_current_version = self::$ppc_newest_version;
             echo '<div id="message" class="updated fade"><p><strong>Post Pay Counter was successfully updated to version '.self::$ppc_current_version.'.</strong> Want to have a look at the <a href="'.self::$post_pay_counter_options_menu_link.'" title="Go to Options page">Options page</a>, or at the <a href="http://wordpress.org/extend/plugins/post-pay-counter/changelog/" title="Go to Changelog">Changelog</a>?</p></div>';
         }
