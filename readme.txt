@@ -3,7 +3,7 @@ Contributors: Ste_95
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=7UH3J3CLVHP8L
 Tags: counter, authors, payment, stats, multi author, post management, post
 Tested up to: 3.4.1
-Stable tag: 1.3.3
+Stable tag: 1.3.4
 Requires at least: 3.0
 
 Easily calculate and handle author's pay on a multi-author blog by computing every written post remuneration basing on admin defined rules.
@@ -57,8 +57,6 @@ Well, the obvious answer is [Contact me](http://www.thecrowned.org/contact-me "C
 
 == Changelog ==
 = 1.3.4 =
-**DO NOT UPDATE, SOMETHING WILL DELETE ALL YOUR COUNTING DATA. WILL FIX IT SOON**
-* As of 1.3.3, no problems were still to be solved (not big ones, at least). This is a *working version* of 1.3.3, to say that solves every problem that 1.3, 1.3.1 and 1.3.2 created.
 * If plugin table or its default settings are missing, they are automatically added when either the options page or the stats page are loaded.
 * Update procedure now works with multisite - can not believe this was not introduced when the multisite capability was introduced!
 * I took the chance to redesign the class structure of the plugin, using class inheritance and making everything cleaner.

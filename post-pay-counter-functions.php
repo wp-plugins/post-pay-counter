@@ -118,10 +118,10 @@ class post_pay_counter_functions_class extends post_pay_counter_core {
             self::manage_cap_allowed_user_groups_plugin_pages( parent::$allowed_user_roles_options_page, parent::$allowed_user_roles_stats_page );
         }
         
-        if( ( ! $wpdb->query( "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '".$wpdb->posts."' AND TABLE_SCHEMA = '".$wpdb->dbname."' AND COLUMN_NAME = 'post_pay_counter'" ) )
+        /*if( ( ! $wpdb->query( "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '".$wpdb->posts."' AND TABLE_SCHEMA = '".$wpdb->dbname."' AND COLUMN_NAME = 'post_pay_counter'" ) )
         OR ( ! $wpdb->query( "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '".$wpdb->posts."' AND TABLE_SCHEMA = '".$wpdb->dbname."' AND COLUMN_NAME = 'post_pay_counter_count'" ) )
         OR ( ! $wpdb->query( "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '".$wpdb->posts."' AND TABLE_SCHEMA = '".$wpdb->dbname."' AND COLUMN_NAME = 'post_pay_counter_paid'" ) ) )
-            post_pay_counter_install_routine::add_wp_posts_plugin_columns();
+            post_pay_counter_install_routine::add_wp_posts_plugin_columns();*/
     }
     
     //Select settings. Gets in one facoltative parameter, userID, and returns the counting settings as an object

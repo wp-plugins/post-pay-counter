@@ -23,7 +23,7 @@ class post_pay_counter_update_procedures extends post_pay_counter_core {
             
 			restore_current_blog();
 			return;
-		} 
+		}
     	self::update_exec();
     }
     
