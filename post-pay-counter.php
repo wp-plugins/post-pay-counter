@@ -4,7 +4,7 @@ Plugin Name: Post Pay Counter
 Plugin URI: http://www.thecrowned.org/post-pay-counter
 Description: The Post Pay Counter plugin allows you to easily calculate and handle author's pay on a multi-author blog by computing every written post remuneration basing on admin defined rules. Define the time range you would like to have stats about, and the plugin will do the rest.
 Author: Stefano Ottolenghi
-Version: 1.3.4
+Version: 1.3.4.1
 Author URI: http://www.thecrowned.org/
 */
 
@@ -58,7 +58,7 @@ class post_pay_counter_core {
     function __construct() {
         global $wpdb;
         
-        self::$ppc_newest_version           = '1.3.4';
+        self::$ppc_newest_version           = '1.3.4.1';
         self::$post_pay_counter_db_table    = $wpdb->prefix.'post_pay_counter';
                 
         //Select general settings
@@ -72,9 +72,9 @@ class post_pay_counter_core {
             post_pay_counter_functions_class::options_changed_vars_update_to_reflect( TRUE );
             post_pay_counter_functions_class::manage_cap_allowed_user_groups_plugin_pages( self::$allowed_user_roles_options_page, self::$allowed_user_roles_stats_page );
             
-            //update_option( 'ppc_current_version', self::$ppc_newest_version );
+            update_option( 'ppc_current_version', self::$ppc_newest_version );
             self::$ppc_current_version = self::$ppc_newest_version;
-            echo '<div id="message" class="updated fade"><p><strong>Post Pay Counter was successfully updated to version '.self::$ppc_current_version.'.</strong> Want to have a look at the <a href="'.self::$post_pay_counter_options_menu_link.'" title="Go to Options page">Options page</a>, or at the <a href="http://wordpress.org/extend/plugins/post-pay-counter/changelog/" title="Go to Changelog">Changelog</a>?</p></div>';
+            echo '<div id="message" class="updated fade"><p><strong>Post Pay Counter was successfully updated to version '.self::$ppc_current_version.'.</strong> Want to have a look at the <a href="'.admin_url( self::$post_pay_counter_options_menu_link ).'" title="Go to Options page">Options page</a>, or at the <a href="http://wordpress.org/extend/plugins/post-pay-counter/changelog/" title="Go to Changelog">Changelog</a>?</p></div>';
         }
             
         //Just as a comfort, define the word suitable for countings, depending on the chosen counting type 
@@ -300,17 +300,17 @@ class post_pay_counter_core {
         //Intersecate the unserialized array of allowed user groups with the groups the post writer belongs to, then continue only if resulting array is not empty 
         $user_roles_intersection = array_intersect( unserialize( self::$general_settings->user_roles_to_include_in_counting ), get_userdata( $post->post_author )->roles );
         
-        //Only accept posts of the allowed post types, status and user groups
-    	if( strpos( self::$allowed_status, $post->post_status ) !== FALSE AND strpos( self::$allowed_post_types, $post->post_type ) !== FALSE AND ! empty( $user_roles_intersection ) ) {
-            
-            //If chosen counting type is not visits, return. Cannot check this in the construct cause it's too early
-            if( self::$general_settings->counting_type_visits_method_plugin == 0 )
-                return;
+        //Continue only if counting type is plugin visits. Only accept posts of the allowed post types, status and user groups
+    	if( strpos( self::$allowed_status, $post->post_status ) !== FALSE 
+        AND strpos( self::$allowed_post_types, $post->post_type ) !== FALSE 
+        AND ! empty( $user_roles_intersection ) 
+        AND self::$general_settings->counting_type_visits == 1 
+        AND self::$general_settings->counting_type_visits_method_plugin == 0 ) {
             
             //If the post has expired (meaning the number of past days since its publishing exceeds the counting payment time range selected by the admin), return
             /*if( ( time() - $post->post_pay_counter ) > ( post_pay_counter_functions_class::publication_time_range_end - post_pay_counter_functions_class::publication_time_range_start ) ) )
                 return;*/
-    	   
+            
             //Skip visits that shouldn't be counted: logged-in users/authors and guests things
             if( ( is_user_logged_in() AND ( self::$general_settings->count_visits_registered == 0 OR ( $post->post_author == $current_user->ID AND self::$general_settings->count_visits_authors == 0 ) ) )
             OR ( ! is_user_logged_in() AND self::$general_settings->count_visits_guests == 0 ) )
@@ -396,7 +396,7 @@ class post_pay_counter_core {
     function meta_box_counting_settings() {
         global $wp_roles;
         
-        if ( ! isset($wp_roles) )
+        if ( ! isset( $wp_roles ) )
             $wp_roles = new WP_Roles();
         
         if( self::$edit_options_counter_settings->userID == 'general' ) { ?>
@@ -788,8 +788,8 @@ class post_pay_counter_core {
             $users_to_show = $wpdb->get_results( 'SELECT ID FROM '.$wpdb->users.' ORDER BY user_nicename ASC' );
         }*/
         
-        //Select and show first 250 users whose level is higher than 1 - prevent hanging
-        $users_to_show = get_users( array( 'meta_key' => 'wp_user_level', 'meta_value' => 1, 'meta_compare' => '>', 'orderby' => 'display_name', 'order' => 'ASC', 'number' => 250 ) );
+        //Select and show first 250 users - prevent hanging
+        $users_to_show = get_users( array( 'orderby' => 'display_name', 'order' => 'ASC', 'number' => 250 ) );
             
         $n = 0;
         foreach( $users_to_show as $single ) {

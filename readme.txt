@@ -3,7 +3,7 @@ Contributors: Ste_95
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=7UH3J3CLVHP8L
 Tags: counter, authors, payment, stats, multi author, post management, post
 Tested up to: 3.4.1
-Stable tag: 1.3.4
+Stable tag: 1.3.4.1
 Requires at least: 3.0
 
 Easily calculate and handle author's pay on a multi-author blog by computing every written post remuneration basing on admin defined rules.
@@ -22,9 +22,16 @@ The administrator can set up the payment values, stats are then viewable from th
 * **CSV export**: every stats you see can be exported in csv files for offline consulting or storing.
 * **Reward posts and authors**: with a simple custom field, you can award payment bonuses to your authors. You may also define a minimum fee which will always be credited to writers so that they will earn something from every written posts.
 * **Overall stats**: at the bottom of every stats page, a box with overall stats is available with interesting details about your blog.
-* **And...** works with custom post types, narrow your payments only to chosen user groups.
+* **And...** works with custom post types, narrow your payments only to chosen user groups, mark posts as paid.
 
-There's much more to enjoy. Try it yourself! More details at the [plugin page](http://www.thecrowned.org/post-pay-counter "Post Pay Counter page"), while reviews can be found at [IdeaGeek](http://www.ideageek.it/il-plugin-wordpress-per-semplificare-i-conti-post-pay-counter/ "IdeaGeek") and [Mondofico](http://www.mondofico.com/2011/09/post-pay-counter-gestire-i-pagamenti-dei-redattori-su-wordpress/ "Mondofico").
+There's much more to enjoy. Try it yourself! More details, FAQs and schreenshots at the [plugin page](http://www.thecrowned.org/post-pay-counter "Post Pay Counter page").
+
+Reviewed the plugin:
+* [IdeaGeek](http://www.ideageek.it/il-plugin-wordpress-per-semplificare-i-conti-post-pay-counter/ "IdeaGeek")
+* [Mondofico](http://www.mondofico.com/2011/09/post-pay-counter-gestire-i-pagamenti-dei-redattori-su-wordpress/ "Mondofico").
+* [WpCode.net](http://www.wpcode.net/post-pay-counter.html/ "WpCode.net").
+* [Wordpress Style](http://www.wpstyle.it/plugin-wordpress/gestire-le-retribuzioni-dei-redattori-in-semplicita-con-post-pay-counter.html "Wordpress Style").
+* [Risorse Geek](http://www.risorsegeek.net/wordpress/plugin-wordpress/plugin-wordpress-automatizzare-i-conti-sugli-articoli-per-i-pagamenti-degli-articolisti-con-post-pay-counter/ "Risorse Geek").
 
 == Installation ==
 1. Upload the directory of the Post Pay Counter in your wp-content/plugins directory; note that you need the whole folder, not only the single files.
@@ -53,9 +60,13 @@ It is not really an explicit feature, but again, the answer is yes. All you have
 Only the first 250 are shown in the list to prevent the plugin from hanging or slowing the whole page because of that part. To personalize settings for a username that is not in the list, click first on any other username of the list. Then, look at the URL in your browser and, at the end of it, put the ID of the user you would like to personalize settings for as value of the paramater *userid*.
 
 = I am encountering a problem not listed here =
-Well, the obvious answer is [Contact me](http://www.thecrowned.org/contact-me "Contact me")! But apart from detailing the problem you are experiencing, I also need some debug data to troubleshoot the problem and solve it quickly. To do so, you should open your *post-pay-counter-functions.php* file, either by FTP or by the Wordpress plugin editor, and change line 17 *const POST_PAY_COUNTER_DEBUG = FALSE;* and change it to *const POST_PAY_COUNTER_DEBUG = TRUE;* (note the semicolon is still there). Reload the page, and you will get a lot of debugging stuff: it does not contain any sensitive information, it just contains the plugin general settings and other similar things. If you feel like censoring something, you are free to do it, but please, do not delete the whole row, only replace the sensitive data with *xxxxxx* or similar. Send me the screenshot of the data, or copy it in a document, and let's see what we can do!
+Well, the obvious answer is [Contact me](http://www.thecrowned.org/contact-me "Contact me")! But apart from detailing the problem you are experiencing, I also need some debug data to troubleshoot the problem and solve it quickly. To do so, you should open your *post-pay-counter-functions.php* file, either by FTP or by the Wordpress plugin editor, and change line 17 *const POST_PAY_COUNTER_DEBUG = FALSE;* and change it to *const POST_PAY_COUNTER_DEBUG = TRUE;* (note the semicolon is still there). Reload the page, and you will get a lot of debugging stuff: it does not contain any sensitive information, it just contains the plugin general settings and other similar things. If you feel like censoring something, you are free to do it, but please, do not delete the whole row, only replace the sensitive data with *xxxxxx* or similar. Send me the screenshot of the data, or copy it in a document, and let's see what we can do! Just keep in mind that sometimes just saving your options again may solve the problem.
 
 == Changelog ==
+= 1.3.4.1 =
+* Solved more multisite-related problems that excluded some users from countings.
+* Fixed an issue that set to zero the counted words when a post page was viewed and the counting type visits was not enabled. 
+
 = 1.3.4 =
 * If plugin table or its default settings are missing, they are automatically added when either the options page or the stats page are loaded.
 * Update procedure now works with multisite - can not believe this was not introduced when the multisite capability was introduced!
@@ -158,6 +169,10 @@ These the changes from the old Monthly Post Counter:
 * Cool jQuery effects added to show/hide options.
 * Improvements in csv encoding shortcomings.
 * Uninstall file added instead of the deactivation method.
+
+== Upgrade Notice ==
+= 1.3.4.1 =
+As far as my tests have been able to prove, this should be a 1.3-and-after working version.
 
 == Screenshots ==
 1. Post Pay Counter configuration page

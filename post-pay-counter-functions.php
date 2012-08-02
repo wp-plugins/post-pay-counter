@@ -215,7 +215,7 @@ class post_pay_counter_functions_class extends post_pay_counter_core {
              $wpdb->prepare( 'SELECT ID, post_title, comment_count, post_status, post_date, post_type, post_pay_counter_count, post_pay_counter_paid 
                 FROM '.$wpdb->posts.' INNER JOIN '.$wpdb->usermeta.' 
                     ON '.$wpdb->usermeta.'.user_id = '.$wpdb->posts.'.post_author 
-                    WHERE '.$wpdb->usermeta.'.meta_key = "wp_capabilities" 
+                    WHERE '.$wpdb->usermeta.'.meta_key = "'.$wpdb->get_blog_prefix().'capabilities" 
                     AND '.$wpdb->usermeta.'.meta_value REGEXP ("'.parent::$allowed_user_roles.'") 
                     AND '.$wpdb->posts.'.post_author = "'.$author.'" 
                     AND '.$wpdb->posts.'.post_type IN ('.parent::$allowed_post_types.') 
@@ -228,11 +228,7 @@ class post_pay_counter_functions_class extends post_pay_counter_core {
         } else {
             $selected_posts = $wpdb->get_results( 
              $wpdb->prepare( 'SELECT ID, post_title, comment_count, post_status, post_author, post_date, post_pay_counter_count 
-                FROM '.$wpdb->posts.' INNER JOIN '.$wpdb->usermeta.'
-                    ON '.$wpdb->usermeta.'.user_id = '.$wpdb->posts.'.post_author 
-                    WHERE '.$wpdb->usermeta.'.meta_key = "wp_capabilities" 
-                    AND '.$wpdb->usermeta.'.meta_value REGEXP ("'.parent::$allowed_user_roles.'") 
-                    AND '.$wpdb->posts.'.post_type IN ('.parent::$allowed_post_types.') 
+                FROM '.$wpdb->posts.' WHERE '.$wpdb->posts.'.post_type IN ('.parent::$allowed_post_types.') 
                     AND '.$wpdb->posts.'.post_pay_counter BETWEEN '.$time_start.' AND '.$time_end.'
                     AND '.$wpdb->posts.'.post_status IN ('.parent::$allowed_status.')' )
             );
@@ -879,7 +875,7 @@ class post_pay_counter_functions_class extends post_pay_counter_core {
             $old_posts = $wpdb->get_results( 'SELECT ID, post_status, post_date, post_author, post_content, post_pay_counter, post_pay_counter_count 
                 FROM '.$wpdb->posts.' INNER JOIN '.$wpdb->usermeta.'
                     ON '.$wpdb->usermeta.'.user_id = '.$wpdb->posts.'.post_author 
-                    WHERE '.$wpdb->usermeta.'.meta_key = "wp_capabilities" 
+                    WHERE '.$wpdb->usermeta.'.meta_key = "'.$wpdb->get_blog_prefix().'capabilities" 
                     AND '.$wpdb->usermeta.'.meta_value REGEXP ("'.parent::$allowed_user_roles.'") 
                     AND '.$wpdb->posts.'.post_status IN ('.parent::$allowed_status.')
                     AND '.$wpdb->posts.'.post_type IN ('.parent::$allowed_post_types.')
@@ -889,7 +885,7 @@ class post_pay_counter_functions_class extends post_pay_counter_core {
             $old_posts = $wpdb->get_results( 'SELECT ID, post_status, post_date, post_author, post_content, post_pay_counter, post_pay_counter_count 
                 FROM '.$wpdb->posts.' INNER JOIN '.$wpdb->usermeta.'
                     ON '.$wpdb->usermeta.'.user_id = '.$wpdb->posts.'.post_author 
-                    WHERE '.$wpdb->usermeta.'.meta_key = "wp_capabilities" 
+                    WHERE '.$wpdb->usermeta.'.meta_key = "'.$wpdb->get_blog_prefix().'capabilities" 
                     AND '.$wpdb->usermeta.'.meta_value REGEXP ("'.parent::$allowed_user_roles.'") 
                     AND '.$wpdb->posts.'.post_status IN ('.parent::$allowed_status.')
                     AND '.$wpdb->posts.'.post_type IN ('.parent::$allowed_post_types.')
@@ -1000,7 +996,7 @@ class post_pay_counter_functions_class extends post_pay_counter_core {
         
         <?php $raw_stats = $wpdb->get_results( 'SELECT ID, post_pay_counter, post_pay_counter_count, post_author, post_date FROM '.$wpdb->posts.' WHERE post_pay_counter IS NOT NULL ORDER BY post_date ASC', ARRAY_A );
         
-        //If no stats are avaiable, return
+        //If no stats are available, return
         if( $wpdb->num_rows == 0 ) {
             echo 'No available stats. Start blogging, and everything will appear...';
             return;
