@@ -3,7 +3,7 @@ Contributors: Ste_95
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=7UH3J3CLVHP8L
 Tags: counter, authors, payment, stats, multi author, post management, post
 Tested up to: 3.4.1
-Stable tag: 1.3.4.1
+Stable tag: 1.3.4.5
 Requires at least: 3.0
 
 Easily calculate and handle author's pay on a multi-author blog by computing every written post remuneration basing on admin defined rules.
@@ -26,7 +26,8 @@ The administrator can set up the payment values, stats are then viewable from th
 
 There's much more to enjoy. Try it yourself! More details, FAQs and schreenshots at the [plugin page](http://www.thecrowned.org/post-pay-counter "Post Pay Counter page").
 
-Reviewed the plugin:
+Post Pay Counter was reviewed by:
+  
 * [IdeaGeek](http://www.ideageek.it/il-plugin-wordpress-per-semplificare-i-conti-post-pay-counter/ "IdeaGeek")
 * [Mondofico](http://www.mondofico.com/2011/09/post-pay-counter-gestire-i-pagamenti-dei-redattori-su-wordpress/ "Mondofico").
 * [WpCode.net](http://www.wpcode.net/post-pay-counter.html/ "WpCode.net").
@@ -63,6 +64,10 @@ Only the first 250 are shown in the list to prevent the plugin from hanging or s
 Well, the obvious answer is [Contact me](http://www.thecrowned.org/contact-me "Contact me")! But apart from detailing the problem you are experiencing, I also need some debug data to troubleshoot the problem and solve it quickly. To do so, you should open your *post-pay-counter-functions.php* file, either by FTP or by the Wordpress plugin editor, and change line 17 *const POST_PAY_COUNTER_DEBUG = FALSE;* and change it to *const POST_PAY_COUNTER_DEBUG = TRUE;* (note the semicolon is still there). Reload the page, and you will get a lot of debugging stuff: it does not contain any sensitive information, it just contains the plugin general settings and other similar things. If you feel like censoring something, you are free to do it, but please, do not delete the whole row, only replace the sensitive data with *xxxxxx* or similar. Send me the screenshot of the data, or copy it in a document, and let's see what we can do! Just keep in mind that sometimes just saving your options again may solve the problem.
 
 == Changelog ==
+= 1.3.4.5 =
+* Fixed a problem that prevented personalized counting system and manual trial enable from working.
+* Currently installed version is not shown on the upper-right corner in the plugin Options page.
+
 = 1.3.4.1 =
 * Solved more multisite-related problems that excluded some users from countings.
 * Fixed an issue that set to zero the counted words when a post page was viewed and the counting type visits was not enabled. 

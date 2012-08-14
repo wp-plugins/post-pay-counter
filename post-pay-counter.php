@@ -4,7 +4,7 @@ Plugin Name: Post Pay Counter
 Plugin URI: http://www.thecrowned.org/post-pay-counter
 Description: The Post Pay Counter plugin allows you to easily calculate and handle author's pay on a multi-author blog by computing every written post remuneration basing on admin defined rules. Define the time range you would like to have stats about, and the plugin will do the rest.
 Author: Stefano Ottolenghi
-Version: 1.3.4.1
+Version: 1.3.4.5
 Author URI: http://www.thecrowned.org/
 */
 
@@ -58,7 +58,7 @@ class post_pay_counter_core {
     function __construct() {
         global $wpdb;
         
-        self::$ppc_newest_version           = '1.3.4.1';
+        self::$ppc_newest_version           = '1.3.4.5';
         self::$post_pay_counter_db_table    = $wpdb->prefix.'post_pay_counter';
                 
         //Select general settings
@@ -66,12 +66,9 @@ class post_pay_counter_core {
         
         //If current_version option does not exist or is DIFFERENT from the latest release number, launch the update procedures. If update is run, also updates all the class variables and the option in the db
         if( ! ( self::$ppc_current_version = get_option( 'ppc_current_version' ) ) OR self::$ppc_current_version != self::$ppc_newest_version ) {
-            //exit;
             post_pay_counter_update_procedures::update();
-            //exit;
             post_pay_counter_functions_class::options_changed_vars_update_to_reflect( TRUE );
             post_pay_counter_functions_class::manage_cap_allowed_user_groups_plugin_pages( self::$allowed_user_roles_options_page, self::$allowed_user_roles_stats_page );
-            
             update_option( 'ppc_current_version', self::$ppc_newest_version );
             self::$ppc_current_version = self::$ppc_newest_version;
             echo '<div id="message" class="updated fade"><p><strong>Post Pay Counter was successfully updated to version '.self::$ppc_current_version.'.</strong> Want to have a look at the <a href="'.admin_url( self::$post_pay_counter_options_menu_link ).'" title="Go to Options page">Options page</a>, or at the <a href="http://wordpress.org/extend/plugins/post-pay-counter/changelog/" title="Go to Changelog">Changelog</a>?</p></div>';
@@ -270,13 +267,14 @@ class post_pay_counter_core {
         
         $post               = (object) $post;
         $counting_settings  = post_pay_counter_functions_class::get_settings( $current_user->ID, TRUE );
+        $ordinary_zones     = unserialize( $counting_settings->ordinary_zones );
         
         //If posts word count should be showed, we check if the counting system zones is in use and, if yes, compare the word count to the first zone count. When word count is below the first zone, its opacity is reduced
         if( $counting_settings->can_view_posts_word_count_post_list == 1 ) {
             if( $name == 'post_pay_counter_word_count' ) {
                 $word_count = post_pay_counter_functions_class::count_post_words( $post->post_content );
                 
-                if( self::$general_settings->counting_type_words == 1 AND $counting_settings->counting_system_zones == 1 AND $word_count < self::$ordinary_zones[1]['zone'] )
+                if( self::$general_settings->counting_type_words == 1 AND $counting_settings->counting_system_zones == 1 AND $word_count < $ordinary_zones[1]['zone'] )
                     echo '<span style="opacity: 0.60">'.$word_count.' words</span>';
                 else
                     echo $word_count.' words';
@@ -428,8 +426,8 @@ class post_pay_counter_core {
         <?php $n = 1; 
         while( $n <= 5 ) { ?>
                     <tr>
-                        <td width="50%"><input type="text" name="zone<?php echo $n; ?>_count" value="<?php echo self::$ordinary_zones[$n]['zone']; ?>" /></td>
-                        <td width="50%"><input type="text" name="zone<?php echo $n; ?>_payment" value="<?php printf( '%.2f', self::$ordinary_zones[$n]['payment'] ); ?>" /></td>
+                        <td width="50%"><input type="text" name="zone<?php echo $n; ?>_count" value="<?php echo self::$edit_options_counter_settings->ordinary_zones[$n]['zone']; ?>" /></td>
+                        <td width="50%"><input type="text" name="zone<?php echo $n; ?>_payment" value="<?php printf( '%.2f', self::$edit_options_counter_settings->ordinary_zones[$n]['payment'] ); ?>" /></td>
                     </tr>
             <?php ++$n;
         } ?>
@@ -437,7 +435,7 @@ class post_pay_counter_core {
                 </tbody>
     		</table>
             
-            <?php if( count( self::$ordinary_zones ) > 5 ) {
+            <?php if( count( self::$edit_options_counter_settings->ordinary_zones ) > 5 ) {
                 $add_five_more_zones_checked = ' checked="checked"';
             } ?>
             
@@ -467,8 +465,8 @@ class post_pay_counter_core {
                     
             <?php while( $n <= 10 ) { ?>
                     <tr>
-                        <td width="50%"><input type="text" name="zone<?php echo $n; ?>_count" value="<?php echo @self::$ordinary_zones[$n]['zone']; ?>" /></td>
-                        <td width="50%"><input type="text" name="zone<?php echo $n; ?>_payment" value="<?php printf( '%.2f', @self::$ordinary_zones[$n]['payment'] ); ?>" /></td>
+                        <td width="50%"><input type="text" name="zone<?php echo $n; ?>_count" value="<?php echo @self::$edit_options_counter_settings->ordinary_zones[$n]['zone']; ?>" /></td>
+                        <td width="50%"><input type="text" name="zone<?php echo $n; ?>_payment" value="<?php printf( '%.2f', @self::$edit_options_counter_settings->ordinary_zones[$n]['payment'] ); ?>" /></td>
                     </tr>
                 <?php ++$n;
             } ?>
@@ -1129,7 +1127,7 @@ class post_pay_counter_core {
         $new_settings['can_csv_export']                         = @post_pay_counter_options_functions_class::update_options_checkbox_value( $_POST['can_csv_export'] );
         
         /* TRIAL BOX (only if not referring from trial settings page) */
-        if( $_POST['userID'] != 'trial' ) {  
+        if( $_POST['userID'] != 'trial' ) {
             $new_settings['trial_period'] = trim( (int) $_POST['trial_period'] );
             
             switch( $_POST['trial_type'] ) {
@@ -1166,11 +1164,10 @@ class post_pay_counter_core {
                     break;
             }
             
-            if( is_int( $_POST['userID'] ) AND get_userdata( $_POST['userID'] ) ) {
+            if( is_numeric( $_POST['userID'] ) AND get_userdata( $_POST['userID'] ) )
                 $new_settings['trial_enable'] = @post_pay_counter_options_functions_class::update_options_checkbox_value( $_POST['trial_enable'] );
-            }
         }
-                        
+        
         //Check if there are already saved settings for the requested ID: if yes, update that record, otherwise, create a new one
         if( is_object( $current_counting_settings ) )
             $wpdb->update( $wpdb->prefix.'post_pay_counter', $new_settings, array( 'userID' => $new_settings['userID'] ) );
@@ -1276,9 +1273,11 @@ class post_pay_counter_core {
                 
             echo '<div id="message" class="updated fade"><p><strong>Stats successfully updated.</strong> <a href="'.admin_url( self::$post_pay_counter_stats_menu_link ).'">Go to stats now &raquo;</a></p></div>';
         } ?>
-        
-            <h2>Post Pay Counter Options</h2>
-            <p>From this page you can configure the Post Pay Counter plug-in. You will find all the information you need inside each following box and, for each available function, clicking on the info icon on the right of them. Generated stats are always available at <a href="<?php echo admin_url( self::$post_pay_counter_stats_menu_link ) ?>" title="Go to Stats">this page</a>, where you will find many details about each post (its post type, status, date, <?php echo self::$current_counting_method_word ?>, images and comments count, payment value, paid amount) with tons of general statistics and the ability to browse old stats. If you want to be able to see stats since the first published post, use the Update Stats box below.</p>
+            
+            <div style="float: right; color: #777; margin-top: 15px;">Installed version: <?php echo self::$ppc_current_version; ?></div>
+            <div style="float: left;"><h2>Post Pay Counter Options</h2></div>
+            <div style="clear: both;"></div>
+            <p>From this page you can configure the Post Pay Counter plug-in. You will find all the information you need inside each following box and, for each available function, hovering on the info icon on the right of them. Generated stats are always available at <a href="<?php echo admin_url( self::$post_pay_counter_stats_menu_link ) ?>" title="Go to Stats">this page</a>, where you will find many details about each post (its post type, status, date, <?php echo self::$current_counting_method_word ?>, images and comments count, payment value, paid amount) with tons of general statistics and the ability to browse old stats. If you want to be able to see stats since the first published post, use the Update Stats box below.</p>
             
             <script type="text/javascript">
             //Javascript snippet to hide two different set of settings depending on the selected radio
@@ -1385,7 +1384,7 @@ class post_pay_counter_core {
                     return;
                 }
                 
-                self::$edit_options_counter_settings = post_pay_counter_functions_class::get_settings( (int) $_GET['userid'], TRUE );
+                self::$edit_options_counter_settings = post_pay_counter_functions_class::get_settings( (int) $_GET['userid'], TRUE, FALSE );
                 
                 //If current page is a new userid special settings or has trial settings, take general/trial settings but change the userid
                 if( self::$edit_options_counter_settings->userID == 'general' ) {
@@ -1398,6 +1397,8 @@ class post_pay_counter_core {
                 self::$edit_options_counter_settings = self::$general_settings;
             }
         }
+        
+        self::$edit_options_counter_settings->ordinary_zones = unserialize( self::$edit_options_counter_settings->ordinary_zones );
         
         //Nonces for major security
         wp_nonce_field( 'post_pay_counter_main_form_update' );

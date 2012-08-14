@@ -125,44 +125,45 @@ class post_pay_counter_functions_class extends post_pay_counter_core {
     }
     
     //Select settings. Gets in one facoltative parameter, userID, and returns the counting settings as an object
-    function get_settings( $user_id, $return_general = FALSE ) {
+    function get_settings( $user_id, $return_general = FALSE, $maybe_trial = TRUE ) {
         global $wpdb;
         
         //If requesting a valid user, check if we need trial settings or not
         if( is_numeric( $user_id ) AND $userdata = get_userdata( $user_id ) ) {
             
             //Select requested user's trial settings 
-            $author_settings   = $wpdb->get_row( 
-                                   $wpdb->prepare( 'SELECT trial_manual, trial_auto, trial_period_days, trial_period_posts, trial_period, trial_enable FROM '.parent::$post_pay_counter_db_table.' WHERE userID="'.$user_id.'"' )
-                                );
+            $author_settings = $wpdb->get_row( 'SELECT trial_manual, trial_auto, trial_period_days, trial_period_posts, trial_period, trial_enable FROM '.parent::$post_pay_counter_db_table.' WHERE userID="'.$user_id.'"' );
             
             //If requested user doesn't have special settings, take general ones
             if( ! is_object( $author_settings ) )
                 $author_settings = parent::$general_settings;
             
-            //If trial manual is selected and author trial is enabled
-            if( $author_settings->trial_manual == 1 AND $author_settings->trial_enable == 1 ) {
-                $user_id = 'trial';
-            
-            //If trial auto is selected
-            } else if( ( $author_settings->trial_auto == 1 ) ) {
+            //If should return trial settings when user is under trial...
+            if( $maybe_trial ) {
+                //If trial manual is selected and author trial is enabled
+                if( $author_settings->trial_manual == 1 AND $author_settings->trial_enable == 1 ) {
+                    $user_id = 'trial';
                 
-                //If selected trial period is days, check the registered time against the current one - trial period
-                if( $author_settings->trial_period_days == 1 ) {
-                    $registered_date_explode = explode( ' ', $userdata->user_registered );
-                    if( ( time() - ( $author_settings->trial_period *24*60*60 ) ) < strtotime( $registered_date_explode[0] ) ) {
-                        $user_id = 'trial';
+                //If trial auto is selected
+                } else if( ( $author_settings->trial_auto == 1 ) ) {
+                    
+                    //If selected trial period is days, check the registered time against the current one - trial period
+                    if( $author_settings->trial_period_days == 1 ) {
+                        $registered_date_explode = explode( ' ', $userdata->user_registered );
+                        if( ( time() - ( $author_settings->trial_period *24*60*60 ) ) < strtotime( $registered_date_explode[0] ) ) {
+                            $user_id = 'trial';
+                        }
+                        
+                    //Else if selected trial period is posts
+                    } else if( $author_settings->trial_period_posts == 1 ) {
+                        
+                        //Count user's current posts
+                        $user_current_posts = count_user_posts( $user_id );
+                        
+                        //If user doesn't have a high enough number of posts yet, get trial settings
+                        if( $user_current_posts <= $author_settings->trial_period )
+                            $user_id = 'trial';
                     }
-                    
-                //Else if selected trial period is posts
-                } else if( $author_settings->trial_period_posts == 1 ) {
-                    
-                    //Count user's current posts
-                    $user_current_posts = count_user_posts( $user_id );
-                    
-                    //If user doesn't have a high enough number of posts yet, get trial settings
-                    if( $user_current_posts <= $author_settings->trial_period )
-                        $user_id = 'trial';
                 }
             }
         }
@@ -186,7 +187,8 @@ class post_pay_counter_functions_class extends post_pay_counter_core {
                $current_user;
         
         //Select plugin settings of current user or, if unavailable, general settings
-        $user_settings = self::get_settings( $current_user->ID, TRUE );
+        $user_settings                  = self::get_settings( $current_user->ID, TRUE );
+        $user_settings->ordinary_zones  = unserialize( $user_settings->ordinary_zones );
         
         /** PERMISSION CHECK **/
         //Check if the requested user exists and if current user is allowed to see others' detailed stats
@@ -288,7 +290,7 @@ class post_pay_counter_functions_class extends post_pay_counter_core {
                 if( $user_settings->counting_system_zones == 1 ) {
                     
                     //If post is below lowest zone, mark it as such and go to next
-                    if( $ids_content2cash[$single->ID]['content_count'] < parent::$ordinary_zones[1]['zone'] ) {
+                    if( $ids_content2cash[$single->ID]['content_count'] < $user_settings->ordinary_zones[1]['zone'] ) {
                         @$overall_stats['0zone']++;
                         continue;
                     }
@@ -297,12 +299,12 @@ class post_pay_counter_functions_class extends post_pay_counter_core {
                     while( $n <= 5 ) { //Run 5 times
                         //If post lies in the last available zone (the fifth), do not specify a roof for its counting
                         //I.e. it is not between x and y words but only "above x". Only if not using supplementary zones
-                        if( $n == 5 AND count( parent::$ordinary_zones ) < 5 ) {
-                            if( $ids_content2cash[$single->ID]['content_count'] >= parent::$ordinary_zones[$n]['zone'] ) {
+                        if( $n == 5 AND count( $user_settings->ordinary_zones ) < 5 ) {
+                            if( $ids_content2cash[$single->ID]['content_count'] >= $user_settings->ordinary_zones[$n]['zone'] ) {
                                 @$overall_stats[$n.'zone']++;
                             }
                         } else {
-                            if( $ids_content2cash[$single->ID]['content_count'] >= parent::$ordinary_zones[$n]['zone'] AND $ids_content2cash[$single->ID]['content_count'] < parent::$ordinary_zones[$n+1]['zone'] ) {
+                            if( $ids_content2cash[$single->ID]['content_count'] >= $user_settings->ordinary_zones[$n]['zone'] AND $ids_content2cash[$single->ID]['content_count'] < $user_settings->ordinary_zones[$n+1]['zone'] ) {
                                 @$overall_stats[$n.'zone']++;
                             }
                         }
@@ -310,16 +312,16 @@ class post_pay_counter_functions_class extends post_pay_counter_core {
                     ++$n;
                     }
                     
-                    if( count( parent::$ordinary_zones ) > 5 ) {
+                    if( count( $user_settings->ordinary_zones ) > 5 ) {
                         while( $n <= 10 ) { //Run 5 more times
                             //If post lies in the last available zone (the fifth), do not specify a roof for its counting
                             //I.e. it is not between x and y words but only "above x".
                             if( $n == 10 ) {
-                                if( $ids_content2cash[$single->ID]['content_count'] >= parent::$ordinary_zones[$n]['zone'] ) {
+                                if( $ids_content2cash[$single->ID]['content_count'] >= $user_settings->ordinary_zones[$n]['zone'] ) {
                                     @$overall_stats[$n.'zone']++;
                                 }
                             } else {
-                                if( $ids_content2cash[$single->ID]['content_count'] >= parent::$ordinary_zones[$n]['zone'] AND $ids_content2cash[$single->ID]['content_count'] < parent::$ordinary_zones[$n+1]['zone'] ) {
+                                if( $ids_content2cash[$single->ID]['content_count'] >= $user_settings->ordinary_zones[$n]['zone'] AND $ids_content2cash[$single->ID]['content_count'] < $user_settings->ordinary_zones[$n+1]['zone'] ) {
                                     @$overall_stats[$n.'zone']++;
                                 }
                             }
@@ -368,7 +370,7 @@ class post_pay_counter_functions_class extends post_pay_counter_core {
                 if( $user_settings->counting_system_zones == 1 ) {
                     
                     //If post is below lowest zone, mark it as such and go to next
-                    if( $ids_content2cash[$single->ID]['content_count'] < parent::$ordinary_zones[1]['zone'] ) {
+                    if( $ids_content2cash[$single->ID]['content_count'] < $user_settings->ordinary_zones[1]['zone'] ) {
                         @$overall_stats['0zone']++;
                         continue;
                     }
@@ -377,12 +379,12 @@ class post_pay_counter_functions_class extends post_pay_counter_core {
                     while( $n <= 5 ) { //Run 5 times
                         //If post lies in the last available zone (the fifth), do not specify a roof for its counting
                         //I.e. it is not between x and y words but only "above x". Only if not using supplementary zones
-                        if( $n == 5 AND count( parent::$ordinary_zones ) < 5 ) {
-                            if( $ids_content2cash[$single->ID]['content_count'] >= parent::$ordinary_zones[$n]['zone'] ) {
+                        if( $n == 5 AND count( $user_settings->ordinary_zones ) < 5 ) {
+                            if( $ids_content2cash[$single->ID]['content_count'] >= $user_settings->ordinary_zones[$n]['zone'] ) {
                                 @$overall_stats[$n.'zone']++;
                             }
                         } else {
-                            if( $ids_content2cash[$single->ID]['content_count'] >= parent::$ordinary_zones[$n]['zone'] AND $ids_content2cash[$single->ID]['content_count'] < parent::$ordinary_zones[$n+1]['zone'] ) {
+                            if( $ids_content2cash[$single->ID]['content_count'] >= $user_settings->ordinary_zones[$n]['zone'] AND $ids_content2cash[$single->ID]['content_count'] < $user_settings->ordinary_zones[$n+1]['zone'] ) {
                                 @$overall_stats[$n.'zone']++;
                             }
                         }
@@ -390,16 +392,16 @@ class post_pay_counter_functions_class extends post_pay_counter_core {
                     ++$n;
                     }
                     
-                    if( count( parent::$ordinary_zones ) > 5 ) {
+                    if( count( $user_settings->ordinary_zones ) > 5 ) {
                         while( $n <= 10 ) { //Run 5 more times
                             //If post lies in the last available zone (the fifth), do not specify a roof for its counting
                             //I.e. it is not between x and y words but only "above x".
                             if( $n == 10 ) {
-                                if( $ids_content2cash[$single->ID]['content_count'] >= parent::$ordinary_zones[$n]['zone'] ) {
+                                if( $ids_content2cash[$single->ID]['content_count'] >= $user_settings->ordinary_zones[$n]['zone'] ) {
                                     @$overall_stats[$n.'zone']++;
                                 }
                             } else {
-                                if( $ids_content2cash[$single->ID]['content_count'] >= parent::$ordinary_zones[$n]['zone'] AND $ids_content2cash[$single->ID]['content_count'] < parent::$ordinary_zones[$n+1]['zone'] ) {
+                                if( $ids_content2cash[$single->ID]['content_count'] >= $user_settings->ordinary_zones[$n]['zone'] AND $ids_content2cash[$single->ID]['content_count'] < $user_settings->ordinary_zones[$n+1]['zone'] ) {
                                     @$overall_stats[$n.'zone']++;
                                 }
                             }
@@ -737,14 +739,16 @@ class post_pay_counter_functions_class extends post_pay_counter_core {
             }
         //}
         
-        $counting_settings  = self::get_settings( $current_user->ID, TRUE );
-        $ids_payments       = array();
+        $counting_settings                  = self::get_settings( $current_user->ID, TRUE );
+        $counting_settings->ordinary_zones  = unserialize( $counting_settings->ordinary_zones );
+        $ids_payments                       = array();
         
         foreach( $ids_countings as $key => $single ) {
-            $post_data              = get_post( $key );
-            $author_settings        = self::get_settings( $post_data->post_author, TRUE );
-            $post_payment           = 0;
-            $admin_bonus            = 0;
+            $post_data                          = get_post( $key );
+            $author_settings                    = self::get_settings( $post_data->post_author, TRUE );
+            $author_settings->ordinary_zones    = unserialize( $author_settings->ordinary_zones );
+            $post_payment                       = 0;
+            $admin_bonus                        = 0;
             
             //If user can, special settings are retrieved from db and used for countings
             if( $current_user->ID == $post_data->post_author OR $current_user->user_level >= 7 OR $counting_settings->can_view_special_settings_countings == 1 )
@@ -754,7 +758,7 @@ class post_pay_counter_functions_class extends post_pay_counter_core {
             if( strpos( parent::$allowed_status, $post_data->post_status ) AND strpos( parent::$allowed_post_types, $post_data->post_type ) !== FALSE ) {
                 
                 //If using unique payment system, get the value and multiply it for the number of words/visits of the post
-                if( parent::$general_settings->counting_system_unique_payment == 1 ) {
+                if( $counting_settings->counting_system_unique_payment == 1 ) {
                     $post_payment = round( $counting_settings->unique_payment * $ids_countings[$key], 2 );
                 
                 //If using zones system, define what payment area the post fits in
@@ -765,31 +769,31 @@ class post_pay_counter_functions_class extends post_pay_counter_core {
                             
                             //If post lies in the last available zone (the fifth), do not specify a roof for its counting
                             //I.e. it is not between x and y words but only "above x". Only if not using supplementary zones
-                            if( $n == 5 AND count( parent::$ordinary_zones ) > 5 ) {
-                                if( $ids_countings[$key] >= ( parent::$ordinary_zones[$n]['zone'] ) ) {
-                                    $post_payment = parent::$ordinary_zones[$n]['payment'];
+                            if( $n == 5 AND count( $counting_settings->ordinary_zones ) > 5 ) {
+                                if( $ids_countings[$key] >= ( $counting_settings->ordinary_zones[$n]['zone'] ) ) {
+                                    $post_payment = $counting_settings->ordinary_zones[$n]['payment'];
                                 }
                             } else {
-                                if( $ids_countings[$key] >= ( parent::$ordinary_zones[$n]['zone'] ) AND $ids_countings[$key] < parent::$ordinary_zones[$n+1]['zone'] ) {
-                                    $post_payment = parent::$ordinary_zones[$n]['payment'];
+                                if( $ids_countings[$key] >= ( $counting_settings->ordinary_zones[$n]['zone'] ) AND $ids_countings[$key] < $counting_settings->ordinary_zones[$n+1]['zone'] ) {
+                                    $post_payment = $counting_settings->ordinary_zones[$n]['payment'];
                         		}
                             }
                             
                             ++$n;
                         }
                         
-                    if( count( parent::$ordinary_zones ) > 5 ) { //Also using supplementary zones
+                    if( count( $counting_settings->ordinary_zones ) > 5 ) { //Also using supplementary zones
                         while( $n <= 10 ) { //Run 5 more times
                             
                             //If post lies in the last available zone (the tenth), do not specify a roof for its counting
                             //I.e. it is not between x and y words but only "above x".
                             if( $n == 10 ) {
-                                if( $ids_countings[$key] >= ( parent::$ordinary_zones[$n]['zone'] ) ) {
-                                    $post_payment = parent::$ordinary_zones[$n]['payment'];
+                                if( $ids_countings[$key] >= ( $counting_settings->ordinary_zones[$n]['zone'] ) ) {
+                                    $post_payment = $counting_settings->ordinary_zones[$n]['payment'];
                                 }
                             } else {
-                                if( $ids_countings[$key] >= ( parent::$ordinary_zones[$n]['zone'] ) AND $ids_countings[$key] < parent::$ordinary_zones[$n+1]['zone'] ) {
-                                    $post_payment = parent::$ordinary_zones[$n]['payment'];
+                                if( $ids_countings[$key] >= ( $counting_settings->ordinary_zones[$n]['zone'] ) AND $ids_countings[$key] < $counting_settings->ordinary_zones[$n+1]['zone'] ) {
+                                    $post_payment = $counting_settings->ordinary_zones[$n]['payment'];
                         		}
                             }
                             ++$n;
@@ -847,11 +851,12 @@ class post_pay_counter_functions_class extends post_pay_counter_core {
         return $ids_payments;
     }
     
-    //Requested to update all database posts
+    //Requested to update all database posts. For every selected post, get the counting through the update_single_counting and store them in an array which will be used at the end to launch a single query
     function update_all_posts_count( $update_dates = FALSE, $author_id = FALSE ) {
         global $wpdb;
         
-        $sql_where = '';
+        $sql_where      = '';
+        $all_posts_data = array();
         
         //If given author id is not valid, set it to false
         if( $author_id AND ! get_userdata( $author_id ) )
@@ -906,13 +911,32 @@ class post_pay_counter_functions_class extends post_pay_counter_core {
         
         //Otherwise, for plugin method visits or words counting type, just run through selected posts and update database fields
         } else {*/
+            $post_pay_counter_date_field_update     = 'post_pay_counter = CASE ID '; //27 chars long string
+            $post_pay_counter_count_field_update    = 'post_pay_counter_count = CASE ID ';
+            
             foreach( $old_posts as $single ) {
-                self::update_single_counting( $single->ID, $single->post_status, $single->post_date, $single->post_author, $single->post_pay_counter, $single->post_pay_counter_count, $single->post_content );
+                $post_counting = self::update_single_counting( $single->ID, $single->post_status, $single->post_date, $single->post_author, $single->post_pay_counter, $single->post_pay_counter_count, $single->post_content );
+                
+                if( isset( $post_counting['post_pay_counter'] ) )
+                    $post_pay_counter_date_field_update .= 'WHEN '.$single->ID.' THEN "'.$post_counting['post_pay_counter'].'" ';
+                
+                if( isset( $post_counting['post_pay_counter_count'] ) )
+                    $post_pay_counter_count_field_update .= 'WHEN '.$single->ID.' THEN '.$post_counting['post_pay_counter_count'].' ';
+                
+                unset( $post_counting );
             }
+            
+            $update_query = 'UPDATE '.$wpdb->posts.' SET '.$post_pay_counter_count_field_update.'END';
+            
+            //Append update-counting-dates only if at least one date is available
+            if( strlen( $post_pay_counter_date_field_update ) > 27 )
+                $update_query .= ', '.$post_pay_counter_date_field_update.'END';
+            
+            $wpdb->query( $update_query );
         //}
     }
     
-    //Function used to update the database posts counting values
+    //Function used to update the database posts counting values. If caller function is update_all_posts_count, just return the post counting without executing query
     function update_single_counting( $post_id, $post_status, $post_date, $post_author, $post_pay_counter_date, $post_pay_counter_count, $post_content = NULL ) {
         global $wpdb;
         
@@ -921,12 +945,10 @@ class post_pay_counter_functions_class extends post_pay_counter_core {
                 //$wpdb->query( 'UPDATE '.$wpdb->posts.' SET post_pay_counter = NULL, post_pay_counter_count = NULL, post_pay_counter_paid = NULL WHERE ID = '.$post_id );
         
         //Define the suitable counting value and do the maths
-        if( parent::$general_settings->counting_type_words == 1 ) {
+        if( parent::$general_settings->counting_type_words == 1 )
             $count_value = self::count_post_words( $post_content );
-        
-        } else if ( parent::$general_settings->counting_type_visits == 1 AND parent::$general_settings->counting_type_visits_method_plugin == 1 ) {
+        else if ( parent::$general_settings->counting_type_visits == 1 AND parent::$general_settings->counting_type_visits_method_plugin == 1 )
             $count_value = $post_pay_counter_count + 1;
-        }
                     
         //Now create array data to update db fields
         $update_counting_query = array( 'post_pay_counter_count' => $count_value );
@@ -941,6 +963,11 @@ class post_pay_counter_functions_class extends post_pay_counter_core {
             else
                 $update_counting_query['post_pay_counter'] = time();
         }
+        
+        //Return values now if mass update
+        $backtrace = debug_backtrace();
+        if( $backtrace[1]['function'] == 'update_all_posts_count' )
+            return $update_counting_query;
         
         $update_counting_conditions = array( 'ID' => $post_id );
         
