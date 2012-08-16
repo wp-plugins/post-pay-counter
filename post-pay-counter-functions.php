@@ -187,8 +187,10 @@ class post_pay_counter_functions_class extends post_pay_counter_core {
                $current_user;
         
         //Select plugin settings of current user or, if unavailable, general settings
-        $user_settings                  = self::get_settings( $current_user->ID, TRUE );
-        $user_settings->ordinary_zones  = unserialize( $user_settings->ordinary_zones );
+        $user_settings = self::get_settings( $current_user->ID, TRUE );
+        
+		if( ! is_array( $user_settings->ordinary_zones ) )
+			$user_settings->ordinary_zones = unserialize( $user_settings->ordinary_zones );
         
         /** PERMISSION CHECK **/
         //Check if the requested user exists and if current user is allowed to see others' detailed stats
@@ -740,15 +742,19 @@ class post_pay_counter_functions_class extends post_pay_counter_core {
         //}
         
         $counting_settings                  = self::get_settings( $current_user->ID, TRUE );
-        $counting_settings->ordinary_zones  = unserialize( $counting_settings->ordinary_zones );
         $ids_payments                       = array();
+		
+		if( ! is_array( $counting_settings->ordinary_zones ) )
+			$counting_settings->ordinary_zones  = unserialize( $counting_settings->ordinary_zones );
         
         foreach( $ids_countings as $key => $single ) {
             $post_data                          = get_post( $key );
             $author_settings                    = self::get_settings( $post_data->post_author, TRUE );
-            $author_settings->ordinary_zones    = unserialize( $author_settings->ordinary_zones );
             $post_payment                       = 0;
             $admin_bonus                        = 0;
+			
+			if( ! is_array( $author_settings->ordinary_zones ) )
+				$author_settings->ordinary_zones  = unserialize( $author_settings->ordinary_zones );
             
             //If user can, special settings are retrieved from db and used for countings
             if( $current_user->ID == $post_data->post_author OR $current_user->user_level >= 7 OR $counting_settings->can_view_special_settings_countings == 1 )

@@ -4,7 +4,7 @@ Plugin Name: Post Pay Counter
 Plugin URI: http://www.thecrowned.org/post-pay-counter
 Description: The Post Pay Counter plugin allows you to easily calculate and handle author's pay on a multi-author blog by computing every written post remuneration basing on admin defined rules. Define the time range you would like to have stats about, and the plugin will do the rest.
 Author: Stefano Ottolenghi
-Version: 1.3.4.5
+Version: 1.3.4.6
 Author URI: http://www.thecrowned.org/
 */
 
@@ -58,7 +58,7 @@ class post_pay_counter_core {
     function __construct() {
         global $wpdb;
         
-        self::$ppc_newest_version           = '1.3.4.5';
+        self::$ppc_newest_version           = '1.3.4.6';
         self::$post_pay_counter_db_table    = $wpdb->prefix.'post_pay_counter';
                 
         //Select general settings
@@ -267,7 +267,9 @@ class post_pay_counter_core {
         
         $post               = (object) $post;
         $counting_settings  = post_pay_counter_functions_class::get_settings( $current_user->ID, TRUE );
-        $ordinary_zones     = unserialize( $counting_settings->ordinary_zones );
+        
+		if( ! is_array( $ordinary_zones->ordinary_zones ) )
+			$ordinary_zones = unserialize( $counting_settings->ordinary_zones );
         
         //If posts word count should be showed, we check if the counting system zones is in use and, if yes, compare the word count to the first zone count. When word count is below the first zone, its opacity is reduced
         if( $counting_settings->can_view_posts_word_count_post_list == 1 ) {
