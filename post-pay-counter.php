@@ -4,7 +4,7 @@ Plugin Name: Post Pay Counter
 Plugin URI: http://www.thecrowned.org/post-pay-counter
 Description: The Post Pay Counter plugin allows you to easily calculate and handle author's pay on a multi-author blog by computing every written post remuneration basing on admin defined rules. Define the time range you would like to have stats about, and the plugin will do the rest.
 Author: Stefano Ottolenghi
-Version: 1.3.4.6
+Version: 1.3.4.7
 Author URI: http://www.thecrowned.org/
 */
 
@@ -58,7 +58,7 @@ class post_pay_counter_core {
     function __construct() {
         global $wpdb;
         
-        self::$ppc_newest_version           = '1.3.4.6';
+        self::$ppc_newest_version           = '1.3.4.7';
         self::$post_pay_counter_db_table    = $wpdb->prefix.'post_pay_counter';
                 
         //Select general settings
@@ -1107,7 +1107,7 @@ class post_pay_counter_core {
         $new_settings['allow_payment_bonuses']  = @post_pay_counter_options_functions_class::update_options_checkbox_value( $_POST['allow_payment_bonuses'] );
                     
         //If we're dealing with personalized options, check paypal address and add it to the query array
-        if( is_int( $_POST['userID'] ) AND get_userdata( $_POST['userID'] ) ) {
+        if( is_numeric( $_POST['userID'] ) AND get_userdata( $_POST['userID'] ) ) {
             if( is_string( $_POST['paypal_address'] ) AND strlen( $_POST['paypal_address'] ) > 0 ) {
                 if( is_email( $_POST['paypal_address'] ) ) {
                     $new_settings['paypal_address'] = $_POST['paypal_address'];
