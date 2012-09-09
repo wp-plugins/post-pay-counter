@@ -195,7 +195,8 @@ class post_pay_counter_functions_class extends post_pay_counter_core {
         /** PERMISSION CHECK **/
         //Check if the requested user exists and if current user is allowed to see others' detailed stats
         if( $author ) {
-            if( ! ( $user_settings->can_view_others_detailed_stats == 1 OR $current_user->ID == $author OR $current_user->user_level >= 7 ) )
+            
+            if( $current_user->ID != $author AND ( $user_settings->can_view_others_detailed_stats == 0 AND $current_user->user_level < 8 ) )
                 return 'You are not authorized to view this page';
                 
             if( ! get_userdata( $author ) )
@@ -266,7 +267,7 @@ class post_pay_counter_functions_class extends post_pay_counter_core {
             foreach( $selected_posts as $single ) {
                 
                 //If current user can't and is not admin, don't show other authors' information
-                if( $user_settings->can_view_others_general_stats == 0 AND $current_user->user_level < 7 AND $single->post_author != $current_user->ID )
+                if( $single->post_author != $current_user->ID AND ( $user_settings->can_view_others_general_stats == 0 AND $current_user->user_level < 8 ) )
                     continue;
                 
                 //If post was not returned by content2cash (probably because of invalid status), continue
@@ -471,7 +472,7 @@ class post_pay_counter_functions_class extends post_pay_counter_core {
             //Generate stats general
             $generated_stats    = self::generate_stats( false, $time_start, $time_end );
             $csv_file           .= '"Author";;"Written posts";;"Total payment";';
-            if( $current_user->user_level >= 7 )
+            if( $current_user->user_level >= 8 )
                 $csv_file  .= ';"Paypal address";';
         
         }
@@ -492,7 +493,7 @@ class post_pay_counter_functions_class extends post_pay_counter_core {
             foreach( $generated_stats['general_stats'] as $key => $value ) {
                 $csv_file .= '"'.utf8_decode( get_userdata( $key )->display_name ).'";;"'.$value['posts'].'";;"'.$value['total_payment'].'";';
                 
-                if( $current_user->user_level >= 7 )
+                if( $current_user->user_level >= 8 )
                     $csv_file .= ';"'.@self::get_settings( $key )->paypal_address.'";';
                     
                 $csv_file .= '
@@ -757,7 +758,7 @@ class post_pay_counter_functions_class extends post_pay_counter_core {
 				$author_settings->ordinary_zones  = unserialize( $author_settings->ordinary_zones );
             
             //If user can, special settings are retrieved from db and used for countings
-            if( $current_user->ID == $post_data->post_author OR $current_user->user_level >= 7 OR $counting_settings->can_view_special_settings_countings == 1 )
+            if( $current_user->ID == $post_data->post_author OR $current_user->user_level >= 8 OR $counting_settings->can_view_special_settings_countings == 1 )
                 $counting_settings = $author_settings;
             
             //Only accept posts of the allowed post types and status

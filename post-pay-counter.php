@@ -4,7 +4,7 @@ Plugin Name: Post Pay Counter
 Plugin URI: http://www.thecrowned.org/post-pay-counter
 Description: The Post Pay Counter plugin allows you to easily calculate and handle author's pay on a multi-author blog by computing every written post remuneration basing on admin defined rules. Define the time range you would like to have stats about, and the plugin will do the rest.
 Author: Stefano Ottolenghi
-Version: 1.3.4.7
+Version: 1.3.4.8
 Author URI: http://www.thecrowned.org/
 */
 
@@ -58,7 +58,7 @@ class post_pay_counter_core {
     function __construct() {
         global $wpdb;
         
-        self::$ppc_newest_version           = '1.3.4.7';
+        self::$ppc_newest_version           = '1.3.4.8';
         self::$post_pay_counter_db_table    = $wpdb->prefix.'post_pay_counter';
                 
         //Select general settings
@@ -1222,7 +1222,7 @@ class post_pay_counter_core {
         post_pay_counter_functions_class::fix_messed_up_stuff();
         
         /** DELETE USER'S SETTINGS **/
-        if( isset( $_GET['delete'] ) AND $vaporized_userdata = get_userdata( (int) $_GET['delete'] ) AND $current_user->user_level >= 7 ) {
+        if( isset( $_GET['delete'] ) AND $vaporized_userdata = get_userdata( (int) $_GET['delete'] ) AND $current_user->user_level >= 8 ) {
             $_GET['delete'] = (int) $_GET['delete'];
             
             //Nonce check
@@ -1476,7 +1476,7 @@ class post_pay_counter_core {
         $alternate              = '';
         
         //CSV file exporting feature
-        if( isset( $get_and_post['export'] ) AND $get_and_post['export'] == 'csv' AND ( $current_user->user_level >= 7 OR $current_user_settings->can_csv_export == 1 ) ) {
+        if( isset( $get_and_post['export'] ) AND $get_and_post['export'] == 'csv' AND ( $current_user->user_level >= 8 OR $current_user_settings->can_csv_export == 1 ) ) {
             post_pay_counter_functions_class::csv_export( @$get_and_post['author'], @$get_and_post['tstart'], @$get_and_post['tend'] );
         } ?>
         
@@ -1509,10 +1509,10 @@ class post_pay_counter_core {
                                 <th scope="col" width="9%">Payment</th>
 
                     <?php //Show paid column only if user is allowed to or is admin
-                    if( $current_user_settings->can_view_paid_amount == 1 OR $current_user->user_level >= 7 ) {
+                    if( $current_user_settings->can_view_paid_amount == 1 OR $current_user->user_level >= 8 ) {
                         
                         //Tick/Untick all can only be seen and triggered by admins
-                        if( $current_user->user_level >= 7 ) {
+                        if( $current_user->user_level >= 8 ) {
                             $links = ' <span style="font-size: 10px;"><a href="#" class="one_to_rule_them_all_check" title="Click here to check all the paid checkboxes below">Tick</a>|<a href="#" class="one_to_rule_them_all_uncheck" title="Click here to uncheck all the paid checkboxes below">Untick</a></span>';
                         } ?>
                                 <th scope="col" width="10%">Paid<?php echo @$links; ?></th>
@@ -1532,10 +1532,10 @@ class post_pay_counter_core {
                                 <th scope="col" width="9%">Payment</th>
 
                     <?php //Show paid column only if user is allowed to or is admin
-                    if( $current_user_settings->can_view_paid_amount == 1 OR $current_user->user_level >= 7 ) {
+                    if( $current_user_settings->can_view_paid_amount == 1 OR $current_user->user_level >= 8 ) {
                         
                         //Tick/Untick all can only be seen and triggered by admins
-                        if( $current_user->user_level >= 7 ) {
+                        if( $current_user->user_level >= 8 ) {
                             $links = ' <span style="font-size: 10px;"><a href="#" class="one_to_rule_them_all_check" title="Click here to check all the paid checkboxes below">Tick</a>|<a href="#" class="one_to_rule_them_all_uncheck" title="Click here to uncheck all the paid checkboxes below">Untick</a></span>';
                         } ?>
                                 <th scope="col" width="10%">Paid<?php echo @$links; ?></th>
@@ -1551,7 +1551,7 @@ class post_pay_counter_core {
                         $paid_checked = 0;
                         
                         //If user can, prepare span with all the counting details for overlay display
-                        if( $current_user_settings->can_view_overlay_counting_details == 1 OR $current_user->user_level >= 7 ) {
+                        if( $current_user_settings->can_view_overlay_counting_details == 1 OR $current_user->user_level >= 8 ) {
                             $payment_to_show = '<span style="border-bottom: 1px dotted;"><a title="Ordinary payment (words/visits only): &euro; '.$single['ordinary_payment'].'; Post bonus: &euro; '.$single['payment_bonus'].'; Minimum fee rounding: &euro; '.$single['minimum_fee'].'; Image bonus: &euro; '.$single['image_bonus'].'; Comment bonus: &euro; '.$single['comment_bonus'].'" style="text-decoration: none; color: #000000;">&euro; '.$single['post_payment'].'</a></span>';
                         } else {
                             $payment_to_show = $single['post_payment'];
@@ -1585,7 +1585,7 @@ class post_pay_counter_core {
                                 <td>
 
                         <?php //Show paid amount only if user is allowed to or is admin
-                        if( $current_user_settings->can_view_paid_amount == 1 OR $current_user->user_level >= 7 ) {
+                        if( $current_user_settings->can_view_paid_amount == 1 OR $current_user->user_level >= 8 ) {
                             
                             $total_paid     = 0;
                             $still_to_pay   = $single['post_payment'];
@@ -1605,7 +1605,7 @@ class post_pay_counter_core {
                                 }
                                 
                                 //Show checkbox and hidden fields and javascript code and everything related to marking-as-paid only if admin
-                                if( $current_user->user_level >= 7 ) {
+                                if( $current_user->user_level >= 8 ) {
                                 
                                     //Checkbox checking
                                     if( $total_paid == $single['post_payment'] ) {
@@ -1620,7 +1620,7 @@ class post_pay_counter_core {
                                     
                             }
                             
-                            if( $current_user->user_level >= 7 ) { ?>
+                            if( $current_user->user_level >= 8 ) { ?>
                             
                                         <span style="float: left;">
                                             <input type="checkbox" class="paid_status_update" id="<?php echo $single['ID']; ?>" accesskey="<?php echo $still_to_pay ?>" name="paid_status_update"<?php echo $paid_checked; ?> />
@@ -1636,12 +1636,12 @@ class post_pay_counter_core {
                         //Show paid amount, this also to users who are allowed to
                         if( $single['is_post_paid'] != NULL ) { ?>
                                         <span style="border-bottom: 1px dotted; font-size: xx-small; text-align: left; margin-left: 10px;<?php echo @$span_style; ?>" id="amount_<?php echo $single['ID']; ?>">
-                                            <a title="<?php if( $current_user->user_level >= 7 ) { echo $payment_history; } ?>" style="text-decoration: none; color: #000000;">&euro; <?php echo $total_paid; ?></a>
+                                            <a title="<?php if( $current_user->user_level >= 8 ) { echo $payment_history; } ?>" style="text-decoration: none; color: #000000;">&euro; <?php echo $total_paid; ?></a>
                                         </span>
                         <?php }
                         
                         //Javascript code only to admins
-                        if( $current_user->user_level >= 7 ) { ?>
+                        if( $current_user->user_level >= 8 ) { ?>
                             
                                         <script type="text/javascript">
                                             /* <![CDATA[ */
@@ -1731,7 +1731,7 @@ class post_pay_counter_core {
                 			<th scope="col" width="17%">Total payment</th>
                 
                 <?php //If current_user == admin, show paypal addresses
-                if( $current_user->user_level >= 7 ) { ?>
+                if( $current_user->user_level >= 8 ) { ?>
                     <th scope="col" width="25%">PayPal address</th>
                 <?php } ?>
                               
@@ -1743,7 +1743,7 @@ class post_pay_counter_core {
         			<th scope="col" width="13%">Written posts</th>
     	            <th scope="col" width="17%">Total payment</th>
                     
-                <?php if( $current_user->user_level >= 7 ) { ?>
+                <?php if( $current_user->user_level >= 8 ) { ?>
                     <th scope="col" width="25%">PayPal address</th>
                 <?php } ?>
                         
@@ -1758,7 +1758,7 @@ class post_pay_counter_core {
                     $author_paypal_address  = @post_pay_counter_functions_class::get_settings( $key )->paypal_address;
                     
                     //If user can, prepare span with all the counting details for overlay display
-                    if( $current_user_settings->can_view_overlay_counting_details == 1 OR $current_user->user_level >= 7 ) {
+                    if( $current_user_settings->can_view_overlay_counting_details == 1 OR $current_user->user_level >= 8 ) {
                         $payment_to_show = '<span style="border-bottom: 1px dotted;"><a title="Ordinary payment (words/visits only): &euro; '.$value['ordinary_payment'].'; Post bonus: &euro; '.$value['payment_bonus'].'; Minimum fee rounding: &euro; '.$value['minimum_fee'].'; Image bonus: &euro; '.$value['image_bonus'].'; Comment bonus: &euro; '.$value['comment_bonus'].'" style="text-decoration: none; color: #000000;">&euro; '.$value['total_payment'].'</a></span>';
                     } else {
                         $payment_to_show = $value['total_payment'];
@@ -1776,7 +1776,7 @@ class post_pay_counter_core {
                     <?php }
                     
                     //If current user can't see detailed stats, user's names aren't links but its one
-                    if( $current_user_settings->can_view_others_detailed_stats == 0 AND $current_user->user_level < 7 AND $key != $current_user->ID ) { ?>
+                    if( $current_user_settings->can_view_others_detailed_stats == 0 AND $current_user->user_level < 8 AND $key != $current_user->ID ) { ?>
                     <td><?php echo $author_display_name; ?></td>
                     <?php } else { ?>
                     <td><a href="<?php echo admin_url( self::$post_pay_counter_stats_menu_link.'&amp;author='.$key.'&amp;tstart='.$get_and_post['tstart'].'&amp;tend='.$get_and_post['tend'] ) ?>" title="<?php echo $author_display_name ?>"><?php echo $author_display_name ?></a></td>
@@ -1785,7 +1785,7 @@ class post_pay_counter_core {
                     <td><?php echo $value['posts'] ?></td>
                     <td><?php echo $payment_to_show ?></td>
                         
-                         <?php if( $current_user->user_level >= 7 ) { ?>
+                         <?php if( $current_user->user_level >= 8 ) { ?>
                     <td><?php echo $author_paypal_address ?></td>
                          <?php } ?>
                     
@@ -1802,7 +1802,7 @@ class post_pay_counter_core {
 		}
         
         //Showing overall stats, since blog started (if current user is allowed to)
-        if( $current_user_settings->can_view_overall_stats == 1 OR $current_user->user_level >= 7 )
+        if( $current_user_settings->can_view_overall_stats == 1 OR $current_user->user_level >= 8 )
             post_pay_counter_functions_class::generate_overall_stats();
         
     }
@@ -1871,7 +1871,7 @@ class post_pay_counter_core {
             <?php }
             
             //Check if current user is allowed to csv export, using the noheader parameter to allow csv download
-            if( $current_user_settings->can_csv_export == 1 OR $current_user->user_level >= 7 ) { ?>
+            if( $current_user_settings->can_csv_export == 1 OR $current_user->user_level >= 8 ) { ?>
             <tr>
                 <?php if( isset( $get_and_post['author'] ) ) { ?>
                 <td colspan="4" align="center"><a href="<?php echo wp_nonce_url( admin_url( self::$post_pay_counter_stats_menu_link.'&amp;author='.$get_and_post['author'].'&amp;tstart='.$get_and_post['tstart'].'&amp;tend='.$get_and_post['tend'].'&amp;export=csv&amp;noheader=true' ), 'post_pay_counter_csv_export_author' ) ?>" title="Export to csv">Export stats to csv</a></td>
