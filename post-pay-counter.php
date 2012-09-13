@@ -4,7 +4,7 @@ Plugin Name: Post Pay Counter
 Plugin URI: http://www.thecrowned.org/post-pay-counter
 Description: The Post Pay Counter plugin allows you to easily calculate and handle author's pay on a multi-author blog by computing every written post remuneration basing on admin defined rules. Define the time range you would like to have stats about, and the plugin will do the rest.
 Author: Stefano Ottolenghi
-Version: 1.3.4.8
+Version: 1.3.4.9
 Author URI: http://www.thecrowned.org/
 */
 
@@ -58,7 +58,7 @@ class post_pay_counter_core {
     function __construct() {
         global $wpdb;
         
-        self::$ppc_newest_version           = '1.3.4.8';
+        self::$ppc_newest_version           = '1.3.4.9';
         self::$post_pay_counter_db_table    = $wpdb->prefix.'post_pay_counter';
                 
         //Select general settings
@@ -1551,11 +1551,10 @@ class post_pay_counter_core {
                         $paid_checked = 0;
                         
                         //If user can, prepare span with all the counting details for overlay display
-                        if( $current_user_settings->can_view_overlay_counting_details == 1 OR $current_user->user_level >= 8 ) {
+                        if( $current_user_settings->can_view_overlay_counting_details == 1 OR $current_user->user_level >= 8 )
                             $payment_to_show = '<span style="border-bottom: 1px dotted;"><a title="Ordinary payment (words/visits only): &euro; '.$single['ordinary_payment'].'; Post bonus: &euro; '.$single['payment_bonus'].'; Minimum fee rounding: &euro; '.$single['minimum_fee'].'; Image bonus: &euro; '.$single['image_bonus'].'; Comment bonus: &euro; '.$single['comment_bonus'].'" style="text-decoration: none; color: #000000;">&euro; '.$single['post_payment'].'</a></span>';
-                        } else {
-                            $payment_to_show = $single['post_payment'];
-                        }
+                        else
+                            $payment_to_show = '&euro; '.$single['post_payment'];
                         
                         //Wrap post title if too long
                         if( strlen( $single['post_title'] ) > 40 )
@@ -1758,11 +1757,10 @@ class post_pay_counter_core {
                     $author_paypal_address  = @post_pay_counter_functions_class::get_settings( $key )->paypal_address;
                     
                     //If user can, prepare span with all the counting details for overlay display
-                    if( $current_user_settings->can_view_overlay_counting_details == 1 OR $current_user->user_level >= 8 ) {
+                    if( $current_user_settings->can_view_overlay_counting_details == 1 OR $current_user->user_level >= 8 )
                         $payment_to_show = '<span style="border-bottom: 1px dotted;"><a title="Ordinary payment (words/visits only): &euro; '.$value['ordinary_payment'].'; Post bonus: &euro; '.$value['payment_bonus'].'; Minimum fee rounding: &euro; '.$value['minimum_fee'].'; Image bonus: &euro; '.$value['image_bonus'].'; Comment bonus: &euro; '.$value['comment_bonus'].'" style="text-decoration: none; color: #000000;">&euro; '.$value['total_payment'].'</a></span>';
-                    } else {
-                        $payment_to_show = $value['total_payment'];
-                    }
+                    else
+                        $payment_to_show = '&euro; '.$value['total_payment'];
                     
                     //Class alternate adding
                     if( $n % 2 == 1 )

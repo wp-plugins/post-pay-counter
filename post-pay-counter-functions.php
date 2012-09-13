@@ -776,7 +776,7 @@ class post_pay_counter_functions_class extends post_pay_counter_core {
                             
                             //If post lies in the last available zone (the fifth), do not specify a roof for its counting
                             //I.e. it is not between x and y words but only "above x". Only if not using supplementary zones
-                            if( $n == 5 AND count( $counting_settings->ordinary_zones ) > 5 ) {
+                            if( $n == 5 AND count( $counting_settings->ordinary_zones ) < 6 ) {
                                 if( $ids_countings[$key] >= ( $counting_settings->ordinary_zones[$n]['zone'] ) ) {
                                     $post_payment = $counting_settings->ordinary_zones[$n]['payment'];
                                 }
