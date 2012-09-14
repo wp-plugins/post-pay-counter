@@ -4,7 +4,7 @@ Plugin Name: Post Pay Counter
 Plugin URI: http://www.thecrowned.org/post-pay-counter
 Description: The Post Pay Counter plugin allows you to easily calculate and handle author's pay on a multi-author blog by computing every written post remuneration basing on admin defined rules. Define the time range you would like to have stats about, and the plugin will do the rest.
 Author: Stefano Ottolenghi
-Version: 1.3.4.9
+Version: 1.3.5
 Author URI: http://www.thecrowned.org/
 */
 
@@ -58,7 +58,7 @@ class post_pay_counter_core {
     function __construct() {
         global $wpdb;
         
-        self::$ppc_newest_version           = '1.3.4.9';
+        self::$ppc_newest_version           = '1.3.5';
         self::$post_pay_counter_db_table    = $wpdb->prefix.'post_pay_counter';
                 
         //Select general settings
@@ -834,71 +834,71 @@ class post_pay_counter_core {
     <?php }
     
     //Updating options routine
-    function post_pay_counter_options_save( $_POST ) {
+    function post_pay_counter_options_save( $form_data ) {
         global  $wpdb,
                 $wp_roles;
         
         //Nonce check
         check_admin_referer( 'post_pay_counter_main_form_update' );
         
-        $current_counting_settings  = post_pay_counter_functions_class::get_settings( $_POST['userID'] );
+        $current_counting_settings  = post_pay_counter_functions_class::get_settings( $form_data['userID'] );
         $new_settings               = array();
         
         /* COUNTING SETTINGS BOX */
-        $new_settings['userID']                 = $_POST['userID'];
-        $new_settings['unique_payment']         = (float) str_replace( ',', '.', $_POST['unique_payment_value'] );
-        $new_settings['minimum_fee_value']      = (float) str_replace( ',', '.', $_POST['minimum_fee_value'] );
-        $new_settings['bonus_comment_count']    = (int) $_POST['bonus_comment_count'];
-        $new_settings['bonus_comment_payment']  = (float) str_replace( ',', '.', $_POST['bonus_comment_payment'] );
-        $new_settings['bonus_image_payment']    = (float) str_replace( ',', '.', $_POST['bonus_image_payment'] );
+        $new_settings['userID']                 = $form_data['userID'];
+        $new_settings['unique_payment']         = (float) str_replace( ',', '.', $form_data['unique_payment_value'] );
+        $new_settings['minimum_fee_value']      = (float) str_replace( ',', '.', $form_data['minimum_fee_value'] );
+        $new_settings['bonus_comment_count']    = (int) $form_data['bonus_comment_count'];
+        $new_settings['bonus_comment_payment']  = (float) str_replace( ',', '.', $form_data['bonus_comment_payment'] );
+        $new_settings['bonus_image_payment']    = (float) str_replace( ',', '.', $form_data['bonus_image_payment'] );
         
         //Ordinary zones count fields
         $new_settings['ordinary_zones'] = array (
             1 => array(
-                'zone'      => (int) $_POST['zone1_count'], 
-                'payment'   => (float) str_replace( ',', '.', $_POST['zone1_payment'] )
+                'zone'      => (int) $form_data['zone1_count'], 
+                'payment'   => (float) str_replace( ',', '.', $form_data['zone1_payment'] )
             ),
             2 => array(
-                'zone'      => (int) $_POST['zone2_count'], 
-                'payment'   => (float) str_replace( ',', '.', $_POST['zone2_payment'] )
+                'zone'      => (int) $form_data['zone2_count'], 
+                'payment'   => (float) str_replace( ',', '.', $form_data['zone2_payment'] )
             ),
             3 => array(
-                'zone'      => (int) $_POST['zone3_count'], 
-                'payment'   => (float) str_replace( ',', '.', $_POST['zone3_payment'] )
+                'zone'      => (int) $form_data['zone3_count'], 
+                'payment'   => (float) str_replace( ',', '.', $form_data['zone3_payment'] )
             ),
             4 => array(
-                'zone'      => (int) $_POST['zone4_count'], 
-                'payment'   => (float) str_replace( ',', '.', $_POST['zone4_payment'] )
+                'zone'      => (int) $form_data['zone4_count'], 
+                'payment'   => (float) str_replace( ',', '.', $form_data['zone4_payment'] )
             ),
             5 => array(
-                'zone'      => (int) $_POST['zone5_count'], 
-                'payment'   => (float) str_replace( ',', '.', $_POST['zone5_payment'] )
+                'zone'      => (int) $form_data['zone5_count'], 
+                'payment'   => (float) str_replace( ',', '.', $form_data['zone5_payment'] )
             )
         );
-        $add_five_more_zones = @post_pay_counter_options_functions_class::update_options_checkbox_value( $_POST['add_five_more_zones'] );
+        $add_five_more_zones = @post_pay_counter_options_functions_class::update_options_checkbox_value( $form_data['add_five_more_zones'] );
         
         //If add five more zones is selected, to it all over again for supplementary zones
         if( $add_five_more_zones == 1 ) {
             $supplementary_zones_temp = array (
                 6 => array(
-                    'zone'      => (int) $_POST['zone6_count'], 
-                    'payment'   => (float) str_replace( ',', '.', $_POST['zone6_payment'] )
+                    'zone'      => (int) $form_data['zone6_count'], 
+                    'payment'   => (float) str_replace( ',', '.', $form_data['zone6_payment'] )
                 ),
                 7 => array(
-                    'zone'      => (int) $_POST['zone7_count'], 
-                    'payment'   => (float) str_replace( ',', '.', $_POST['zone7_payment'] )
+                    'zone'      => (int) $form_data['zone7_count'], 
+                    'payment'   => (float) str_replace( ',', '.', $form_data['zone7_payment'] )
                 ),
                 8 => array(
-                    'zone'      => (int) $_POST['zone8_count'], 
-                    'payment'   => (float) str_replace( ',', '.', $_POST['zone8_payment'] )
+                    'zone'      => (int) $form_data['zone8_count'], 
+                    'payment'   => (float) str_replace( ',', '.', $form_data['zone8_payment'] )
                 ),
                 9 => array(
-                    'zone'      => (int) $_POST['zone9_count'], 
-                    'payment'   => (float) str_replace( ',', '.', $_POST['zone9_payment'] )
+                    'zone'      => (int) $form_data['zone9_count'], 
+                    'payment'   => (float) str_replace( ',', '.', $form_data['zone9_payment'] )
                 ),
                 10 => array(
-                    'zone'      => (int) $_POST['zone10_count'], 
-                    'payment'   => (float) str_replace( ',', '.', $_POST['zone10_payment'] )
+                    'zone'      => (int) $form_data['zone10_count'], 
+                    'payment'   => (float) str_replace( ',', '.', $form_data['zone10_payment'] )
                 )
             );
             $new_settings['ordinary_zones'] = $new_settings['ordinary_zones'] + $supplementary_zones_temp; //Not using array_merge because of reindexing
@@ -906,8 +906,8 @@ class post_pay_counter_core {
         $new_settings['ordinary_zones'] = serialize( $new_settings['ordinary_zones'] );
         
         //These counting settings only apply to the _general_ set
-        if( $_POST['userID'] == 'general' ) {
-            switch( $_POST['counting_type'] ) {
+        if( $form_data['userID'] == 'general' ) {
+            switch( $form_data['counting_type'] ) {
                 case 'Words':
                     $new_settings['counting_type_words']                = 1;
                     $new_settings['counting_type_visits']               = 0;
@@ -929,7 +929,7 @@ class post_pay_counter_core {
             
             /*//If chosen type is visits and chosen method is Google Analytics, assure provided credentials are valid: attempt access and throw exception on fail
             if( $new_settings['counting_type_visits'] == 1 ) {
-                switch( $_POST['counting_type_visits_method'] ) {
+                switch( $form_data['counting_type_visits_method'] ) {
                     case 'counting_type_visits_method_plugin':
                         $new_settings['counting_type_visits_method_plugin']             = 1;
                         $new_settings['counting_type_visits_method_google_analytics']   = 0;
@@ -942,25 +942,25 @@ class post_pay_counter_core {
                         
                         //If Google Analytics settings have been changed, verify if they are valid
                         if( $new_settings['counting_type_visits_method_google_analytics']       != self::$general_settings->counting_type_visits_method_google_analytics
-                        OR $_POST['counting_type_visits_method_google_analytics_email']         != self::$general_settings->counting_type_visits_method_google_analytics_email
-                        OR $_POST['counting_type_visits_method_google_analytics_password']      != self::$general_settings->counting_type_visits_method_google_analytics_password
-                        OR $_POST['counting_type_visits_method_google_analytics_profile_id']    != self::$general_settings->counting_type_visits_method_google_analytics_profile_id ) {                        
+                        OR $form_data['counting_type_visits_method_google_analytics_email']         != self::$general_settings->counting_type_visits_method_google_analytics_email
+                        OR $form_data['counting_type_visits_method_google_analytics_password']      != self::$general_settings->counting_type_visits_method_google_analytics_password
+                        OR $form_data['counting_type_visits_method_google_analytics_profile_id']    != self::$general_settings->counting_type_visits_method_google_analytics_profile_id ) {                        
                             try {
                                 //Login
-                                $ga = new gapi( $_POST['counting_type_visits_method_google_analytics_email'], $_POST['counting_type_visits_method_google_analytics_password'] );
+                                $ga = new gapi( $form_data['counting_type_visits_method_google_analytics_email'], $form_data['counting_type_visits_method_google_analytics_password'] );
                                 //Profile selection try
-                                $ga->requestReportData( $_POST['counting_type_visits_method_google_analytics_profile_id'], array( 'browser' ), array( 'pageviews' ), null, null, date( 'Y-m-d' ), date( 'Y-m-d' ), 1, 1 );
+                                $ga->requestReportData( $form_data['counting_type_visits_method_google_analytics_profile_id'], array( 'browser' ), array( 'pageviews' ), null, null, date( 'Y-m-d' ), date( 'Y-m-d' ), 1, 1 );
                             } catch ( Exception $e ) {
                                 echo '<div id="message" class="error fade"><p><strong>There was a problem with your Google Analytics credentials: '.$e->getMessage().'. Check the submitted data and try again.</strong></p></div>';
                                 return;
                             }
                         }
                         
-                        $new_settings['counting_type_visits_method_google_analytics_email']         = $_POST['counting_type_visits_method_google_analytics_email'];
-                        $new_settings['counting_type_visits_method_google_analytics_password']      = $_POST['counting_type_visits_method_google_analytics_password'];
-                        $new_settings['counting_type_visits_method_google_analytics_profile_id']    = $_POST['counting_type_visits_method_google_analytics_profile_id'];
+                        $new_settings['counting_type_visits_method_google_analytics_email']         = $form_data['counting_type_visits_method_google_analytics_email'];
+                        $new_settings['counting_type_visits_method_google_analytics_password']      = $form_data['counting_type_visits_method_google_analytics_password'];
+                        $new_settings['counting_type_visits_method_google_analytics_profile_id']    = $form_data['counting_type_visits_method_google_analytics_profile_id'];
                         
-                        switch( $_POST['counting_type_visits_method_google_analytics_update_time'] ) {
+                        switch( $form_data['counting_type_visits_method_google_analytics_update_time'] ) {
                             case 'counting_type_visits_method_google_analytics_update_request':
                                 $new_settings['counting_type_visits_method_google_analytics_update_request']    = 1;
                                 $new_settings['counting_type_visits_method_google_analytics_update_hour']       = 0;
@@ -987,7 +987,7 @@ class post_pay_counter_core {
                                 break;
                         }
                         
-                        switch( $_POST['counting_type_visits_method_google_analytics_pageviews'] ) {
+                        switch( $form_data['counting_type_visits_method_google_analytics_pageviews'] ) {
                             case 'counting_type_visits_method_google_analytics_pageviews':
                                 $new_settings['counting_type_visits_method_google_analytics_pageviews']         = 1;
                                 $new_settings['counting_type_visits_method_google_analytics_unique_pageviews']  = 0;
@@ -1013,7 +1013,7 @@ class post_pay_counter_core {
                 }
             }*/
             
-            switch( $_POST['publication_time_range'] ) {
+            switch( $form_data['publication_time_range'] ) {
                 case 'publication_time_range_month':
                     $new_settings['publication_time_range_month']           = 1;
                     $new_settings['publication_time_range_week']            = 0;
@@ -1028,7 +1028,7 @@ class post_pay_counter_core {
                 
                 case 'publication_time_range_custom':
                     
-                    if( (int) $_POST['publication_time_range_custom_value'] == 0 ) {
+                    if( (int) $form_data['publication_time_range_custom_value'] == 0 ) {
                         echo '<div id="message" class="error fade"><p><strong>You cannot select a custom publication time range without specifing a days number.</strong></p></div>';
                         return;
                     }
@@ -1036,25 +1036,25 @@ class post_pay_counter_core {
                     $new_settings['publication_time_range_month']           = 0;
                     $new_settings['publication_time_range_week']            = 0;
                     $new_settings['publication_time_range_custom']          = 1;
-                    $new_settings['publication_time_range_custom_value']    = (int) $_POST['publication_time_range_custom_value'];
+                    $new_settings['publication_time_range_custom_value']    = (int) $form_data['publication_time_range_custom_value'];
                     break;
             }
             
-            $new_settings['count_pending_revision_posts']       = @post_pay_counter_options_functions_class::update_options_checkbox_value( $_POST['count_pending_revision_posts'] );
-            $new_settings['count_future_scheduled_posts']       = @post_pay_counter_options_functions_class::update_options_checkbox_value( $_POST['count_future_scheduled_posts'] );
-            $new_settings['exclude_quotations_from_countings']  = @post_pay_counter_options_functions_class::update_options_checkbox_value( $_POST['exclude_quotations_from_countings'] );
-            $new_settings['count_visits_guests']                = @post_pay_counter_options_functions_class::update_options_checkbox_value( $_POST['count_visits_guests'] );
-            $new_settings['count_visits_registered']            = @post_pay_counter_options_functions_class::update_options_checkbox_value( $_POST['count_visits_registered'] );
-            $new_settings['count_visits_authors']               = @post_pay_counter_options_functions_class::update_options_checkbox_value( $_POST['count_visits_authors'] );
-            $new_settings['count_visits_bots']                  = @post_pay_counter_options_functions_class::update_options_checkbox_value( $_POST['count_visits_bots'] );
+            $new_settings['count_pending_revision_posts']       = @post_pay_counter_options_functions_class::update_options_checkbox_value( $form_data['count_pending_revision_posts'] );
+            $new_settings['count_future_scheduled_posts']       = @post_pay_counter_options_functions_class::update_options_checkbox_value( $form_data['count_future_scheduled_posts'] );
+            $new_settings['exclude_quotations_from_countings']  = @post_pay_counter_options_functions_class::update_options_checkbox_value( $form_data['exclude_quotations_from_countings'] );
+            $new_settings['count_visits_guests']                = @post_pay_counter_options_functions_class::update_options_checkbox_value( $form_data['count_visits_guests'] );
+            $new_settings['count_visits_registered']            = @post_pay_counter_options_functions_class::update_options_checkbox_value( $form_data['count_visits_registered'] );
+            $new_settings['count_visits_authors']               = @post_pay_counter_options_functions_class::update_options_checkbox_value( $form_data['count_visits_authors'] );
+            $new_settings['count_visits_bots']                  = @post_pay_counter_options_functions_class::update_options_checkbox_value( $form_data['count_visits_bots'] );
         
-            //Cycle through $_POST global variable and take into account all the fields that start with 'custom_post_type_' or 'user_role_'
+            //Cycle through $form_data global variable and take into account all the fields that start with 'custom_post_type_' or 'user_role_'
             //Add each of them to an array that will be serialized and put into the database. 
             $pts_to_include                     = array();
             $user_roles_to_include              = array();
             $permission_options_page_user_roles = array();
             $permission_stats_page_user_roles   = array();
-            foreach( $_POST as $key => $value ) {
+            foreach( $form_data as $key => $value ) {
                 if( strpos( $key, 'custom_post_type_' ) === 0 ) {
                     $pts_to_include[] = $value;
                 }
@@ -1062,7 +1062,7 @@ class post_pay_counter_core {
                     $user_roles_to_include[] = $value;
                 }
                 
-                if( $_POST['userID'] == 'general' ) {
+                if( $form_data['userID'] == 'general' ) {
                     if( strpos( $key, 'permission_options_page_user_roles_' ) === 0 ) {
                         $permission_options_page_user_roles[] = $value;
                         
@@ -1086,7 +1086,7 @@ class post_pay_counter_core {
             post_pay_counter_functions_class::manage_cap_allowed_user_groups_plugin_pages( $permission_options_page_user_roles, $permission_stats_page_user_roles );
         }
         
-        switch( $_POST['counting_system'] ) {
+        switch( $form_data['counting_system'] ) {
             case 'counting_system_zones':
                 $new_settings['counting_system_zones']              = 1;
                 $new_settings['counting_system_unique_payment']     = 0;
@@ -1103,14 +1103,14 @@ class post_pay_counter_core {
                 break;
         }
         
-        $new_settings['minimum_fee_enable']     = @post_pay_counter_options_functions_class::update_options_checkbox_value( $_POST['minimum_fee_enable'] );
-        $new_settings['allow_payment_bonuses']  = @post_pay_counter_options_functions_class::update_options_checkbox_value( $_POST['allow_payment_bonuses'] );
+        $new_settings['minimum_fee_enable']     = @post_pay_counter_options_functions_class::update_options_checkbox_value( $form_data['minimum_fee_enable'] );
+        $new_settings['allow_payment_bonuses']  = @post_pay_counter_options_functions_class::update_options_checkbox_value( $form_data['allow_payment_bonuses'] );
                     
         //If we're dealing with personalized options, check paypal address and add it to the query array
-        if( is_numeric( $_POST['userID'] ) AND get_userdata( $_POST['userID'] ) ) {
-            if( is_string( $_POST['paypal_address'] ) AND strlen( $_POST['paypal_address'] ) > 0 ) {
-                if( is_email( $_POST['paypal_address'] ) ) {
-                    $new_settings['paypal_address'] = $_POST['paypal_address'];
+        if( is_numeric( $form_data['userID'] ) AND get_userdata( $form_data['userID'] ) ) {
+            if( is_string( $form_data['paypal_address'] ) AND strlen( $form_data['paypal_address'] ) > 0 ) {
+                if( is_email( $form_data['paypal_address'] ) ) {
+                    $new_settings['paypal_address'] = $form_data['paypal_address'];
                 } else {
                     echo '<div id="message" class="error fade"><p><strong>The entered paypal e-mail address is not valid. Check it and try again.</strong></p></div>';
                     return;
@@ -1119,20 +1119,20 @@ class post_pay_counter_core {
         }
         
         /* PERMISSIONS BOX */
-        $new_settings['can_view_others_general_stats']          = @post_pay_counter_options_functions_class::update_options_checkbox_value( $_POST['can_view_others_general_stats'] );
-        $new_settings['can_view_others_detailed_stats']         = @post_pay_counter_options_functions_class::update_options_checkbox_value( $_POST['can_view_others_detailed_stats'] );
-        $new_settings['can_view_overall_stats']                 = @post_pay_counter_options_functions_class::update_options_checkbox_value( $_POST['can_view_overall_stats'] );
-        $new_settings['can_view_special_settings_countings']    = @post_pay_counter_options_functions_class::update_options_checkbox_value( $_POST['can_view_special_settings_countings'] );
-        $new_settings['can_view_overlay_counting_details']      = @post_pay_counter_options_functions_class::update_options_checkbox_value( $_POST['can_view_overlay_counting_details'] );
-        $new_settings['can_view_paid_amount']                   = @post_pay_counter_options_functions_class::update_options_checkbox_value( $_POST['can_view_paid_amount'] );
-        $new_settings['can_view_posts_word_count_post_list']    = @post_pay_counter_options_functions_class::update_options_checkbox_value( $_POST['can_view_posts_word_count_post_list'] );
-        $new_settings['can_csv_export']                         = @post_pay_counter_options_functions_class::update_options_checkbox_value( $_POST['can_csv_export'] );
+        $new_settings['can_view_others_general_stats']          = @post_pay_counter_options_functions_class::update_options_checkbox_value( $form_data['can_view_others_general_stats'] );
+        $new_settings['can_view_others_detailed_stats']         = @post_pay_counter_options_functions_class::update_options_checkbox_value( $form_data['can_view_others_detailed_stats'] );
+        $new_settings['can_view_overall_stats']                 = @post_pay_counter_options_functions_class::update_options_checkbox_value( $form_data['can_view_overall_stats'] );
+        $new_settings['can_view_special_settings_countings']    = @post_pay_counter_options_functions_class::update_options_checkbox_value( $form_data['can_view_special_settings_countings'] );
+        $new_settings['can_view_overlay_counting_details']      = @post_pay_counter_options_functions_class::update_options_checkbox_value( $form_data['can_view_overlay_counting_details'] );
+        $new_settings['can_view_paid_amount']                   = @post_pay_counter_options_functions_class::update_options_checkbox_value( $form_data['can_view_paid_amount'] );
+        $new_settings['can_view_posts_word_count_post_list']    = @post_pay_counter_options_functions_class::update_options_checkbox_value( $form_data['can_view_posts_word_count_post_list'] );
+        $new_settings['can_csv_export']                         = @post_pay_counter_options_functions_class::update_options_checkbox_value( $form_data['can_csv_export'] );
         
         /* TRIAL BOX (only if not referring from trial settings page) */
-        if( $_POST['userID'] != 'trial' ) {
-            $new_settings['trial_period'] = trim( (int) $_POST['trial_period'] );
+        if( $form_data['userID'] != 'trial' ) {
+            $new_settings['trial_period'] = trim( (int) $form_data['trial_period'] );
             
-            switch( $_POST['trial_type'] ) {
+            switch( $form_data['trial_type'] ) {
                 case 'trial_auto':
                     $new_settings['trial_auto']      = 1;
                     $new_settings['trial_manual']    = 0;
@@ -1149,7 +1149,7 @@ class post_pay_counter_core {
                     break;
             }
             
-            switch( $_POST['trial_period_type'] ) {
+            switch( $form_data['trial_period_type'] ) {
                 case 'Days':
                     $new_settings['trial_period_days']   = 1;
                     $new_settings['trial_period_posts']  = 0;
@@ -1166,8 +1166,8 @@ class post_pay_counter_core {
                     break;
             }
             
-            if( is_numeric( $_POST['userID'] ) AND get_userdata( $_POST['userID'] ) )
-                $new_settings['trial_enable'] = @post_pay_counter_options_functions_class::update_options_checkbox_value( $_POST['trial_enable'] );
+            if( is_numeric( $form_data['userID'] ) AND get_userdata( $form_data['userID'] ) )
+                $new_settings['trial_enable'] = @post_pay_counter_options_functions_class::update_options_checkbox_value( $form_data['trial_enable'] );
         }
         
         //Check if there are already saved settings for the requested ID: if yes, update that record, otherwise, create a new one
