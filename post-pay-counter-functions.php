@@ -172,13 +172,24 @@ class post_pay_counter_functions_class extends post_pay_counter_core {
         $counting_settings = $wpdb->get_row(
                               $wpdb->prepare( 'SELECT * FROM '.parent::$post_pay_counter_db_table.' WHERE userID = "'.$user_id.'"' )
                              );
-                             
         
-        //If for some reason (like not having special settings for a particular user) special settings are not avaiable, and $return_general is TRUE, return general ones
-        if( ! is_object( $counting_settings ) AND $return_general == TRUE ) 
+        //If for some reason (like not having special settings for a particular user) special settings are not available, and $return_general is TRUE, return general ones
+        if( ! is_object( $counting_settings ) AND $return_general == TRUE AND is_object( parent::$general_settings ) ) 
             $counting_settings = parent::$general_settings;
 		
         return $counting_settings;
+    }
+    
+    function update_exec() {
+        //If current_version option does not exist or is DIFFERENT from the latest release number, launch the update procedures. If update is run, also update all the class variables and the option in the db
+        if( ! ( parent::$ppc_current_version = get_option( 'ppc_current_version' ) ) OR parent::$ppc_current_version != parent::$ppc_newest_version ) {
+            post_pay_counter_update_procedures::update();
+            self::options_changed_vars_update_to_reflect( TRUE );
+            self::manage_cap_allowed_user_groups_plugin_pages( parent::$allowed_user_roles_options_page, parent::$allowed_user_roles_stats_page );
+            update_option( 'ppc_current_version', parent::$ppc_newest_version );
+            parent::$ppc_current_version = parent::$ppc_newest_version;
+            echo '<div id="message" class="updated fade"><p><strong>Post Pay Counter was successfully updated to version '.parent::$ppc_current_version.'.</strong> Want to have a look at the <a href="'.admin_url( parent::$post_pay_counter_options_menu_link ).'" title="Go to Options page">Options page</a>, or at the <a href="http://wordpress.org/extend/plugins/post-pay-counter/changelog/" title="Go to Changelog">Changelog</a>?</p></div>';
+        }
     }
     
     //Generate stats function. Does queries and countings and returns an array of data

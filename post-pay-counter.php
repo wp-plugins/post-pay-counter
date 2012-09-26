@@ -4,7 +4,7 @@ Plugin Name: Post Pay Counter
 Plugin URI: http://www.thecrowned.org/post-pay-counter
 Description: The Post Pay Counter plugin allows you to easily calculate and handle author's pay on a multi-author blog by computing every written post remuneration basing on admin defined rules. Define the time range you would like to have stats about, and the plugin will do the rest.
 Author: Stefano Ottolenghi
-Version: 1.3.5
+Version: 1.3.6
 Author URI: http://www.thecrowned.org/
 */
 
@@ -58,21 +58,11 @@ class post_pay_counter_core {
     function __construct() {
         global $wpdb;
         
-        self::$ppc_newest_version           = '1.3.5';
+        self::$ppc_newest_version           = '1.3.6';
         self::$post_pay_counter_db_table    = $wpdb->prefix.'post_pay_counter';
                 
         //Select general settings
         self::$general_settings = post_pay_counter_functions_class::get_settings( 'general' );
-        
-        //If current_version option does not exist or is DIFFERENT from the latest release number, launch the update procedures. If update is run, also updates all the class variables and the option in the db
-        if( ! ( self::$ppc_current_version = get_option( 'ppc_current_version' ) ) OR self::$ppc_current_version != self::$ppc_newest_version ) {
-            post_pay_counter_update_procedures::update();
-            post_pay_counter_functions_class::options_changed_vars_update_to_reflect( TRUE );
-            post_pay_counter_functions_class::manage_cap_allowed_user_groups_plugin_pages( self::$allowed_user_roles_options_page, self::$allowed_user_roles_stats_page );
-            update_option( 'ppc_current_version', self::$ppc_newest_version );
-            self::$ppc_current_version = self::$ppc_newest_version;
-            echo '<div id="message" class="updated fade"><p><strong>Post Pay Counter was successfully updated to version '.self::$ppc_current_version.'.</strong> Want to have a look at the <a href="'.admin_url( self::$post_pay_counter_options_menu_link ).'" title="Go to Options page">Options page</a>, or at the <a href="http://wordpress.org/extend/plugins/post-pay-counter/changelog/" title="Go to Changelog">Changelog</a>?</p></div>';
-        }
             
         //Just as a comfort, define the word suitable for countings, depending on the chosen counting type 
         if( self::$general_settings->counting_type_words == 1 )
@@ -1219,7 +1209,9 @@ class post_pay_counter_core {
         global $wpdb,
                $current_user;
         
+        //Checks whether the plugin was broken (like deleted table or settings) and whether update is needed
         post_pay_counter_functions_class::fix_messed_up_stuff();
+        post_pay_counter_functions_class::update_exec();
         
         /** DELETE USER'S SETTINGS **/
         if( isset( $_GET['delete'] ) AND $vaporized_userdata = get_userdata( (int) $_GET['delete'] ) AND $current_user->user_level >= 8 ) {
@@ -1426,6 +1418,7 @@ class post_pay_counter_core {
     
     //Function to update the counting payment on post_save
     function post_pay_counter_update_post_counting( $new_status, $old_status, $post ) {
+        global $wpdb;
         
         $post = (object) $post;
         
@@ -1451,7 +1444,9 @@ class post_pay_counter_core {
         global $wpdb,
                $current_user;
         
+        //Checks whether the plugin was broken (like deleted table or settings) and whether update is needed
         post_pay_counter_functions_class::fix_messed_up_stuff();
+        post_pay_counter_functions_class::update_exec();
         
         //Merging _GET and _POST data due to the time range form available in the stats page header. 
         //We don't know whether the user is choosing the time frame from the form (via POST data) or if they arrived to this page following a link (via GET data)
