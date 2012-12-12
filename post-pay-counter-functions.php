@@ -169,9 +169,7 @@ class post_pay_counter_functions_class extends post_pay_counter_core {
         }
         
         //Query the database for user settings (where user could also be 'general' or 'trial')
-        $counting_settings = $wpdb->get_row(
-                              $wpdb->prepare( 'SELECT * FROM '.parent::$post_pay_counter_db_table.' WHERE userID = "'.$user_id.'"' )
-                             );
+        $counting_settings = $wpdb->get_row( 'SELECT * FROM '.parent::$post_pay_counter_db_table.' WHERE userID = "'.$user_id.'"' );
         
         //If for some reason (like not having special settings for a particular user) special settings are not available, and $return_general is TRUE, return general ones
         if( ! is_object( $counting_settings ) AND $return_general == TRUE AND is_object( parent::$general_settings ) ) 
@@ -228,7 +226,7 @@ class post_pay_counter_functions_class extends post_pay_counter_core {
         //Query the database for posts from a defined author ...
         if( $author ) {
             $selected_posts = $wpdb->get_results( 
-             $wpdb->prepare( 'SELECT ID, post_title, comment_count, post_status, post_date, post_type, post_pay_counter_count, post_pay_counter_paid 
+            'SELECT ID, post_title, comment_count, post_status, post_date, post_type, post_pay_counter_count, post_pay_counter_paid 
                 FROM '.$wpdb->posts.' INNER JOIN '.$wpdb->usermeta.' 
                     ON '.$wpdb->usermeta.'.user_id = '.$wpdb->posts.'.post_author 
                     WHERE '.$wpdb->usermeta.'.meta_key = "'.$wpdb->get_blog_prefix().'capabilities" 
@@ -237,17 +235,15 @@ class post_pay_counter_functions_class extends post_pay_counter_core {
                     AND '.$wpdb->posts.'.post_type IN ('.parent::$allowed_post_types.') 
                     AND '.$wpdb->posts.'.post_pay_counter BETWEEN '.$time_start.' AND '.$time_end.' 
                     AND '.$wpdb->posts.'.post_status IN ('.parent::$allowed_status.') 
-                ORDER BY '.$wpdb->posts.'.post_date DESC' )
-            );
+                ORDER BY '.$wpdb->posts.'.post_date DESC' );
         
         //Or, query the database for posts from any author ...
         } else {
             $selected_posts = $wpdb->get_results( 
-             $wpdb->prepare( 'SELECT ID, post_title, comment_count, post_status, post_author, post_date, post_pay_counter_count 
+            'SELECT ID, post_title, comment_count, post_status, post_author, post_date, post_pay_counter_count 
                 FROM '.$wpdb->posts.' WHERE '.$wpdb->posts.'.post_type IN ('.parent::$allowed_post_types.') 
                     AND '.$wpdb->posts.'.post_pay_counter BETWEEN '.$time_start.' AND '.$time_end.'
-                    AND '.$wpdb->posts.'.post_status IN ('.parent::$allowed_status.')' )
-            );
+                    AND '.$wpdb->posts.'.post_status IN ('.parent::$allowed_status.')' );
         }
                
         /** POST COUNTING ROUTINE **/
@@ -1026,7 +1022,7 @@ class post_pay_counter_functions_class extends post_pay_counter_core {
         
         //Else, if the checkbox was unchecked, set the paid field to NULL
         } else {
-            $wpdb->query( $wpdb->prepare( 'UPDATE '.$wpdb->posts.' SET post_pay_counter_paid = NULL WHERE ID = '.$_POST['post_id'] ) );
+            $wpdb->query( 'UPDATE '.$wpdb->posts.' SET post_pay_counter_paid = NULL WHERE ID = '.$_POST['post_id'] );
         }
         
         exit;
