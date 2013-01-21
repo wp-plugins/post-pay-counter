@@ -295,7 +295,7 @@ class post_pay_counter_core {
         AND strpos( self::$allowed_post_types, $post->post_type ) !== FALSE 
         AND ! empty( $user_roles_intersection ) 
         AND self::$general_settings->counting_type_visits == 1 
-        AND self::$general_settings->counting_type_visits_method_plugin == 0 ) {
+        AND self::$general_settings->counting_type_visits_method_plugin == 1 ) {
             
             //If the post has expired (meaning the number of past days since its publishing exceeds the counting payment time range selected by the admin), return
             /*if( ( time() - $post->post_pay_counter ) > ( post_pay_counter_functions_class::publication_time_range_end - post_pay_counter_functions_class::publication_time_range_start ) ) )
