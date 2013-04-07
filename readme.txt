@@ -3,7 +3,7 @@ Contributors: Ste_95
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=7UH3J3CLVHP8L
 Tags: counter, authors, payment, stats, multi author, post management, post
 Tested up to: 3.5
-Stable tag: 1.3.8
+Stable tag: 1.3.9
 Requires at least: 3.0
 
 Easily calculate and handle author's pay on a multi-author blog by computing every written post remuneration basing on admin defined rules.
@@ -67,6 +67,9 @@ Not yet. With the current zones system, you can only use either 5 or 10 zones. I
 Well, the obvious answer is [Contact me](http://www.thecrowned.org/contact-me "Contact me")! But apart from detailing the problem you are experiencing, I also need some debug data to troubleshoot the problem and solve it quickly. To do so, you should open your *post-pay-counter-functions.php* file, either by FTP or by the Wordpress plugin editor, and change line 17 *const POST_PAY_COUNTER_DEBUG = FALSE;* and change it to *const POST_PAY_COUNTER_DEBUG = TRUE;* (note the semicolon is still there). Reload the page, and you will get a lot of debugging stuff: it does not contain any sensitive information, it just contains the plugin general settings and other similar things. If you feel like censoring something, you are free to do it, but please, do not delete the whole row, only replace the sensitive data with *xxxxxx* or similar. Send me the screenshot of the data, or copy it in a document, and let's see what we can do! Just keep in mind that sometimes just saving your options again may solve the problem.
 
 == Changelog ==
+= 1.3.9 =
+* Fixed a warning that was sometimes showed in the posts list when the word counting column was showed.
+
 = 1.3.8 =
 * Fixed an issue that prevented visits counting type from working on any configuration.
 
