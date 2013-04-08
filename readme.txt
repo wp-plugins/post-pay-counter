@@ -66,6 +66,9 @@ Not yet. With the current zones system, you can only use either 5 or 10 zones. I
 = I am encountering a problem not listed here =
 Well, the obvious answer is [Contact me](http://www.thecrowned.org/contact-me "Contact me")! But apart from detailing the problem you are experiencing, I also need some debug data to troubleshoot the problem and solve it quickly. To do so, you should open your *post-pay-counter-functions.php* file, either by FTP or by the Wordpress plugin editor, and change line 17 *const POST_PAY_COUNTER_DEBUG = FALSE;* and change it to *const POST_PAY_COUNTER_DEBUG = TRUE;* (note the semicolon is still there). Reload the page, and you will get a lot of debugging stuff: it does not contain any sensitive information, it just contains the plugin general settings and other similar things. If you feel like censoring something, you are free to do it, but please, do not delete the whole row, only replace the sensitive data with *xxxxxx* or similar. Send me the screenshot of the data, or copy it in a document, and let's see what we can do! Just keep in mind that sometimes just saving your options again may solve the problem.
 
+= I need some custom features/improvements: can you do it? =
+By now, I am almost only adding features on demand with a payment. Quite a lot of people are asking for customization, and my time is very scarce. I usually do not ask much, but I put a condition: I am developing upon your request, but what I will do will be put into the public version of the plugin. You are paying me to do something that I would probably not do otherwise, but others will benefit of those changes as well (the same way as when they will pay me for some feature they need, you will benefit of those adds). Now the [contact form](http://www.thecrowned.org/contact-me "Contact form") is at your disposal.
+
 == Changelog ==
 = 1.3.9 =
 * Fixed a warning that was sometimes showed in the posts list when the word counting column was showed.
