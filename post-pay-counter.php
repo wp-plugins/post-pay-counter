@@ -4,7 +4,7 @@ Plugin Name: Post Pay Counter
 Plugin URI: http://www.thecrowned.org/post-pay-counter
 Description: The Post Pay Counter plugin allows you to easily calculate and handle author's pay on a multi-author blog by computing every written post remuneration basing on admin defined rules. Define the time range you would like to have stats about, and the plugin will do the rest.
 Author: Stefano Ottolenghi
-Version: 1.3.9
+Version: 1.3.9.1
 Author URI: http://www.thecrowned.org/
 */
 
@@ -1267,7 +1267,9 @@ class post_pay_counter_core {
                 
             echo '<div id="message" class="updated fade"><p><strong>Stats successfully updated.</strong> <a href="'.admin_url( self::$post_pay_counter_stats_menu_link ).'">Go to stats now &raquo;</a></p></div>';
         } ?>
-            
+            <div class="updated">
+				<p>Looking for brilliant beta testers for the new soon-coming major release. <a href="http://www.thecrowned.org/post-pay-counter-beta-tester-request" title="Join beta test">Join and get a 25% discount on the final PRO version!</a></p>
+			</div>
             <div style="float: right; color: #777; margin-top: 15px;">Installed version: <?php echo self::$ppc_current_version; ?></div>
             <div style="float: left;"><h2>Post Pay Counter Options</h2></div>
             <div style="clear: both;"></div>

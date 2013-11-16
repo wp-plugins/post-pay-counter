@@ -2,14 +2,16 @@
 Contributors: Ste_95
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=7UH3J3CLVHP8L
 Tags: counter, authors, payment, stats, multi author, post management, post
-Tested up to: 3.5
-Stable tag: 1.3.9
+Tested up to: 3.7.1
+Stable tag: 1.3.9.1
 Requires at least: 3.0
 
 Easily calculate and handle author's pay on a multi-author blog by computing every written post remuneration basing on admin defined rules.
 
 == Description ==
 The Post Pay Counter plugin allows you to easily calculate and handle author’s pay on a multi-author blog by computing every written post remuneration basing on admin defined rules. Multisite compatible.
+
+**Looking for brilliant beta testers for new soon-coming major release. [Join and get a 25% discount on the final PRO version!](http://www.thecrowned.org/post-pay-counter-beta-tester-request "Join beta test")**
 
 The administrator can set up the payment values, stats are then viewable from the related page where you can choose between general (all authors) and detailed (one author) countings. Below are all the available functions:
 
@@ -24,15 +26,15 @@ The administrator can set up the payment values, stats are then viewable from th
 * **Overall stats**: at the bottom of every stats page, a box with overall stats is available with interesting details about your blog.
 * **And...** works with custom post types, narrow your payments only to chosen user groups, mark posts as paid.
 
-There's much more to enjoy. Try it yourself! More details, FAQs and schreenshots at the [plugin page](http://www.thecrowned.org/post-pay-counter "Post Pay Counter page").
+There's much more to enjoy. Try it yourself! More details, FAQs and schreenshots at the [plugin page](http://www.thecrowned.org/post-pay-counter "Post Pay Counter official page").
 
 Post Pay Counter was reviewed by:
   
 * [IdeaGeek](http://www.ideageek.it/il-plugin-wordpress-per-semplificare-i-conti-post-pay-counter/ "IdeaGeek")
-* [Mondofico](http://www.mondofico.com/2011/09/post-pay-counter-gestire-i-pagamenti-dei-redattori-su-wordpress/ "Mondofico").
-* [WpCode.net](http://www.wpcode.net/post-pay-counter.html/ "WpCode.net").
-* [Wordpress Style](http://www.wpstyle.it/plugin-wordpress/gestire-le-retribuzioni-dei-redattori-in-semplicita-con-post-pay-counter.html "Wordpress Style").
-* [Risorse Geek](http://www.risorsegeek.net/wordpress/plugin-wordpress/plugin-wordpress-automatizzare-i-conti-sugli-articoli-per-i-pagamenti-degli-articolisti-con-post-pay-counter/ "Risorse Geek").
+* [Mondofico](http://www.mondofico.com/2011/09/post-pay-counter-gestire-i-pagamenti-dei-redattori-su-wordpress/ "Mondofico")
+* [WpCode.net](http://www.wpcode.net/post-pay-counter.html/ "WpCode.net")
+* [Wordpress Style](http://www.wpstyle.it/plugin-wordpress/gestire-le-retribuzioni-dei-redattori-in-semplicita-con-post-pay-counter.html "Wordpress Style")
+* [Risorse Geek](http://www.risorsegeek.net/wordpress/plugin-wordpress/plugin-wordpress-automatizzare-i-conti-sugli-articoli-per-i-pagamenti-degli-articolisti-con-post-pay-counter/ "Risorse Geek")
 
 == Installation ==
 1. Upload the directory of the Post Pay Counter in your wp-content/plugins directory; note that you need the whole folder, not only the single files.
@@ -70,6 +72,9 @@ Well, the obvious answer is [Contact me](http://www.thecrowned.org/contact-me "C
 By now, I am almost only adding features on demand with a payment. Quite a lot of people are asking for customization, and my time is very scarce. I usually do not ask much, but I put a condition: I am developing upon your request, but what I will do will be put into the public version of the plugin. You are paying me to do something that I would probably not do otherwise, but others will benefit of those changes as well (the same way as when they will pay me for some feature they need, you will benefit of those adds). Now the [contact form](http://www.thecrowned.org/contact-me "Contact form") is at your disposal.
 
 == Changelog ==
+= 1.3.9.1 =
+* Added call for new major release beta testers.
+
 = 1.3.9 =
 * Fixed a warning that was sometimes showed in the posts list when the word counting column was showed.
 
