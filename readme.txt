@@ -20,6 +20,8 @@ The Post Pay Counter plugin allows you to easily calculate and handle authors' p
 * Highly customizable permissions to prevent your users to see stats and use functions they are not supposed to.
 * And... works with custom post types, narrow your payments only to chosen user groups, and more.
 
+[youtube https://www.youtube.com/watch?v=mSFjvR-2zCI]
+
 == Installation ==
 1. Upload the directory of the Post Pay Counter in your wp-content/plugins directory; note that you need the whole folder, not only the single files.
 2. Activate the plugin through the "Activate" button in the "Plugins" page of your WordPress.
