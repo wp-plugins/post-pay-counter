@@ -3,7 +3,7 @@ Contributors: Ste_95
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SM5Q9BVU4RT22
 Tags: counter, authors, payment, stats, multi author, post management, post
 Tested up to: 3.8
-Stable tag: 2.0.1
+Stable tag: 2.0.2
 Requires at least: 3.7
 
 Easily calculate and handle authors' pay on a multi-author blog by computing every written post remuneration basing on admin defined rules.
@@ -29,9 +29,12 @@ The Post Pay Counter plugin allows you to easily calculate and handle authors' p
 5. That's it, done! You can now check the stats page to browse all the countings.
 
 == Changelog ==
-= 2.0.1 =
+= 2.0.2 =
 **IMPORTANT NOTICE: If you have installed a version below 2.0, the plugin needs to be reinstalled** due to its different settings storage system and the availability of new features. Also, the **following features are currently missing**: post payment bonus, trial settings, csv esport, full multisite integration, word count in post list. They will be added soon. If you need one specifically, let me know in order to make up a priority list.
 
+* Fixed post statuses filter not working, pending revision and future scheduled were selected regardless of settings.
+
+= 2.0.1 =
 * Localization slug added to localization functions calls. The plugin can now be translated.
 * Fixed a bug in which posts published on the time frame boundaries days would not show up in stats.
 
@@ -181,21 +184,8 @@ These the changes from the old Monthly Post Counter:
 * Improvements in csv encoding shortcomings.
 * Uninstall file added instead of the deactivation method.
 
-== Upgrade Notice ==
-= 1.4 =
-* You can now pay your writers with PayPal directly from the plugin.
-
-= 1.3.5 =
-* Fixed a fatal error that occurred due to PHP 5.4.x.
-
-= 1.3.4.8 =
-Some permissions settings were not taken into account when showing stats.
-
-= 1.3.4.1 =
-As far as my tests have been able to prove, this should be a 1.3-and-after working version.
-
 == Screenshots ==
-1. Post Pay Counter configuration page
+1. Post Pay Counter settings page
 2. Use the tooltips beside each field to know what you can do with them
 3. Post Pay Counter general stats (i.e. all author are shown). The provided datapicker allows to edit the time range and select the wished stats
 4. Post Pay Counter per author stats. Datapicker avaiable here, too

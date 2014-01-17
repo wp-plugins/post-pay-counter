@@ -24,7 +24,7 @@ class PPC_generate_stats {
         $settings = PPC_general_functions::get_settings( $current_user->ID );
         $args = array(
             'post_type' => $settings['counting_allowed_post_types'],
-            'post_status' => array_keys( $settings['counting_allowed_post_statuses'] ),
+            'post_status' => array_keys( $settings['counting_allowed_post_statuses'], 1 ), //Only statuses with 1 as value are selected
             'date_query' => array(
                 'after' => date( 'Y-m-d H:m:s', $time_start ),
                 'before' => date( 'Y-m-d H:m:s', $time_end ),
