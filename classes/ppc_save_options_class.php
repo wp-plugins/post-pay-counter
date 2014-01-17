@@ -181,11 +181,11 @@ class PPC_save_options {
         if( is_numeric( $userid ) ) {
             $settings['userid'] = (int) $settings['userid'];
             if( ! $update = update_user_option( $userid, $ppc_global_settings['option_name'], $settings ) ) {
-                return new WP_Error( 'save_settings_error', __( 'There was an error while writing new settings to the database' ) );
+                return new WP_Error( 'save_settings_error', __( 'There was an error while writing new settings to the database' , 'post-pay-counter') );
             }
         } else if( $userid == 'general' ) {
             if( ! $update = update_option( $ppc_global_settings['option_name'], $settings ) ) {
-                return new WP_Error( 'save_settings_error', __( 'There was an error while writing new settings to the database' ) );
+                return new WP_Error( 'save_settings_error', __( 'There was an error while writing new settings to the database' , 'post-pay-counter') );
             }
             $ppc_global_settings['general_settings'] = $settings;
         }

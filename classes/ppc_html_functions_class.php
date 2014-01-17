@@ -71,12 +71,12 @@ class PPC_HTML_functions {
 <form action="" method="post">
     <span style="float: left; text-align: center;">
         <h3 style="margin: 10px 0 5px;">
-            <?php echo sprintf( __( 'Showing stats from %1$s to %2$s' ), '<input type="text" name="tstart" id="post_pay_counter_time_start" class="mydatepicker" value="'.date( 'Y/m/d', $ppc_global_settings['temp']['tstart'] ).'" accesskey="'.$ppc_global_settings['temp']['tstart'].'" size="8" />', '<input type="text" name="tend" id="post_pay_counter_time_end" class="mydatepicker" value="'.date( 'Y/m/d', $ppc_global_settings['temp']['tend'] ).'" accesskey="'.$ppc_global_settings['temp']['tend'].'" size="8" />' ).' - "'.$current_page.'"'; ?>
+            <?php echo sprintf( __( 'Showing stats from %1$s to %2$s' , 'post-pay-counter'), '<input type="text" name="tstart" id="post_pay_counter_time_start" class="mydatepicker" value="'.date( 'Y/m/d', $ppc_global_settings['temp']['tstart'] ).'" accesskey="'.$ppc_global_settings['temp']['tstart'].'" size="8" />', '<input type="text" name="tend" id="post_pay_counter_time_end" class="mydatepicker" value="'.date( 'Y/m/d', $ppc_global_settings['temp']['tend'] ).'" accesskey="'.$ppc_global_settings['temp']['tend'].'" size="8" />' ).' - "'.$current_page.'"'; ?>
         </h3>
     </span>
     <span style="float: right; text-align: center;">
-        <input type="submit" class="button-secondary" name="post_pay_counter_submit" value="<?php _e( 'Update time range' ) ?>" /><br />
-        <a href="<?php echo $page_permalink; ?>" title="<?php _e( 'Get current view permalink' ); ?>" style="font-size: smaller;"><?php _e( 'Get current view permalink' ); ?></a>
+        <input type="submit" class="button-secondary" name="post_pay_counter_submit" value="<?php _e( 'Update time range' , 'post-pay-counter') ?>" /><br />
+        <a href="<?php echo $page_permalink; ?>" title="<?php _e( 'Get current view permalink' , 'post-pay-counter'); ?>" style="font-size: smaller;"><?php _e( 'Get current view permalink' , 'post-pay-counter'); ?></a>
     </span>
 </form>
 <div class="clear"></div>
@@ -140,7 +140,7 @@ class PPC_HTML_functions {
                     switch( $field_name ) {
                         case 'author_name':
                             if( $perm->can_see_others_detailed_stats() OR $author_id == $current_user->ID ) {
-                                $field_value = '<a href="'.PPC_general_functions::get_the_author_link( $author_id ).'" title="'.__( 'Go to detailed view' ).'">'.$field_value.'</a>';
+                                $field_value = '<a href="'.PPC_general_functions::get_the_author_link( $author_id ).'" title="'.__( 'Go to detailed view' , 'post-pay-counter').'">'.$field_value.'</a>';
                             }
                             break;
                         

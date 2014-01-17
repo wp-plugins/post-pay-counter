@@ -169,35 +169,35 @@ class PPC_counting_stuff {
         if( self::$settings['basic_payment'] == 1 ) {
             $basic_pay = self::basic_payment( $countings['basic'] );
             $ppc_payment['basic'] = sprintf( '%.2f', $basic_pay );
-            $ppc_payment['tooltip'] .= __( 'Basic payment' ).': '.$ppc_payment['basic'].'&#13;';
+            $ppc_payment['tooltip'] .= __( 'Basic payment' , 'post-pay-counter').': '.$ppc_payment['basic'].'&#13;';
         }
         
         //Words payment
         if( self::$settings['counting_words'] == 1 ) {
             $words_pay = self::words_payment( $countings['words']['to_count'] );
             $ppc_payment['words'] = sprintf( '%.2f', $words_pay );
-            $ppc_payment['tooltip'] .= __( 'Words payment' ).': '.$countings['words']['to_count'].' => '.$ppc_payment['words'].'&#13;';
+            $ppc_payment['tooltip'] .= __( 'Words payment' , 'post-pay-counter').': '.$countings['words']['to_count'].' => '.$ppc_payment['words'].'&#13;';
         }
         
         //Visits payment
         if( self::$settings['counting_visits'] == 1 ) {
             $visits_pay = self::visits_payment( $countings['visits']['to_count'] );
             $ppc_payment['visits'] = sprintf( '%.2f', $visits_pay );
-            $ppc_payment['tooltip'] .= __( 'Visits payment' ).': '.$countings['visits']['to_count'].' => '.$ppc_payment['visits'].'&#13;';
+            $ppc_payment['tooltip'] .= __( 'Visits payment' , 'post-pay-counter').': '.$countings['visits']['to_count'].' => '.$ppc_payment['visits'].'&#13;';
         }
         
         //Images payment
         if( self::$settings['counting_images'] == 1 ) {
             $images_pay = self::images_payment( $countings['images']['to_count'] );
             $ppc_payment['images'] = sprintf( '%.2f', $images_pay );
-            $ppc_payment['tooltip'] .=  __( 'Images payment' ).': '.$countings['images']['to_count'].' => '.$ppc_payment['images'].'&#13;';
+            $ppc_payment['tooltip'] .=  __( 'Images payment' , 'post-pay-counter').': '.$countings['images']['to_count'].' => '.$ppc_payment['images'].'&#13;';
         }
         
         //Comments payment
         if( self::$settings['counting_comments'] == 1 ) {
             $comments_pay = self::comments_payment( $countings['comments']['to_count'] );
             $ppc_payment['comments'] = sprintf( '%.2f', $comments_pay );
-            $ppc_payment['tooltip'] .= __( 'Comments payment' ).': '.$countings['comments']['to_count'].' => '.$ppc_payment['comments'];
+            $ppc_payment['tooltip'] .= __( 'Comments payment' , 'post-pay-counter').': '.$countings['comments']['to_count'].' => '.$ppc_payment['comments'];
         }
         
         $ppc_payment['total'] = sprintf( '%.2f', array_sum( $ppc_payment ) );

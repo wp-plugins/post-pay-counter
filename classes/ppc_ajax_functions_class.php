@@ -19,7 +19,7 @@ class PPC_ajax_functions {
     
     static function ppc_check_ajax_referer( $nonce ) {
         if( ! check_ajax_referer( $nonce, false, false ) ) {
-            die( __( 'Error: Seems like AJAX request was not recognised as coming from the right page. Maybe hacking around..?' ) );
+            die( __( 'Error: Seems like AJAX request was not recognised as coming from the right page. Maybe hacking around..?' , 'post-pay-counter') );
         }
     }
     
@@ -104,7 +104,7 @@ class PPC_ajax_functions {
         
         $users_to_show = new WP_User_Query( $args );
         if( $users_to_show->get_total() == 0 ) {
-            die( __( 'No users found.' ) );
+            die( __( 'No users found.' , 'post-pay-counter') );
         }
         
         $n = 0;
@@ -142,7 +142,7 @@ class PPC_ajax_functions {
         if( is_int( $user_id ) ) {
             delete_user_option( $user_id, $ppc_global_settings['option_name'] );
             do_action( 'ppc_deleted_user_settings', $user_id );
-            die( 'ok'.__( 'User\'s settings deleted successfully. You will be redirected to the general options page.' ) );
+            die( 'ok'.__( 'User\'s settings deleted successfully. You will be redirected to the general options page.' , 'post-pay-counter') );
         }
     }
 }

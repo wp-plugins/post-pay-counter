@@ -1,10 +1,10 @@
 <?php
 /*
-Plugin Name: Post Pay Counter
+Plugin Name: Post Pay Counter New
 Plugin URI: http://www.thecrowned.org/post-pay-counter
 Description: Easily calculate and handle authors' pay on a multi-author blog by computing every written post remuneration basing on admin defined rules. Define the time range you would like to have stats about, and the plugin will do the rest.
 Author: Stefano Ottolenghi
-Version: 2.0
+Version: 2.0.1
 Author URI: http://www.thecrowned.org/
 */
 
@@ -184,7 +184,7 @@ class post_pay_counter {
             'nonce_ppc_save_misc_settings' => wp_create_nonce( 'ppc_save_misc_settings' ),
             'nonce_ppc_personalize_fetch_users_by_roles' => wp_create_nonce( 'ppc_personalize_fetch_users_by_roles' ),
             'nonce_ppc_vaporize_user_settings' => wp_create_nonce( 'ppc_vaporize_user_settings' ),
-            'localized_vaporize_user_success' => __( 'User\'s settings successfully deleted. You will be redirected to the general options page.' ),
+            'localized_vaporize_user_success' => __( 'User\'s settings successfully deleted. You will be redirected to the general options page.' , 'post-pay-counter'),
             'ppc_options_url' => $ppc_global_settings['options_menu_link']
         ) );
 		wp_enqueue_script( 'ppc_options_effects', $ppc_global_settings['folder_path'].'js/ppc_options_effects.js', array( 'jquery' ) );
@@ -193,9 +193,9 @@ class post_pay_counter {
 			'counting_visits_current_zones_count' => count( self::$options_page_settings['counting_visits_system_zonal_value'] ),
             'counting_images_current_zones_count' => count( self::$options_page_settings['counting_images_system_zonal_value'] ),
             'counting_comments_current_zones_count' => count( self::$options_page_settings['counting_comments_system_zonal_value'] ),
-            'localized_too_many_zones' => __( 'No more than 10 zones are allowed.' ),
-            'localized_too_few_zones' => __( 'No less than 2 zones are allowed.' ),
-            'localized_need_threshold' => __( 'A payment threshold must first be set.' )
+            'localized_too_many_zones' => __( 'No more than 10 zones are allowed.' , 'post-pay-counter'),
+            'localized_too_few_zones' => __( 'No less than 2 zones are allowed.' , 'post-pay-counter'),
+            'localized_need_threshold' => __( 'A payment threshold must first be set.' , 'post-pay-counter')
         ) );
     }
     
@@ -221,7 +221,7 @@ class post_pay_counter {
             if( isset( $_GET['userid'] ) AND is_numeric( $_GET['userid'] ) ) {
                 
                 if( ! get_userdata( (int) $_GET['userid'] ) ) {
-                    echo '<strong>'.__( 'The requested user does not exist.' ).'</strong>';
+                    echo '<strong>'.__( 'The requested user does not exist.' , 'post-pay-counter').'</strong>';
                     return;
                 }
                 $settings = PPC_general_functions::get_settings( (int) $_GET['userid'] );
@@ -279,7 +279,7 @@ class post_pay_counter {
         global $ppc_global_settings;
        
        if( $file == plugin_basename( __FILE__ ) ) {
-            $links[] = '<a href="'.admin_url( $ppc_global_settings['options_menu_link'] ).'" title="'.__('Settings').'">'.__('Settings').'</a>';
+            $links[] = '<a href="'.admin_url( $ppc_global_settings['options_menu_link'] ).'" title="'.__('Settings', 'post-pay-counter').'">'.__('Settings', 'post-pay-counter').'</a>';
        }
      
         return $links;
@@ -296,7 +296,7 @@ class post_pay_counter {
     
     function ppc_donate_meta_link( $links, $file ) {
        if( $file == plugin_basename( __FILE__ ) ) {
-            $links[] = '<a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=7UH3J3CLVHP8L" title="'.__('Donate').'">'.__('Donate').'</a>';
+            $links[] = '<a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=7UH3J3CLVHP8L" title="'.__('Donate', 'post-pay-counter').'">'.__('Donate', 'post-pay-counter').'</a>';
        }
      
         return $links;
@@ -345,17 +345,17 @@ class post_pay_counter {
         global $wpdb, $current_user, $ppc_global_settings;
          
         echo '<div class="wrap">';
-        echo '<div style="float: right; color: #777; margin-top: 15px;">'.apply_filters( 'ppc_options_installed_version', __( 'Installed version' ).': '.$ppc_global_settings['current_version'] ).'</div>';
-        echo '<h2>Post Pay Counter '.__( 'Options' ).'</h2>';
+        echo '<div style="float: right; color: #777; margin-top: 15px;">'.apply_filters( 'ppc_options_installed_version', __( 'Installed version' , 'post-pay-counter').': '.$ppc_global_settings['current_version'] ).'</div>';
+        echo '<h2>Post Pay Counter '.__( 'Options' , 'post-pay-counter').'</h2>';
         echo '<div style="clear: both;"></div>';
-        echo '<p>'.__( 'From this page you can configure the Post Pay Counter plugin. You will find all the information you need inside each following box and, for every available function, clicking on the info icon on the right of them.' ).'</p>';         
+        echo '<p>'.__( 'From this page you can configure the Post Pay Counter plugin. You will find all the information you need inside each following box and, for every available function, clicking on the info icon on the right of them.' , 'post-pay-counter').'</p>';         
         
         if( is_numeric( self::$options_page_settings['userid'] ) ) {
             $userdata = get_userdata( self::$options_page_settings['userid'] );
             echo '<p style="text-transform: uppercase; font-size: x-small; margin-bottom: -3px; text-align: center;">';
-            echo '<a href="'.$ppc_global_settings['options_menu_link'].'" title="'.__( 'Go back to general settings' ).'" style="float: left; color: black; ">'.__( 'Back to general' ).'</a>';
-            echo '<a href="#" id="vaporize_user_settings" accesskey="'.self::$options_page_settings['userid'].'" title="'.__( 'Delete user\'s settings' ).'" style="float: right; color: red; ">'.__( 'Delete user\'s settings' ).'</a>';
-            echo __( 'Currently editing user:' ).' "'.$userdata->display_name.'"';
+            echo '<a href="'.$ppc_global_settings['options_menu_link'].'" title="'.__( 'Go back to general settings' , 'post-pay-counter').'" style="float: left; color: black; ">'.__( 'Back to general' , 'post-pay-counter').'</a>';
+            echo '<a href="#" id="vaporize_user_settings" accesskey="'.self::$options_page_settings['userid'].'" title="'.__( 'Delete user\'s settings' , 'post-pay-counter').'" style="float: right; color: red; ">'.__( 'Delete user\'s settings' , 'post-pay-counter').'</a>';
+            echo __( 'Currently editing user:' , 'post-pay-counter').' "'.$userdata->display_name.'"';
             echo '</p>';
         } 
         
@@ -422,14 +422,14 @@ class post_pay_counter {
             //post_pay_counter_functions_class::csv_export( @$get_and_post['author'], @$get_and_post['tstart'], @$get_and_post['tend'] );
         
         echo '<div class="wrap">';
-        echo '<h2>'.__( 'Post Pay Counter Stats' ).'</h2>';
+        echo '<h2>'.__( 'Post Pay Counter Stats' , 'post-pay-counter').'</h2>';
         
         //AUTHOR
         if( isset( $get_and_post['author'] ) AND is_numeric( $get_and_post['author'] ) AND $userdata = get_userdata( $get_and_post['author'] ) ) {
             echo PPC_HTML_functions::show_stats_page_header( $userdata->display_name, PPC_general_functions::get_the_author_link( $get_and_post['author'] ), $get_and_post['tstart'], $get_and_post['tend'] );
             
             if( ! $perm->can_see_others_detailed_stats() AND $current_user->ID != $get_and_post['author'] ) {
-                echo __( 'Error: you are not allowed to see this page' );
+                echo __( 'Error: you are not allowed to see this page' , 'post-pay-counter');
                 return;
             }
             
@@ -463,7 +463,7 @@ class post_pay_counter {
             
         //GENERAL STATS
         } else {
-            echo PPC_HTML_functions::show_stats_page_header( __( 'General' ), admin_url( $ppc_global_settings['stats_menu_link'].'&amp;tstart='.$get_and_post['tstart'].'&amp;tend='.$get_and_post['tend'] ), $get_and_post['tstart'], $get_and_post['tend'] );
+            echo PPC_HTML_functions::show_stats_page_header( __( 'General' , 'post-pay-counter'), admin_url( $ppc_global_settings['stats_menu_link'].'&amp;tstart='.$get_and_post['tstart'].'&amp;tend='.$get_and_post['tend'] ), $get_and_post['tstart'], $get_and_post['tend'] );
             
             if( $perm->can_see_others_general_stats() ) {
                 $requested_posts = PPC_generate_stats::get_requested_posts( $get_and_post['tstart'], $get_and_post['tend'] );
