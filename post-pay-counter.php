@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name: Post Pay Counter New
+Plugin Name: Post Pay Counter
 Plugin URI: http://www.thecrowned.org/post-pay-counter
 Description: Easily calculate and handle authors' pay on a multi-author blog by computing every written post remuneration basing on admin defined rules. Define the time range you would like to have stats about, and the plugin will do the rest.
 Author: Stefano Ottolenghi
