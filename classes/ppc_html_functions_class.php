@@ -145,7 +145,7 @@ class PPC_HTML_functions {
                             break;
                         
                         case 'author_total_payment':
-                            $field_value = '<abbr title="'.$raw_data[$author_id]['total']['ppc_payment']['tooltip'].'" class="ppc_payment_column">'.$field_value.'</abbr>';
+                            $field_value = '<abbr title="'.$raw_data[$author_id]['total']['ppc_misc']['tooltip'].'" class="ppc_payment_column">'.$field_value.'</abbr>';
                             break;
                     }
                     
@@ -168,7 +168,7 @@ class PPC_HTML_functions {
                     
                     $tr_opacity = '';
                     if( $user_settings['counting_payment_only_when_total_threshold'] == 1 ) {
-                        if( $post->ppc_payment['exceed_threshold'] == false ) {
+                        if( $post->ppc_misc['exceed_threshold'] == false ) {
                             $tr_opacity = ' style="opacity: 0.40;"';
                         }
                     }
@@ -184,7 +184,7 @@ class PPC_HTML_functions {
                                 break;
                             
                             case 'post_total_payment':
-                                $field_value = '<abbr title="'.$post->ppc_payment['tooltip'].'" class="ppc_payment_column">'.$field_value.'</abbr>';
+                                $field_value = '<abbr title="'.$post->ppc_misc['tooltip'].'" class="ppc_payment_column">'.$field_value.'</abbr>';
                                 break;
                         }
                         
