@@ -98,18 +98,24 @@ class PPC_general_functions {
     
     static function count_post_words( $post ) {
         $settings = self::get_settings( $post->post_author, TRUE );
-        $post_words = array( 'real' => 0, 'to_count' => 0 );
         
-        if( $settings['counting_exclude_quotations'] == 1 ) {
+        $post_words = array( 
+            'real' => 0, 
+            'to_count' => 0 
+        );
+        
+        if( $settings['counting_exclude_quotations'] ) {
             $post_content = preg_replace( '/<(blockquote|q)>.*<\/(blockquote|q)>/s', '', $post->post_content );
         }
         
         $post_words['real'] = (int) preg_match_all( '/\S+\s|\s\S+/', preg_replace( '/[.(),;:!?%#$¿"_+=\\/-]+/', '', preg_replace( '/\'&nbsp;|&#160;|\r|\n|\r\n|\s+/', ' ', strip_tags( $post->post_content ) ) ), $arr );
+        
         if( $settings['counting_words_threshold_max'] > 0 AND $post_words['real'] > $settings['counting_words_threshold_max'] ) {
             $post_words['to_count'] = $settings['counting_words_threshold_max'];
         } else {
             $post_words['to_count'] = $post_words['real'];
         }
+        
         return apply_filters( 'ppc_counted_post_words', $post_words );
     }
     
@@ -127,16 +133,22 @@ class PPC_general_functions {
     static function get_post_visits( $post ) {
         global $ppc_global_settings;
         $settings = self::get_settings( $post->post_author, TRUE );
-        $post_visits = array( 'real' => 0, 'to_count' => 0 );
+        
+        $post_visits = array( 
+            'real' => 0, 
+            'to_count' => 0 
+        );
         
         $visits_postmeta = apply_filters( 'ppc_counting_visits_postmeta', $settings['counting_visits_postmeta_value'] );
         
         $post_visits['real'] = (int) get_post_meta( $post->ID, $visits_postmeta, TRUE );
+        
         if( $settings['counting_visits_threshold_max'] > 0 AND $post_visits['real'] > $settings['counting_visits_threshold_max'] ) {
             $post_visits['to_count'] = $settings['counting_visits_threshold_max'];
         } else {
             $post_visits['to_count'] = $post_visits['real'];
         }
+        
         return apply_filters( 'ppc_counted_post_visits', $post_visits );
     }
     
@@ -153,13 +165,17 @@ class PPC_general_functions {
     
     static function count_post_images( $post ) {
         $settings = self::get_settings( $post->post_author, TRUE );
-        $post_images = array( 'real' => 0, 'to_count' => 0 );
+        
+        $post_images = array( 
+            'real' => 0, 
+            'to_count' => 0 
+        );
                 
         if( preg_match_all( '/<img[^>]*>/', $post->post_content, $array_all_imgs ) ) {
             $post_images['real'] = (int) ( count( $array_all_imgs[0] ) - 1 );
         }
         
-        if( $settings['counting_images_include_featured'] == 1 ) {
+        if( $settings['counting_images_include_featured'] ) {
             if( has_post_thumbnail( $post->ID ) ) {
                 ++$post_images['real'];
             }
@@ -174,6 +190,7 @@ class PPC_general_functions {
                 $post_images['to_count'] = $post_images['real'] - $settings['counting_images_threshold_min'];
             }
         }
+        
         return apply_filters( 'ppc_counted_post_images', $post_images );
     }
     
@@ -190,7 +207,11 @@ class PPC_general_functions {
     
     static function get_post_comments( $post ) {
         $settings = self::get_settings( $post->post_author, TRUE );
-        $post_comments = array( 'real' => (int) $post->comment_count, 'to_count' => 0 );
+        
+        $post_comments = array( 
+            'real' => (int) $post->comment_count, 
+            'to_count' => 0 
+        );
         
         if( $post_comments['real'] <= $settings['counting_comments_threshold_min'] ) {
             $post_comments['to_count'] = 0;
@@ -201,6 +222,7 @@ class PPC_general_functions {
                 $post_comments['to_count'] = $post_comments['real'] - $settings['counting_comments_threshold_min'];
             }
         }
+        
         return apply_filters( 'ppc_counted_post_comments', $post_comments );
     }
     

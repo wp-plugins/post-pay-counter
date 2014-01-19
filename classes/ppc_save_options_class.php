@@ -138,6 +138,9 @@ class PPC_save_options {
         if( is_wp_error( $update ) ) {
             return $update;
         }
+        
+        //Update permissions
+        PPC_general_functions::manage_cap_allowed_user_roles_plugin_pages( $new_settings['can_see_options_user_roles'], $new_settings['can_see_stats_user_roles'] );
     }
     
     /**

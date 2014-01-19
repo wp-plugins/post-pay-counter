@@ -122,6 +122,6 @@ jQuery(document).ready(function($) {
             }
         });
     });
-    /* </PERSONALIZE SETTINGS BOX CALLS> */
+    /* </DELETE USER'S PERSONALIZED SETTINGS> */
 
 });

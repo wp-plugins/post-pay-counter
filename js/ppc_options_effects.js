@@ -50,10 +50,6 @@ function post_pay_counter_checkbox_auto_toggle(toggle_click, toggle_click_conten
 }
 
 jQuery(document).ready(function($) {
-	//Counting type visits methods
-	post_pay_counter_radio_auto_toggle("#counting_type_words", "#counting_type_words_methods", "#counting_type_visits", "#counting_type_visits_methods");
-	//Two sets of options (ga, cookie duration vs count pending...)
-	post_pay_counter_radio_auto_toggle("#counting_type_words", "#counting_type_words_options", "#counting_type_visits", "#counting_type_visits_options");
 	//Payments systems
 	post_pay_counter_radio_auto_toggle("#counting_words_system_zonal", "#counting_words_system_zonal_content", "#counting_words_system_incremental", "#counting_words_system_incremental_content");
 	post_pay_counter_radio_auto_toggle("#counting_visits_system_zonal", "#counting_visits_system_zonal_content", "#counting_visits_system_incremental", "#counting_visits_system_incremental_content");

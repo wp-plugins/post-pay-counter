@@ -4,7 +4,7 @@ Plugin Name: Post Pay Counter
 Plugin URI: http://www.thecrowned.org/post-pay-counter
 Description: Easily calculate and handle authors' pay on a multi-author blog by computing posts' remuneration basing on admin defined rules. Define the time range you would like to have stats about, and the plugin will do the rest.
 Author: Stefano Ottolenghi
-Version: 2.0.3
+Version: 2.0.4
 Author URI: http://www.thecrowned.org/
 */
 
@@ -46,7 +46,7 @@ class post_pay_counter {
         global $ppc_global_settings;
         
         $ppc_global_settings['current_version'] = get_option( 'ppc_current_version' );
-        $ppc_global_settings['newest_version'] = '2.0.3';
+        $ppc_global_settings['newest_version'] = '2.0.4';
         $ppc_global_settings['option_name'] = 'ppc_settings';
         $ppc_global_settings['folder_path'] = plugins_url( '/', __FILE__ );
         $ppc_global_settings['options_menu_link'] = 'admin.php?page=post_pay_counter_options';
@@ -145,10 +145,26 @@ class post_pay_counter {
     function on_load_stats_page() {
         global $ppc_global_settings;
         
+        $first_available_post = get_posts( array( 
+            'numberposts' => 1, 
+            'orderby' => 'post_date',
+            'order' => 'ASC'
+        ) );
+        
+        if( count( $first_available_post ) == 0 ) {
+            $first_available_post = time();
+        } else {
+            $first_available_post = strtotime( $first_available_post[0]->post_date );
+        }
+        
         wp_enqueue_script( 'jquery-ui-datepicker', $ppc_global_settings['folder_path'].'js/jquery.ui.datepicker.min.js', array( 'jquery', 'jquery-ui-core' ) );
         wp_enqueue_style( 'jquery.ui.theme', $ppc_global_settings['folder_path'].'style/ui-lightness/jquery-ui-1.8.15.custom.css' );
         wp_enqueue_style( 'ppc_stats_style', $ppc_global_settings['folder_path'].'style/ppc_stats_style.css' );
         wp_enqueue_script( 'ppc_stats_effects', $ppc_global_settings['folder_path'].'js/ppc_stats_effects.js', array( 'jquery' ) );
+        wp_localize_script( 'ppc_stats_effects', 'ppc_stats_effects_vars', array(
+            'datepicker_mindate' => date( 'y/m/d', $first_available_post ),
+            'datepicker_maxdate' => date( 'y/m/d' )
+        ) );
     } 
     
     /**
@@ -238,12 +254,9 @@ class post_pay_counter {
                     unset( $settings['default_stats_time_range_week'] );
                     unset( $settings['default_stats_time_range_custom'] );
                     unset( $settings['default_stats_time_range_custom_value'] );
-                    unset( $settings['paypal_api_email'] );
-                    unset( $settings['paypal_api_password'] );
-                    unset( $settings['paypal_api_signature'] );
-                    unset( $settings['paypal_currency_code'] );
-                    unset( $settings['paypal_currency_symbol'] );
                 }
+                
+                $settings = apply_filters( 'ppc_unset_only_general_settings_personalize_user', $settings );
             
             //General
             } else {
@@ -378,7 +391,7 @@ class post_pay_counter {
     <?php }
     
     /**
-     * Shows the Stats page
+     * Shows the Stats page.
      *
      * @access  public
      * @since   2.0
@@ -433,28 +446,16 @@ class post_pay_counter {
                 return;
             }
             
-            $requested_posts = PPC_generate_stats::get_requested_posts( $get_and_post['tstart'], $get_and_post['tend'], array( $get_and_post['author'] ) );
-            if( is_wp_error( $requested_posts ) ) {
-                echo 'Error: '.$requested_posts->get_error_message();
+            $stats = PPC_generate_stats::produce_stats( $get_and_post['tstart'], $get_and_post['tend'], array( $get_and_post['author'] ) );
+            if( is_wp_error( $stats ) ) {
+                echo ( 'Error: '.$stats->get_error_message() );
                 return;
             }
-            
-            $cashed_requested_posts = PPC_counting_stuff::data2cash( $requested_posts, array( $get_and_post['author'] ) );
-            if( is_wp_error( $cashed_requested_posts ) ) {
-                echo 'Error: '.$cashed_requested_posts->get_error_message();
-                return;
-            }
-            
-            $generated_stats = PPC_generate_stats::group_stats_by_author( $cashed_requested_posts );
-            if( is_wp_error( $generated_stats ) ) {
-                echo 'Error: '.$generated_stats->get_error_message();
-                return;
-            }
-            $formatted_stats = PPC_generate_stats::format_stats_for_output( $generated_stats, $get_and_post['author'] );
             
             do_action( 'ppc_html_stats_author_before_stats_form' );
+            
             echo '<form action="#" method="post" id="ppc_stats">';
-            echo PPC_HTML_functions::get_html_stats( $formatted_stats, $generated_stats, $get_and_post['author'] );
+            echo PPC_HTML_functions::get_html_stats( $stats['formatted_stats'], $stats['raw_stats'], array( $get_and_post['author'] ) );
             echo '</form>';
             
             do_action( 'ppc_html_stats_author_after_stats_form' );
@@ -465,32 +466,23 @@ class post_pay_counter {
         } else {
             echo PPC_HTML_functions::show_stats_page_header( __( 'General' , 'post-pay-counter'), admin_url( $ppc_global_settings['stats_menu_link'].'&amp;tstart='.$get_and_post['tstart'].'&amp;tend='.$get_and_post['tend'] ), $get_and_post['tstart'], $get_and_post['tend'] );
             
-            if( $perm->can_see_others_general_stats() ) {
-                $requested_posts = PPC_generate_stats::get_requested_posts( $get_and_post['tstart'], $get_and_post['tend'] );
+            //If CU can't see others' general, behave as if detailed for him
+            if( ! $perm->can_see_others_general_stats() ) {
+                $author = array( $current_user->ID );
             } else {
-                $requested_posts = PPC_generate_stats::get_requested_posts( $get_and_post['tstart'], $get_and_post['tend'], array( $current_user->ID ) );
-            }
-            if( is_wp_error( $requested_posts ) ) {
-                echo 'Error: '.$requested_posts->get_error_message();
-                return;
+                $author = NULL;
             }
             
-            $cashed_requested_posts = PPC_counting_stuff::data2cash( $requested_posts );
-            if( is_wp_error( $cashed_requested_posts ) ) {
-                echo 'Error: '.$cashed_requested_posts->get_error_message();
+            $stats = PPC_generate_stats::produce_stats( $get_and_post['tstart'], $get_and_post['tend'], $author );
+            if( is_wp_error( $stats ) ) {
+                echo ( 'Error: '.$stats->get_error_message() );
                 return;
             }
-            
-            $generated_stats = PPC_generate_stats::group_stats_by_author( $cashed_requested_posts );
-            if( is_wp_error( $generated_stats ) ) {
-                echo 'Error: '.$generated_stats->get_error_message();
-                return;
-            }
-            $formatted_stats = PPC_generate_stats::format_stats_for_output( $generated_stats, 'general' );
             
             do_action( 'ppc_html_stats_general_before_stats_form' );
+            
             echo '<form action="#" method="post" id="ppc_stats">';
-            echo PPC_HTML_functions::get_html_stats( $formatted_stats, $generated_stats, 'general' );
+            echo PPC_HTML_functions::get_html_stats( $stats['formatted_stats'], $stats['raw_stats'] );
             echo '</form>';
             
             do_action( 'ppc_html_stats_general_after_stats_form' );
@@ -498,7 +490,7 @@ class post_pay_counter {
             echo '<div class="ppc_table_divider"></div>';
         }
         
-        $overall_stats = PPC_generate_stats::get_overall_stats( $generated_stats );
+        $overall_stats = PPC_generate_stats::get_overall_stats( $stats['raw_stats'] );
         echo PPC_HTML_functions::print_overall_stats( $overall_stats );
         do_action( 'ppc_html_stats_after_overall_stats' );
     }

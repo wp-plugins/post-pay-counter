@@ -22,52 +22,8 @@ class PPC_HTML_functions {
     
     function show_stats_page_header( $current_page, $page_permalink, $current_time_start, $current_time_end ) {
         global $ppc_global_settings;
-        
-        $first_available_post = get_posts( array( 
-            'numberposts' => 1, 
-            'orderby' => 'post_date',
-            'order' => 'ASC'
-        ) );
-        
-        if( count( $first_available_post ) == 0 ) {
-            $first_available_post = time();
-        } else {
-            $first_available_post = strtotime( $first_available_post[0]->post_date );
-        }
 		?>
 
-<script type="text/javascript">
-    jQuery(document).ready(function() {
-        jQuery('#post_pay_counter_time_start').datepicker({
-            dateFormat : 'yy/mm/dd',
-            minDate : '<?php echo date( 'y/m/d', $first_available_post ); ?>',
-            maxDate: '<?php echo date( 'y/m/d' ); ?>',
-            changeMonth : true,
-            changeYear : true,
-            showButtonPanel: true,
-            showOtherMonths: true,
-            selectOtherMonths: true,
-            showAnim: "slideDown",
-            onSelect: function(dateText, inst) {
-                jQuery('#post_pay_counter_time_end').datepicker('option','minDate', new Date(inst.selectedYear, inst.selectedMonth, inst.selectedDay));
-            }
-        });
-        jQuery('#post_pay_counter_time_end').datepicker({
-            dateFormat : 'yy/mm/dd',
-            minDate : '<?php echo date( 'y/m/d', $first_available_post ); ?>',
-            maxDate : '<?php echo date( 'y/m/d' ); ?>',
-            changeMonth : true,
-            changeYear : true,
-            showButtonPanel: true,
-            showOtherMonths: true,
-            selectOtherMonths: true,
-            showAnim: "slideDown",
-            onSelect: function(dateText, inst) {
-                 jQuery('#post_pay_counter_time_start').datepicker('option','maxDate', new Date(inst.selectedYear, inst.selectedMonth, inst.selectedDay));
-            }      
-        });
-    });
-</script>
 <form action="" method="post">
     <span style="float: left; text-align: center;">
         <h3 style="margin: 10px 0 5px;">
@@ -90,10 +46,10 @@ class PPC_HTML_functions {
      * @since   2.0
      * @param   $formatted_data array formatted stats
      * @param   $raw_data array ordered-by-author stats
-     * @param   $general_or_author mixed whether 'general' stats or [int] detailed ones
+     * @param   $author array optional whether detailed stats
     */
     
-    function get_html_stats( $formatted_data, $raw_data, $general_or_author ) {
+    function get_html_stats( $formatted_data, $raw_data, $author = NULL ) {
         global $current_user;
         $perm = new PPC_permissions();
         
@@ -104,9 +60,9 @@ class PPC_HTML_functions {
             echo '<th scope="col">'.$value.'</th>';
         }
         
-        if( $general_or_author ==  'general' ) {
+        if( is_array( $author ) ) {
             do_action( 'ppc_general_stats_html_cols_after_default' );
-        } else if( is_numeric( $general_or_author ) ) {
+        } else {
             do_action( 'ppc_author_stats_html_cols_after_default' );
         }
         
@@ -119,9 +75,9 @@ class PPC_HTML_functions {
             echo '<th scope="col">'.$value.'</th>';
         }
         
-        if( $general_or_author ==  'general' ) {
+        if( is_array( $author ) ) {
             do_action( 'ppc_general_stats_html_cols_after_default' );
-        } else if( is_numeric( $general_or_author ) ) {
+        } else {
             do_action( 'ppc_author_stats_html_cols_after_default' );
         }
         
@@ -130,34 +86,7 @@ class PPC_HTML_functions {
         
         echo '<tbody>';
         
-        if( $general_or_author ==  'general' ) {
-            
-            foreach( $formatted_data['data'] as $author_id => $author_data ) {
-                echo '<tr>';
-                
-                foreach( $author_data as $field_name => $field_value ) {
-                    //Cases in which other stuff needs to be added to the output
-                    switch( $field_name ) {
-                        case 'author_name':
-                            if( $perm->can_see_others_detailed_stats() OR $author_id == $current_user->ID ) {
-                                $field_value = '<a href="'.PPC_general_functions::get_the_author_link( $author_id ).'" title="'.__( 'Go to detailed view' , 'post-pay-counter').'">'.$field_value.'</a>';
-                            }
-                            break;
-                        
-                        case 'author_total_payment':
-                            $field_value = '<abbr title="'.$raw_data[$author_id]['total']['ppc_misc']['tooltip'].'" class="ppc_payment_column">'.$field_value.'</abbr>';
-                            break;
-                    }
-                    
-                    echo '<td class="'.$field_name.'">'.apply_filters( 'ppc_general_stats_html_each_field_value', $field_value, $field_name, $raw_data[$author_id] ).'</td>';
-                }
-                
-                do_action( 'ppc_general_stats_html_after_each_default', $author_id, $formatted_data, $raw_data );
-                
-                echo '</tr>';
-            }
-        
-        } else if( is_numeric( $general_or_author ) ) {
+        if( is_array( $author ) ) {
             list( $author, $author_stats ) = each( $formatted_data['data'] );
             $user_settings = PPC_general_functions::get_settings( $author, true );
             
@@ -167,7 +96,7 @@ class PPC_HTML_functions {
                     $post = $raw_data[$author_id][$post_id];
                     
                     $tr_opacity = '';
-                    if( $user_settings['counting_payment_only_when_total_threshold'] == 1 ) {
+                    if( $user_settings['counting_payment_only_when_total_threshold'] ) {
                         if( $post->ppc_misc['exceed_threshold'] == false ) {
                             $tr_opacity = ' style="opacity: 0.40;"';
                         }
@@ -195,6 +124,33 @@ class PPC_HTML_functions {
                     
                     echo '</tr>';
                 }
+            }
+            
+        } else {
+            
+            foreach( $formatted_data['data'] as $author_id => $author_data ) {
+                echo '<tr>';
+                
+                foreach( $author_data as $field_name => $field_value ) {
+                    //Cases in which other stuff needs to be added to the output
+                    switch( $field_name ) {
+                        case 'author_name':
+                            if( $perm->can_see_others_detailed_stats() OR $author_id == $current_user->ID ) {
+                                $field_value = '<a href="'.PPC_general_functions::get_the_author_link( $author_id ).'" title="'.__( 'Go to detailed view' , 'post-pay-counter').'">'.$field_value.'</a>';
+                            }
+                            break;
+                        
+                        case 'author_total_payment':
+                            $field_value = '<abbr title="'.$raw_data[$author_id]['total']['ppc_misc']['tooltip'].'" class="ppc_payment_column">'.$field_value.'</abbr>';
+                            break;
+                    }
+                    
+                    echo '<td class="'.$field_name.'">'.apply_filters( 'ppc_general_stats_html_each_field_value', $field_value, $field_name, $raw_data[$author_id] ).'</td>';
+                }
+                
+                do_action( 'ppc_general_stats_html_after_each_default', $author_id, $formatted_data, $raw_data );
+                
+                echo '</tr>';
             }
         }
         
