@@ -35,6 +35,7 @@ The Post Pay Counter plugin allows you to easily calculate and handle authors' p
 * Fixed a bug in which plugin pages permissions were not put in pratice correctly.
 
 *Under the hood:*
+
 * Stats datepicker js moved from inline to external file.
 * Slight changes in the counting data structure.
 * New highest-level method for generating stats.
