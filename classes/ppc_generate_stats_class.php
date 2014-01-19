@@ -88,7 +88,7 @@ class PPC_generate_stats {
         $requested_posts = new WP_Query( $args );
         
         if( $requested_posts->found_posts == 0 ) {
-            return new WP_Error( 'empty_selection', __( 'No posts were selected' , 'post-pay-counter'), $args );
+            return new WP_Error( 'empty_selection', __( 'Error: no posts were selected' , 'post-pay-counter'), $args );
         }
         
         return $requested_posts->posts;

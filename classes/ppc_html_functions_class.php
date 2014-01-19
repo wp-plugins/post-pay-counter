@@ -191,6 +191,7 @@ class PPC_HTML_functions {
         <?php }
         
         echo '</table>';
+        
         do_action( 'ppc_overall_stats' );
     }
     

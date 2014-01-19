@@ -36,7 +36,7 @@ class PPC_ajax_functions {
         
         $save_settings = PPC_save_options::save_counting_settings( $_REQUEST['form_data'] );
         if( is_wp_error( $save_settings ) ) {
-            die( 'Error: '.$save_settings->get_error_message() );
+            die( $save_settings->get_error_message() );
         }
         die( 'ok' );
     }
@@ -54,7 +54,7 @@ class PPC_ajax_functions {
         
         $save_settings = PPC_save_options::save_misc_settings( $_REQUEST['form_data'] );
         if( is_wp_error( $save_settings ) ) {
-            die( 'Error: '.$save_settings->get_error_message() );
+            die( $save_settings->get_error_message() );
         }
         die( 'ok' );
     }
@@ -72,7 +72,7 @@ class PPC_ajax_functions {
         
         $save_settings = PPC_save_options::save_permissions( $_REQUEST['form_data'] );
         if( is_wp_error( $save_settings ) ) {
-            die( 'Error: '.$save_settings->get_error_message() );
+            die( $save_settings->get_error_message() );
         }
         die( 'ok' );
     }
@@ -141,7 +141,9 @@ class PPC_ajax_functions {
         
         if( is_int( $user_id ) ) {
             delete_user_option( $user_id, $ppc_global_settings['option_name'] );
+            
             do_action( 'ppc_deleted_user_settings', $user_id );
+            
             die( 'ok'.__( 'User\'s settings deleted successfully. You will be redirected to the general options page.' , 'post-pay-counter') );
         }
     }
