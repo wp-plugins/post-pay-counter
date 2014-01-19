@@ -1,0 +1,203 @@
+﻿=== Post Pay Counter ===
+Contributors: Ste_95
+Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SM5Q9BVU4RT22
+Tags: counter, authors, payment, stats, multi author, post management, post
+Tested up to: 3.8
+Stable tag: 2.0.4
+Requires at least: 3.7
+
+Easily calculate and handle authors' pay on a multi-author blog by computing posts' remuneration basing on admin defined rules.
+
+== Description ==
+The Post Pay Counter plugin allows you to easily calculate and handle authors' pay on a multi-author blog by computing posts' remuneration basing on admin defined rules. The administrator can specify criteria upon which payments should be computed and the results are immediately viewable from the related stats page. Both a general view with all users and a specific one for a author are possible.
+
+**IMPORTANT NOTICE: Version 2.0 or later needs to be reinstalled, if you had a previous version. Also, the following features are currently missing**: post payment bonus, trial settings, csv esport, full multisite integration, word count in post list. They will be added soon. If you need one specifically, let me know in order to make up a priority list.
+
+* Pay per word, visit, image and comment. They are not mutually exclusive.
+* Pay with an incremental system (eg. each word is €0.01 => 100 words = €1) or with a zonal one (eg. from 200 to 300 words/visits it’s €2.00, up to 10 zones).
+* Old stats avaiability. View posts countings since the first written post, disregarding the plugin install date. A fancy date picker lets you shift between days and select the desired range.
+* Personalize user's settings, so that special settings only apply to a particular user. Different settings can be made viewable in the stats or hidden depending on your needs.
+* Highly customizable permissions to prevent your users to see stats and use functions they are not supposed to.
+* And... works with custom post types, narrow your payments only to chosen user groups, and more.
+
+[youtube https://www.youtube.com/watch?v=mSFjvR-2zCI]
+
+== Installation ==
+1. Upload the directory of the Post Pay Counter in your wp-content/plugins directory; note that you need the whole folder, not only the single files.
+2. Activate the plugin through the "Activate" button in the "Plugins" page of your WordPress.
+3. Head to the configuration page first. The plugin already comes with a predefined set of settings, but you may want to set it up to better suit your needs.
+5. That's it, done! You can now check the stats page to browse all the countings.
+
+== Changelog ==
+= 2.0.4 =
+**IMPORTANT NOTICE: If you have installed a version below 2.0, the plugin needs to be reinstalled** due to its different settings storage system and the availability of new features. Also, the **following features are currently missing**: post payment bonus, trial settings, csv esport, full multisite integration, word count in post list. They will be added soon. If you need one specifically, let me know in order to make up a priority list.
+
+* Fixed a bug in which plugin pages permissions were not put in pratice correctly.
+
+*Under the hood:*
+* Stats datepicker js moved from inline to external file.
+* Slight changes in the counting data structure.
+* New highest-level method for generating stats.
+
+= 2.0.3 =
+* Fixed a bug in which authors' totals in general stats and total payment in overall stats were not shown right when using zonal systems.
+
+= 2.0.2 =
+* Fixed post statuses filter not working, pending revision and future scheduled were selected regardless of settings.
+
+= 2.0.1 =
+* Localization slug added to localization functions calls. The plugin can now be translated.
+* Fixed a bug in which posts published on the time frame boundaries days would not show up in stats.
+
+= 2.0 =
+**IMPORTANT NOTICE: Version 2.0 needs to be reinstalled** if you had a previous version due to its different settings storage system and the availability of new features. Also, the **following features are currently missing**: post payment bonus, trial settings, csv esport, full multisite integration, word count in post list. They will be added soon. If you need one specifically, let me know in order to make up a priority list.
+
+* Almost complete plugin redesign and code refactoring which should give dramatic speed improvements. Less data is stored in the database, making requests lighter.
+* The plugin is now fully extensible, check the list of hooks and filters.
+* Supports localization.
+* Words and visits are not mutually esclusive counting types anymore.
+* Plugin's visits counting method is not available anymore. If you use some other plugin to keep track of visits, you can specify its postmeta and Post Pay Counter will use that. Post Pay Counter PRO (soon available) will allow use of Google Analytics.
+* Images and comments can now use both incremental and zones payment system.
+* Up to 10 zones are allowed now.
+* Feature to allow payment only when certain threshold is met.
+* Settings save is now AJAX working.
+* Post featured image can now be counted as well.
+
+A paid addon to Post Pay Counter, PRO, will be released soon, adding more new features.
+
+= 1.3.6 =
+* Fixed fatal error when on a post save the counting entry was removed.
+* Should have fixed the unexpected output on installation.
+
+= 1.3.5 =
+* Fixed a fatal error that occurred due to PHP 5.4.x.
+
+= 1.3.4.9 =
+* Fixed a problem where when using the zone counting system and only 5 five zones, the last zone was not taken into account.
+
+= 1.3.4.8 =
+* Some permissions settings were not taken into account when showing stats.
+
+= 1.3.4.7 =
+* PayPal email addresses were not saved, fixed now.
+
+= 1.3.4.6 =
+* Fixed a PHP warning.
+
+= 1.3.4.5 =
+* Fixed a problem that prevented personalized counting system and manual trial enable from working.
+* Currently installed version is now shown on the upper-right corner in the plugin Options page.
+
+= 1.3.4.1 =
+* Solved more multisite-related problems that excluded some users from countings.
+* Fixed an issue that set to zero the counted words when a post page was viewed and the counting type visits was not enabled. 
+
+= 1.3.4 =
+* If plugin table or its default settings are missing, they are automatically added when either the options page or the stats page are loaded.
+* Update procedure now works with multisite - can not believe this was not introduced when the multisite capability was introduced!
+* I took the chance to redesign the class structure of the plugin, using class inheritance and making everything cleaner.
+* The debugging feature has been moved to the *post-pay-counter.php* file.
+* Every time the global *$post* variable is used, is now casted to object: in some cases I found it being an array and breaking everything.
+
+= 1.3.3 =
+* Little problem (not so little, since prevented activation) with user roles permissions is fixed now! If you were experiencing the has_cap() fatal error, it should be ok now. If you were experiencing the array_intersect warning, that should be fixed too. For the latter, should it persist, try to save options and reload the page, and see if that solves.
+* For the future (or the present, who knows), I have added a debug functionality that will make troubleshooting problems on my part far easier than now. It can be enabled and disabled at will, though not via a user interface as of the present release. Default option is disabled. Instructions to enable it are in the FAQ.
+* Unexpected output during installation is now logged in the database as a wp_option called *ppc_install_error* and included in the debugging data.
+
+= 1.3.2 =
+* Without noticing, I was using a PHP 5.3 function that, of course, triggered a fatal error almost everywhere. Sorry!
+
+= 1.3.1 =
+* Hopefully fixed a bug that, after the update, prevented the new user roles permissions for the plugin pages to work properly.
+* Fixed a uninstallation bug that prevented the ppc_current_version option from being deleted.
+
+= 1.3 =
+* Some options contained in the Counting Settings box can not be personalized by user anymore. This allows the counting routine to run much faster, and it was necessary to logically differentiate between settings that apply to everybody and the ones that may be useful to personalize. Those options, if personalized before this release, will not be taken into account anymore: the plugin will use general ones instead.
+* It is now possible to mark as paid counted posts. Along each post in the stats by author there is a checkbox that allows to do that; it works with AJAX, so that there is no need to reload the page after a park is marked as such. The plugin also keeps a payment history, so that, if over time the payment for a post should change, the plugin will show you how much you have already paid and how much you still have to pay. The control is only available to administrators, other users can only see how much a post was paid (only if the related permission is checked).
+* Post of a post type different than the default one can now be included into countings (including pages). Post types to include can be chosen in the Options page from a list of the registered ones, and in the stats a column will show the post type the displayed posts fit in. The post types to include can not be personalized by user.
+* Choose the user groups of which you would like posts to be counted from a convenient list in the Options. In the general stats, the user group will be displayed.
+* Define what user groups should be able to view and edit plugin settings and browse through the stats page.
+* Update procedure changed, to line up with new Wordpress standards (we now store the installed version in a wp_option in the database and compare it with the most recent one, hardcoded in the plugin files).
+* It is now possible to exclude quotations from posts counting routine: only award authors for what they write themselves.
+* It is now possible to define up to 10 zones when using the zones counting type, with the second five being optional.
+* It is possible to define how often payment usually takes place, so that in the stats page it will automatically be selected the right time range accordingly.
+* If user is allowed to, they can now clearly see how the payment was computed by a convenient hover tooltip.
+* Future scheduled posts can now be excluded from countings.
+* Users are now shown by their chosen display name and not by nickname.
+* Only 250 usernames are now shown for personalizing settings due to hanging in blogs with very large databases. To personalize settings for other users, you can put their IDs in the userid parameter in the URL.
+* No more problems in pressing *Enter* to update settings, it works!
+* Deleted the old stats permission: with the new free time frame picker, it became useless (already a couple releases ago...).
+* Split in a different class the functions used to generate the HTML form fields in the options and everything related to that.
+* General speed up.
+
+= 1.2.2 =
+* Word counting is now more precise.
+
+= 1.2.1 =
+* Fixed a problem with the installation which prevented the new functions to work properly because of missing database columns.
+
+= 1.2.0 =
+* The plugin now has its own toplevel menu item: it is called Post Pay Counter and is located at the bottom of the admin menu, with the stats and options pages being accesible through it.
+* Introduced the minimum fee capability. Admins can now set a minimum amout of money that will be credited to posts when their ordinary payment would be too low (there are options to define how much low is).
+* It is now possible to show the posts word count directly in the WordPress post list as a column.
+* In the stats page, if the user can, when the payment has bonuses associated with it they are now shown on mouse overlay.
+* The exported CSV files now have a little introduction with the site name and address and also report the total counting at the bottom (total payment and total posts).
+
+= 1.1.9 =
+* Changes to counting routine grant wider compatibility: Greek charachters are now supported.
+
+= 1.1.8 =
+* Bug from previous release made impossible to update settings because of two MySQL columns missing. Should be fixed now.
+
+= 1.1.7 =
+* When uninstalling it now checks for table/columns existance while already into the uninstallation process, not before it.
+
+= 1.1.6 =
+* Fixed a bug that prevented the installation process to work correctly due to MySQL errors.
+* Fixed a JS error in the jQuery datepicker when no posts were available.
+
+= 1.1.5 =
+* Fixed a bug that prevented comments and images bonuses to be awarded when using the unique payment system.
+
+= 1.1.4 =
+* Manually creating a post meta named *payment_bonus* allows to award a bonus to posts. Bonuses are then shown in the stats page in brackets and with a smaller font, though the admin can decide to disable the function or hide the bonuses.
+* Fixed a bug that triggered a fatal error when updating settings without having them in the database (default case of switch).
+
+= 1.1.3 =
+* Changed view counting method, it could trigger problems is headers where already sent before the plugin got in. It's now using an AJAX request to set the cookie.
+* Minimal improvements in in the view counting method.
+
+= 1.1.2 =
+* Stats are not generated during installation anymore. This is to prevent the plugin hanging on activation due to large databases. If you still want to have old stats, use the *Update Stats* box in the Options Page.
+
+= 1.1.1 =
+* Made the install process lighter.
+
+= 1.1 =
+* Multisite compatibility added.
+
+= 1.0 =
+The plugin is highly derived from Monthly Post Counter, which has almost been re-written from scratch to optimize performance, include new tasty functions and carry many many bug and security fixes. Look has been restyled too, using wordpress metaboxes for the settings page.
+
+These the changes from the old Monthly Post Counter:
+* Added possibility to set different settings for each user. Stats which do involve different settings are shown only to the writer itself or the admins by default.
+* The admin can define permissions for old, overall and other's stats (general and detailed), csv exporting and special settings in countings.
+* The counting type can be chosen between visits and words (the latter used by default), and during the installation all the posts in database are selected and updated.
+* Two counting systems are now avaiable: the zones one and the unique payment one.
+* Stats time range is now customely selectable with a jQuery datepicker.
+* Added possibility to pay images after the first one with a little award.
+* The admin can define a set of trial settings that will be applied to new users.
+* The plugin now records the words number instead of the payment value, this allows the countings to be update immediately without any post-all update.
+* Tooltips added all over the options page.
+* Ability to update all the posts with a single action added in the options page.
+* A new box shows stats from the first published post, they are shown as "overall stats".
+* Cool jQuery effects added to show/hide options.
+* Improvements in csv encoding shortcomings.
+* Uninstall file added instead of the deactivation method.
+
+== Screenshots ==
+1. Post Pay Counter settings page
+2. Use the tooltips beside each field to know what you can do with them
+3. Post Pay Counter general stats (i.e. all author are shown). The provided datapicker allows to edit the time range and select the wished stats
+4. Post Pay Counter per author stats. Datapicker avaiable here, too
+5. The tooltip with all the counting details
