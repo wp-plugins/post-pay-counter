@@ -442,13 +442,13 @@ class post_pay_counter {
             echo PPC_HTML_functions::show_stats_page_header( $userdata->display_name, PPC_general_functions::get_the_author_link( $get_and_post['author'] ), $get_and_post['tstart'], $get_and_post['tend'] );
             
             if( ! $perm->can_see_others_detailed_stats() AND $current_user->ID != $get_and_post['author'] ) {
-                echo __( 'Error: you are not allowed to see this page' , 'post-pay-counter');
+                echo __( 'Error: you are not allowed to see this page.' , 'post-pay-counter');
                 return;
             }
             
             $stats = PPC_generate_stats::produce_stats( $get_and_post['tstart'], $get_and_post['tend'], array( $get_and_post['author'] ) );
             if( is_wp_error( $stats ) ) {
-                echo ( 'Error: '.$stats->get_error_message() );
+                echo ( $stats->get_error_message() );
                 return;
             }
             
@@ -475,7 +475,7 @@ class post_pay_counter {
             
             $stats = PPC_generate_stats::produce_stats( $get_and_post['tstart'], $get_and_post['tend'], $author );
             if( is_wp_error( $stats ) ) {
-                echo ( 'Error: '.$stats->get_error_message() );
+                echo ( $stats->get_error_message() );
                 return;
             }
             
@@ -492,6 +492,7 @@ class post_pay_counter {
         
         $overall_stats = PPC_generate_stats::get_overall_stats( $stats['raw_stats'] );
         echo PPC_HTML_functions::print_overall_stats( $overall_stats );
+        
         do_action( 'ppc_html_stats_after_overall_stats' );
     }
 }
