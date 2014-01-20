@@ -3,7 +3,7 @@ Contributors: Ste_95
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SM5Q9BVU4RT22
 Tags: counter, authors, payment, stats, multi author, post management, post
 Tested up to: 3.8
-Stable tag: 2.0.5
+Stable tag: 2.0.6
 Requires at least: 3.7
 
 Easily calculate and handle authors' pay on a multi-author blog by computing posts' remuneration basing on admin defined rules.
@@ -29,9 +29,13 @@ The Post Pay Counter plugin allows you to easily calculate and handle authors' p
 5. That's it, done! You can now check the stats page to browse all the countings.
 
 == Changelog ==
-= 2.0.5 =
+= 2.0.6 =
+
 **IMPORTANT NOTICE: If you have installed a version below 2.0, the plugin needs to be reinstalled** due to its different settings storage system and the availability of new features. Also, the **following features are currently missing**: post payment bonus, trial settings, csv esport, full multisite integration, word count in post list. They will be added soon. If you need one specifically, let me know in order to make up a priority list.
 
+* Fixed a bug in which detailed settings were showing all posts regardless of the user.
+
+= 2.0.5 =
 * Fixed a bug in which, when users weren't allowed to see others' general stats, no stats would be shown but "Array" would be displayed in every field.
 * Added update procedure (even though there's nothing to be updated yet but the version number)
 

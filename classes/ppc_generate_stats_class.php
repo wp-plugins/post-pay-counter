@@ -24,17 +24,18 @@ class PPC_generate_stats {
         $perm = new PPC_permissions();
         
         //If general stats & CU can't see others' general, behave as if detailed for him
-        if( ! $author AND ! $perm->can_see_others_general_stats() ) {
-            $requested_posts = PPC_generate_stats::get_requested_posts( $time_start, $time_end, array( $current_user->ID ) );
+        if( ! is_array( $author ) AND ! $perm->can_see_others_general_stats() ) {
+            $request_author = array( $current_user->ID );
         } else {
-            $requested_posts = PPC_generate_stats::get_requested_posts( $time_start, $time_end );
+            $request_author = $author;
         }
         
+        $requested_posts = PPC_generate_stats::get_requested_posts( $time_start, $time_end, $request_author );
         if( is_wp_error( $requested_posts ) ) {
             return $requested_posts;
         }
         
-        $cashed_requested_posts = PPC_counting_stuff::data2cash( $requested_posts, $author );
+        $cashed_requested_posts = PPC_counting_stuff::data2cash( $requested_posts, $request_author );
         if( is_wp_error( $cashed_requested_posts ) ) {
             return $cashed_requested_posts;
         }
