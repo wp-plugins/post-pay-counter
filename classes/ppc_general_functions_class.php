@@ -78,6 +78,7 @@ class PPC_general_functions {
         } else {
             $return = self::get_settings( 'general' );
         }
+        
         /*$ppc_global_settings['temp']['general_settings_options'] = $general_settings_options;
         $ppc_global_settings['temp']['user_settings_options'] = $user_settings_options;*/
         

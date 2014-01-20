@@ -19,8 +19,17 @@ class PPC_generate_stats {
     */
     
     static function produce_stats( $time_start, $time_end, $author = NULL ) {
+        global $current_user;
         
-        $requested_posts = PPC_generate_stats::get_requested_posts( $time_start, $time_end, $author );
+        $perm = new PPC_permissions();
+        
+        //If general stats & CU can't see others' general, behave as if detailed for him
+        if( ! $author AND ! $perm->can_see_others_general_stats() ) {
+            $requested_posts = PPC_generate_stats::get_requested_posts( $time_start, $time_end, array( $current_user->ID ) );
+        } else {
+            $requested_posts = PPC_generate_stats::get_requested_posts( $time_start, $time_end );
+        }
+        
         if( is_wp_error( $requested_posts ) ) {
             return $requested_posts;
         }

@@ -4,7 +4,7 @@ Plugin Name: Post Pay Counter
 Plugin URI: http://www.thecrowned.org/post-pay-counter
 Description: Easily calculate and handle authors' pay on a multi-author blog by computing posts' remuneration basing on admin defined rules. Define the time range you would like to have stats about, and the plugin will do the rest.
 Author: Stefano Ottolenghi
-Version: 2.0.4
+Version: 2.0.5
 Author URI: http://www.thecrowned.org/
 */
 
@@ -37,6 +37,7 @@ require_once( 'classes/ppc_ajax_functions_class.php' );
 require_once( 'classes/ppc_install_functions_class.php' );
 require_once( 'classes/ppc_permissions_class.php' );
 require_once( 'classes/ppc_meta_boxes_class.php' );
+require_once( 'classes/ppc_update_class.php' );
 
 class post_pay_counter {
     public static $options_page_settings;
@@ -46,7 +47,7 @@ class post_pay_counter {
         global $ppc_global_settings;
         
         $ppc_global_settings['current_version'] = get_option( 'ppc_current_version' );
-        $ppc_global_settings['newest_version'] = '2.0.4';
+        $ppc_global_settings['newest_version'] = '2.0.5';
         $ppc_global_settings['option_name'] = 'ppc_settings';
         $ppc_global_settings['folder_path'] = plugins_url( '/', __FILE__ );
         $ppc_global_settings['options_menu_link'] = 'admin.php?page=post_pay_counter_options';
@@ -54,17 +55,18 @@ class post_pay_counter {
         $ppc_global_settings['cap_manage_options'] = 'post_pay_counter_manage_options';
         $ppc_global_settings['cap_access_stats'] = 'post_pay_counter_access_stats';
         $ppc_global_settings['temp'] = array( 'settings' => array() );
-        $ppc_global_settings['general_settings'] = PPC_general_functions::get_settings( 'general' );
         
-        //If current_version option does not exist or is DIFFERENT from the latest release number, launch the update procedures. If update is run, also updates all the class variables and the option in the db
-        /*if( ! ( self::$ppc_current_version = get_option( 'ppc_current_version' ) ) OR self::$ppc_current_version != self::$ppc_newest_version ) {
-            post_pay_counter_update_procedures::update();
-            post_pay_counter_functions_class::options_changed_vars_update_to_reflect( TRUE );
-            post_pay_counter_functions_class::manage_cap_allowed_user_groups_plugin_pages( self::$allowed_user_roles_options_page, self::$allowed_user_roles_stats_page );
-            update_option( 'ppc_current_version', self::$ppc_newest_version );
-            self::$ppc_current_version = self::$ppc_newest_version;
-            echo '<div id="message" class="updated fade"><p><strong>Post Pay Counter was successfully updated to version '.self::$ppc_current_version.'.</strong> Want to have a look at the <a href="'.admin_url( self::$options_menu_link ).'" title="Go to Options page">Options page</a>, or at the <a href="http://wordpress.org/extend/plugins/post-pay-counter/changelog/" title="Go to Changelog">Changelog</a>?</p></div>';
-        }*/
+        //If current_version option is DIFFERENT from the latest release number, launch the update procedure.
+        if( $ppc_global_settings['current_version'] != $ppc_global_settings['newest_version'] ) {
+            PPC_update_class::update();
+            $ppc_global_settings['current_version'] = $ppc_global_settings['newest_version'];
+            
+            do_action( 'ppc_updated' );
+            
+            echo '<div id="message" class="updated fade"><p>'.sprintf( __( 'Post Pay Counter was successfully updated to version %1$s. Want to have a look at the %2$sOptions page%3$s, or at the %4$schangelog%3$s?' ), $ppc_global_settings['newest_version'], '<a href="'.admin_url( $ppc_global_settings['options_menu_link'] ).'" title="'.__( 'Go to Options page' ).'">', '</a>', '<a href="http://wordpress.org/extend/plugins/post-pay-counter/changelog/" title="'.__( 'Go to changelog' ).'">' ).'</p></div>';
+        }
+        
+        $ppc_global_settings['general_settings'] = PPC_general_functions::get_settings( 'general' );
         
         //If debug is requested, print a lot of debug stuff that should allow me to troubleshoot any problem users may encounter
         /*if( self::POST_PAY_COUNTER_DEBUG == TRUE ) {
@@ -466,14 +468,7 @@ class post_pay_counter {
         } else {
             echo PPC_HTML_functions::show_stats_page_header( __( 'General' , 'post-pay-counter'), admin_url( $ppc_global_settings['stats_menu_link'].'&amp;tstart='.$get_and_post['tstart'].'&amp;tend='.$get_and_post['tend'] ), $get_and_post['tstart'], $get_and_post['tend'] );
             
-            //If CU can't see others' general, behave as if detailed for him
-            if( ! $perm->can_see_others_general_stats() ) {
-                $author = array( $current_user->ID );
-            } else {
-                $author = NULL;
-            }
-            
-            $stats = PPC_generate_stats::produce_stats( $get_and_post['tstart'], $get_and_post['tend'], $author );
+            $stats = PPC_generate_stats::produce_stats( $get_and_post['tstart'], $get_and_post['tend'] );
             if( is_wp_error( $stats ) ) {
                 echo ( $stats->get_error_message() );
                 return;
