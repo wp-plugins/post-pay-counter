@@ -6,18 +6,18 @@ Tested up to: 3.8
 Stable tag: 2.0.6
 Requires at least: 3.7
 
-Easily calculate and handle authors' pay on a multi-author blog by computing posts' remuneration basing on admin defined rules.
+Easily handle authors' pay on a multi-author blog by computing posts' remuneration basing on admin defined rules.
 
 == Description ==
 The Post Pay Counter plugin allows you to easily calculate and handle authors' pay on a multi-author blog by computing posts' remuneration basing on admin defined rules. The administrator can specify criteria upon which payments should be computed and the results are immediately viewable from the related stats page. Both a general view with all users and a specific one for a author are possible.
 
 **IMPORTANT NOTICE: Version 2.0 or later needs to be reinstalled, if you had a previous version. Also, the following features are currently missing**: post payment bonus, trial settings, csv esport, full multisite integration, word count in post list. They will be added soon. If you need one specifically, let me know in order to make up a priority list.
 
-* Pay per word, visit, image and comment. They are not mutually exclusive.
+* Pay per post, word, visit, image and comment. They are not mutually exclusive.
 * Pay with an incremental system (eg. each word is €0.01 => 100 words = €1) or with a zonal one (eg. from 200 to 300 words/visits it’s €2.00, up to 10 zones).
 * Old stats avaiability. View posts countings since the first written post, disregarding the plugin install date. A fancy date picker lets you shift between days and select the desired range.
 * Personalize user's settings, so that special settings only apply to a particular user. Different settings can be made viewable in the stats or hidden depending on your needs.
-* Highly customizable permissions to prevent your users to see stats and use functions they are not supposed to.
+* Customizable permissions to prevent your users to see stats and use functions they are not supposed to.
 * And... works with custom post types, narrow your payments only to chosen user groups, and more.
 
 [youtube https://www.youtube.com/watch?v=mSFjvR-2zCI]
@@ -29,10 +29,19 @@ The Post Pay Counter plugin allows you to easily calculate and handle authors' p
 5. That's it, done! You can now check the stats page to browse all the countings.
 
 == Changelog ==
-= 2.0.6 =
-
+= 2.0.7 =
 **IMPORTANT NOTICE: If you have installed a version below 2.0, the plugin needs to be reinstalled** due to its different settings storage system and the availability of new features. Also, the **following features are currently missing**: post payment bonus, trial settings, csv esport, full multisite integration, word count in post list. They will be added soon. If you need one specifically, let me know in order to make up a priority list.
 
+* Update class only loaded if update is going to be run.
+* Added link in detailed stats to go back to general stats.
+
+*Under the hood:*
+
+* Stats data are hold in subarrays: normal_countings, normal_payment and tooltip_normal_payment.
+* Default stats time range now selected by an apt function.
+* format_stats_for_output returns array('cols' => array(), 'stats => array()).
+
+= 2.0.6 =
 * Fixed a bug in which detailed settings were showing all posts regardless of the user.
 
 = 2.0.5 =

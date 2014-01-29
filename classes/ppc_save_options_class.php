@@ -105,7 +105,7 @@ class PPC_save_options {
         
         $default_stats_time_range = PPC_options_fields::get_radio_value( $settings['default_stats_time_range'], 'default_stats_time_range_month', 'default_stats_time_range_week', 'default_stats_time_range_custom' ); 
         $new_settings = array_merge( $new_settings, $default_stats_time_range );
-        $new_settings['default_stats_time_range_custom_value'] = $settings['default_stats_time_range_custom_value'];
+        $new_settings['default_stats_time_range_custom_value'] = (int) $settings['default_stats_time_range_custom_value'];
         
         foreach( $settings as $option => $value ) {
             

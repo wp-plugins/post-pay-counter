@@ -32,3 +32,29 @@
     border-bottom: 1px dotted; 
     color: #000000;
 }
+#ppc_stats_header {
+	height: 50px;
+}
+#ppc_stats_header_datepicker {
+	float: left; 
+	text-align: left;
+}
+#ppc_stats_header_datepicker h3 {
+	margin: 10px 0px 5px;
+}
+#ppc_stats_header_features {
+	float: right; 
+	text-align: right;
+	width: 30%;
+}
+#ppc_stats_header_features a {
+	font-size: smaller;
+}
+#ppc_stats_header_links {
+    float: right;
+	height: 100%;
+	border-left: 1px solid;
+    border-color: #ccc;
+	margin-left: 5%;
+	padding-left: 5%;
+}

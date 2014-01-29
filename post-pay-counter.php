@@ -1,10 +1,10 @@
 <?php
 /*
 Plugin Name: Post Pay Counter
-Plugin URI: http://www.thecrowned.org/post-pay-counter
-Description: Easily calculate and handle authors' pay on a multi-author blog by computing posts' remuneration basing on admin defined rules. Define the time range you would like to have stats about, and the plugin will do the rest.
+Plugin URI: http://www.thecrowned.org/wordpress-plugins/post-pay-counter
+Description: Easily handle authors' pay on a multi-author blog by computing posts' remuneration basing on admin defined rules. Define the time range you would like to have stats about, and the plugin will do the rest.
 Author: Stefano Ottolenghi
-Version: 2.0.6
+Version: 2.0.7
 Author URI: http://www.thecrowned.org/
 */
 
@@ -37,17 +37,15 @@ require_once( 'classes/ppc_ajax_functions_class.php' );
 require_once( 'classes/ppc_install_functions_class.php' );
 require_once( 'classes/ppc_permissions_class.php' );
 require_once( 'classes/ppc_meta_boxes_class.php' );
-require_once( 'classes/ppc_update_class.php' );
 
 class post_pay_counter {
     public static $options_page_settings;
-    //const POST_PAY_COUNTER_DEBUG = FALSE;
     
     function __construct() {
         global $ppc_global_settings;
         
         $ppc_global_settings['current_version'] = get_option( 'ppc_current_version' );
-        $ppc_global_settings['newest_version'] = '2.0.6';
+        $ppc_global_settings['newest_version'] = '2.0.7';
         $ppc_global_settings['option_name'] = 'ppc_settings';
         $ppc_global_settings['folder_path'] = plugins_url( '/', __FILE__ );
         $ppc_global_settings['options_menu_link'] = 'admin.php?page=post_pay_counter_options';
@@ -58,6 +56,8 @@ class post_pay_counter {
         
         //If current_version option is DIFFERENT from the latest release number, launch the update procedure.
         if( $ppc_global_settings['current_version'] != $ppc_global_settings['newest_version'] ) {
+            require_once( 'classes/ppc_update_class.php' );
+            
             PPC_update_class::update();
             $ppc_global_settings['current_version'] = $ppc_global_settings['newest_version'];
             
@@ -67,16 +67,6 @@ class post_pay_counter {
         }
         
         $ppc_global_settings['general_settings'] = PPC_general_functions::get_settings( 'general' );
-        
-        //If debug is requested, print a lot of debug stuff that should allow me to troubleshoot any problem users may encounter
-        /*if( self::POST_PAY_COUNTER_DEBUG == TRUE ) {
-            echo 'PHP Version: '.phpversion().'<br />';
-            echo 'Installed plugin version: '.$ppc_global_settings['ppc_current_version'].'<br />';
-            echo 'General settings object: ';var_dump( $ppc_global_settings['general_settings'] );
-            echo 'PPC class vars: ';var_dump( $ppc_global_settings );
-            echo 'WP Permissions: ',var_dump( get_option( 'wp_user_roles' ) );
-            echo 'PPC install errors: ';var_dump( get_option( 'ppc_install_error' ) );
-        }*/
         
         //Add left menu entries for both stats and options pages
         add_action( 'admin_menu', array( &$this, 'post_pay_counter_admin_menus' ) );
@@ -89,8 +79,8 @@ class post_pay_counter {
         add_action( 'wpmu_new_blog', array( 'PPC_install_functions', 'ppc_new_blog_install' ), 10, 6);
         
         //On load plugin pages
-        add_action( 'load-post-pay-counter_page_post_pay_counter_options', array( &$this, 'on_load_options_page_get_settings' ), 9 );
-        add_action( 'load-post-pay-counter_page_post_pay_counter_options', array( &$this, 'on_load_options_page_enqueue' ), 10 );
+        add_action( 'load-post-pay-counter_page_post_pay_counter_options', array( &$this, 'on_load_options_page_get_settings' ), 1 );
+        add_action( 'load-post-pay-counter_page_post_pay_counter_options', array( &$this, 'on_load_options_page_enqueue' ), 2 );
         add_action( 'load-toplevel_page_post_pay_counter_show_stats', array( &$this, 'on_load_stats_page' ) );
         //add_action( 'load-toplevel_page_post_pay_counter_show_network_stats', array( &$this, 'on_load_stats_page' ) );
         
@@ -215,6 +205,8 @@ class post_pay_counter {
             'localized_too_few_zones' => __( 'No less than 2 zones are allowed.' , 'post-pay-counter'),
             'localized_need_threshold' => __( 'A payment threshold must first be set.' , 'post-pay-counter')
         ) );
+        
+        do_action( 'ppc_on_load_options_page', @$_GET['userid'] );
     }
     
     /**
@@ -311,7 +303,7 @@ class post_pay_counter {
     
     function ppc_donate_meta_link( $links, $file ) {
        if( $file == plugin_basename( __FILE__ ) ) {
-            $links[] = '<a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=7UH3J3CLVHP8L" title="'.__('Donate', 'post-pay-counter').'">'.__('Donate', 'post-pay-counter').'</a>';
+            $links[] = '<a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SM5Q9BVU4RT22" title="'.__('Donate', 'post-pay-counter').'">'.__('Donate', 'post-pay-counter').'</a>';
        }
      
         return $links;
@@ -362,7 +354,7 @@ class post_pay_counter {
         echo '<div class="wrap">';
         echo '<div style="float: right; color: #777; margin-top: 15px;">'.apply_filters( 'ppc_options_installed_version', __( 'Installed version' , 'post-pay-counter').': '.$ppc_global_settings['current_version'] ).'</div>';
         echo '<h2>Post Pay Counter '.__( 'Options' , 'post-pay-counter').'</h2>';
-        echo '<div style="clear: both;"></div>';
+        echo '<div class="clear"></div>';
         echo '<p>'.__( 'From this page you can configure the Post Pay Counter plugin. You will find all the information you need inside each following box and, for every available function, clicking on the info icon on the right of them.' , 'post-pay-counter').'</p>';         
         
         if( is_numeric( self::$options_page_settings['userid'] ) ) {
@@ -377,20 +369,24 @@ class post_pay_counter {
         do_action( 'ppc_html_options_before_boxes' );
         
         wp_nonce_field( 'closedpostboxes', 'closedpostboxesnonce', false );
-        wp_nonce_field( 'meta-box-order', 'meta-box-order-nonce', false ); ?>
+        wp_nonce_field( 'meta-box-order', 'meta-box-order-nonce', false );
         
-            <div id="poststuff" class="metabox-holder has-right-sidebar">
-                <div id="post-body" class="has-sidebar">
-                    <div id="post-body-content" class="has-sidebar-content">
-            	<?php do_meta_boxes( $ppc_global_settings['options_menu_slug'], 'normal', null ); ?>
-                    </div>
-                </div>
-                <div id="side-info-column" class="inner-sidebar">
-            	<?php do_meta_boxes( $ppc_global_settings['options_menu_slug'], 'side', null ); ?>
-                </div>
-            </div>
-        </div>
-    <?php }
+        echo '<div id="poststuff" class="metabox-holder has-right-sidebar">';
+        echo '<div id="post-body" class="has-sidebar">';
+        echo '<div id="post-body-content" class="has-sidebar-content">';
+        
+        do_meta_boxes( $ppc_global_settings['options_menu_slug'], 'normal', null );
+        
+        echo '</div>';
+        echo '</div>';
+        echo '<div id="side-info-column" class="inner-sidebar">';
+        
+        do_meta_boxes( $ppc_global_settings['options_menu_slug'], 'side', null );
+        
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+    }
     
     /**
      * Shows the Stats page.
@@ -404,60 +400,53 @@ class post_pay_counter {
         $general_settings = PPC_general_functions::get_settings( 'general' );
         $perm = new PPC_permissions();
         
-        //Define default stats time range depending on chosen settings: if monthly it depends on current month days number, weekly always 7, otherwise custom
-        if( $general_settings['default_stats_time_range_week'] == 1 ) {
-            $ppc_global_settings['default_stats_tstart'] = time() - ( ( date( 'N' )-1 )*24*60*60 );
-            $ppc_global_settings['default_stats_tend'] = time();
-        } else if( $general_settings['default_stats_time_range_month'] == 1 ) {
-            $ppc_global_settings['default_stats_tstart'] = time() - ( ( date( 'j' )-1 )*24*60*60 );
-            $ppc_global_settings['default_stats_tend'] = time();
-        } else if( $general_settings['default_stats_time_range_custom'] == 1 ) {
-            $ppc_global_settings['default_stats_tstart'] = time() - ( $general_settings['default_stats_time_range_custom_value']*24*60*60 );
-            $ppc_global_settings['default_stats_tend'] = time();
-        }
+        PPC_general_functions::get_default_stats_time_range( $general_settings );
         
-        //Merging _GET and _POST data due to the time range form available in the stats page header. Don't know whether the user is choosing the time frame from the form (POST) or arrived following a link (GET)
+        //Merging _GET and _POST data due to the time range form in the stats page. Don't know whether the user is choosing the time frame from the form (POST) or arrived following a link (GET)
         $get_and_post = array_merge( $_GET, $_POST );
         
-        //Validate time range values (start and end), if set. They must be isset, numeric and positive. 
-        //If something's wrong, start and end time are taken from the default settings the user set (publication time range) and defined in the construct
+        //Validate time range values (start and end), if set. They must be isset, numeric and positive. If something's wrong, start and end time are taken from the default publication time range
         if( ( isset( $get_and_post['tstart'] ) AND ( ! is_numeric( $get_and_post['tstart'] ) OR $get_and_post['tstart'] < 0 ) )
         OR ( isset( $get_and_post['tend'] ) AND ( ! is_numeric( $get_and_post['tend'] ) OR $get_and_post['tend'] < 0 ) ) ) {
-            $get_and_post['tstart'] = strtotime( $get_and_post['tstart'].' 00:00:01' );
-            $get_and_post['tend']   = strtotime( $get_and_post['tend'].' 23:59:59' );
+            $get_and_post['tstart'] = strtotime( $get_and_post['tstart'].' 00:00:00' );
+            $get_and_post['tend']   = strtotime( $get_and_post['tend'].' '.date( 'h:m:s' ) );
         } else if ( ! isset( $get_and_post['tstart'] ) OR ! isset( $get_and_post['tend'] ) ) {
-            $get_and_post['tstart'] = mktime( 0, 0, 1, date( 'm', $ppc_global_settings['default_stats_tstart'] ), date( 'd', $ppc_global_settings['default_stats_tstart'] ), date( 'Y', $ppc_global_settings['default_stats_tstart'] ) );
-            $get_and_post['tend']   = mktime( 23, 59, 59, date( 'm', $ppc_global_settings['default_stats_tend'] ), date( 'd', $ppc_global_settings['default_stats_tend'] ), date( 'Y', $ppc_global_settings['default_stats_tend'] ) );
+            $get_and_post['tstart'] = $ppc_global_settings['stats_tstart'];
+            $get_and_post['tend']   = $ppc_global_settings['stats_tend'];
         }
-        $ppc_global_settings['temp']['tstart'] = apply_filters( 'ppc_stats_defined_time_start', $get_and_post['tstart'] );
-        $ppc_global_settings['temp']['tend'] = apply_filters( 'ppc_stats_defined_time_end', $get_and_post['tend'] );
+        $ppc_global_settings['stats_tstart'] = apply_filters( 'ppc_stats_defined_time_start', $get_and_post['tstart'] );
+        $ppc_global_settings['stats_tend'] = apply_filters( 'ppc_stats_defined_time_end', $get_and_post['tend'] );
         
-        //CSV file exporting feature
-        //if( isset( $get_and_post['export'] ) AND $get_and_post['export'] == 'csv' AND ( $current_user->user_level >= 7 OR $current_user_settings->can_csv_export == 1 ) )
-            //post_pay_counter_functions_class::csv_export( @$get_and_post['author'], @$get_and_post['tstart'], @$get_and_post['tend'] );
+        if( isset( $get_and_post['author'] ) AND is_numeric( $get_and_post['author'] ) AND $userdata = get_userdata( $get_and_post['author'] ) ) {
+            $author = array( $get_and_post['author'] );
+        } else {
+            $author = NULL;  
+        }
+        
+        do_action( 'ppc_before_stats_html', $author );
         
         echo '<div class="wrap">';
         echo '<h2>'.__( 'Post Pay Counter Stats' , 'post-pay-counter').'</h2>';
         
-        //AUTHOR
-        if( isset( $get_and_post['author'] ) AND is_numeric( $get_and_post['author'] ) AND $userdata = get_userdata( $get_and_post['author'] ) ) {
-            echo PPC_HTML_functions::show_stats_page_header( $userdata->display_name, PPC_general_functions::get_the_author_link( $get_and_post['author'] ), $get_and_post['tstart'], $get_and_post['tend'] );
+        //AUTHOR STATS
+        if( is_array( $author) ) {
+            echo PPC_HTML_functions::show_stats_page_header( $userdata->display_name, PPC_general_functions::get_the_author_link( $author[0] ) );
             
-            if( ! $perm->can_see_others_detailed_stats() AND $current_user->ID != $get_and_post['author'] ) {
+            if( ! $perm->can_see_others_detailed_stats() AND $current_user->ID != $author[0] ) {
                 echo __( 'Error: you are not allowed to see this page.' , 'post-pay-counter');
                 return;
             }
             
-            $stats = PPC_generate_stats::produce_stats( $get_and_post['tstart'], $get_and_post['tend'], array( $get_and_post['author'] ) );
+            $stats = PPC_generate_stats::produce_stats( $ppc_global_settings['stats_tstart'], $ppc_global_settings['stats_tend'], $author );
             if( is_wp_error( $stats ) ) {
-                echo ( $stats->get_error_message() );
+                echo $stats->get_error_message();
                 return;
             }
             
             do_action( 'ppc_html_stats_author_before_stats_form' );
             
             echo '<form action="#" method="post" id="ppc_stats">';
-            echo PPC_HTML_functions::get_html_stats( $stats['formatted_stats'], $stats['raw_stats'], array( $get_and_post['author'] ) );
+            echo PPC_HTML_functions::get_html_stats( $stats['formatted_stats'], $stats['raw_stats'], $author );
             echo '</form>';
             
             do_action( 'ppc_html_stats_author_after_stats_form' );
@@ -466,11 +455,11 @@ class post_pay_counter {
             
         //GENERAL STATS
         } else {
-            echo PPC_HTML_functions::show_stats_page_header( __( 'General' , 'post-pay-counter'), admin_url( $ppc_global_settings['stats_menu_link'].'&amp;tstart='.$get_and_post['tstart'].'&amp;tend='.$get_and_post['tend'] ), $get_and_post['tstart'], $get_and_post['tend'] );
+            echo PPC_HTML_functions::show_stats_page_header( __( 'General' , 'post-pay-counter'), admin_url( $ppc_global_settings['stats_menu_link'].'&amp;tstart='.$ppc_global_settings['stats_tstart'].'&amp;tend='.$ppc_global_settings['stats_tend'] ) );
             
-            $stats = PPC_generate_stats::produce_stats( $get_and_post['tstart'], $get_and_post['tend'] );
+            $stats = PPC_generate_stats::produce_stats( $ppc_global_settings['stats_tstart'], $ppc_global_settings['stats_tend'] );
             if( is_wp_error( $stats ) ) {
-                echo ( $stats->get_error_message() );
+                echo $stats->get_error_message();
                 return;
             }
             

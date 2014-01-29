@@ -239,7 +239,7 @@ class PPC_general_functions {
     static function get_the_author_link( $author_id ) {
         global $ppc_global_settings;
         
-        return apply_filters( 'ppc_get_author_link', admin_url( $ppc_global_settings['stats_menu_link'].'&amp;author='.$author_id.'&amp;tstart='.$ppc_global_settings['temp']['tstart'].'&amp;tend='.$ppc_global_settings['temp']['tend'] ) );
+        return apply_filters( 'ppc_get_author_link', admin_url( $ppc_global_settings['stats_menu_link'].'&amp;author='.$author_id.'&amp;tstart='.$ppc_global_settings['stats_tstart'].'&amp;tend='.$ppc_global_settings['stats_tend'] ) );
     }
     
     /**
@@ -248,7 +248,7 @@ class PPC_general_functions {
      * Called when updating settings and updating/installing.
      *
      * @access  public
-     * @since   2.0
+     * @since   2.0.4
      * @param   $allowed_user_roles_options_page array user roles allowed to see plugin options
      * @param   $allowed_user_roles_stats_page array user roles allowed to see plugin stats
     */
@@ -300,6 +300,30 @@ class PPC_general_functions {
                 $current_role->remove_cap( $ppc_global_settings['cap_access_stats'] );
             }
         }
+    }
+    
+    /**
+     * Defines default stats time range depending on chosen settings.
+     * 
+     * Stores settings in plugin's global var.
+     *
+     * @access  public
+     * @since   2.1
+     * @param   $settings array plugin settings
+    */
+    
+    static function get_default_stats_time_range( $settings ) {
+        global $ppc_global_settings;
+        
+        if( $settings['default_stats_time_range_week'] == 1 ) {
+            $ppc_global_settings['stats_tstart'] = strtotime( '00:00:00' ) - ( ( date( 'N' )-1 )*24*60*60 );
+        } else if( $settings['default_stats_time_range_month'] == 1 ) {
+            $ppc_global_settings['stats_tstart'] = strtotime( '00:00:00' ) - ( ( date( 'j' )-1 )*24*60*60 );
+        } else if( $settings['default_stats_time_range_custom'] == 1 ) {
+            $ppc_global_settings['stats_tstart'] = strtotime( '00:00:00' ) - ( $settings['default_stats_time_range_custom_value']*24*60*60 );
+        }
+        
+        $ppc_global_settings['stats_tend'] = time();
     }
 }
 ?>

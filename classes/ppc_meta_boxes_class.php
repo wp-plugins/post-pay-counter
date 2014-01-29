@@ -19,7 +19,9 @@ class PPC_meta_boxes {
     static function meta_box_pro_features() { 
         $pro_features = array(
             __( 'Google Analytics' , 'post-pay-counter') => __( 'use your account on the world-leading website visits tracking system to pay writers also basing on how many times their posts were seen.' , 'post-pay-counter'),
-            __( 'PayPal' , 'post-pay-counter') => __( 'pay your writers without leaving your website and benefit from a handy and detailed payment history. Let the plugin keep track of how much each writer should be paid basing on past payments.' , 'post-pay-counter'),
+            __( 'Mark as paid' , 'post-pay-counter') => __( 'keep track of your writers\' past payments by marking post as paid and reviewing payments from a detailed payment history. Let the plugin keep track of how much each writer should be paid basing on past payments.' , 'post-pay-counter'),
+            __( 'Csv export', 'post-pay-counter') => __( 'download stats for offline consulting or storing.' , 'post-pay-counter' ),
+            __( 'Shortcode', 'post-pay-counter' ) => __( 'put stats in public static pages and wherever suits your needs.', 'post-pay-counter' ),
             __( 'Valid forever' , 'post-pay-counter') => __( 'buy a license, and it will be yours forever - no renewal or whatever! And you still get updates!' , 'post-pay-counter')
         );
         
@@ -77,11 +79,10 @@ class PPC_meta_boxes {
                 $checked = 'checked="checked"';
             }
                 
-            echo '<p style="height: 11px;">';
-            echo '<label for="post_type_'.$single.'">';
-            echo '<input type="checkbox" name="post_type_'.$single.'" id="post_type_'.$single.'" value="'.$single.'" '.$checked.' /> '.ucfirst( $single );
-            echo '</label>';
-            echo '</p>';
+            echo '<input type="checkbox" name="post_type_'.$single.'" id="post_type_'.$single.'" value="'.$single.'" '.$checked.' />';
+            echo '<label for="post_type_'.$single.'">'.ucfirst( $single ).'</label>';
+            echo '<br />';
+            
         }
         do_action( 'ppc_misc_settings_after_allowed_post_types', $current_settings );
         
@@ -95,11 +96,9 @@ class PPC_meta_boxes {
                 $checked = 'checked="checked"';
             }
             
-            echo '<p style="height: 11px;">';
-            echo '<label for="user_role_'.$key.'">';
-            echo '<input type="checkbox" name="user_role_'.$key.'" id="user_role_'.$key.'" value="'.$key.'" '.$checked.' /> '.$value;
-            echo '</label>';
-            echo '</p>';
+            echo '<input type="checkbox" name="user_role_'.$key.'" id="user_role_'.$key.'" value="'.$key.'" '.$checked.' />';
+            echo '<label for="user_role_'.$key.'">'.$value.'</label>';
+            echo '<br />';
         }
         do_action( 'ppc_misc_settings_after_allowed_user_roles', $current_settings );
         
@@ -109,7 +108,10 @@ class PPC_meta_boxes {
             if( in_array( $key, $current_settings['can_see_options_user_roles'] ) )
                 $checked = ' checked="checked"';
             
-            echo '<p style="height: 11px;"><label><input type="checkbox" name="can_see_options_user_roles_'.$key.'" value="'.$key.'"'.@$checked.'> '.$value.'</label></p>';
+            echo '<input type="checkbox" name="can_see_options_user_roles_'.$key.'" id="can_see_options_user_roles_'.$key.'" value="'.$key.'"'.@$checked.'>';
+            echo '<label for="can_see_options_user_roles_'.$key.'">'.$value.'</label>';
+            echo '<br />';
+            
             unset( $checked );
         }
         do_action( 'ppc_misc_settings_after_options_allowed_user_roles', $current_settings );
@@ -122,7 +124,9 @@ class PPC_meta_boxes {
                 $checked = ' checked="checked"';
             }
             
-            echo '<p style="height: 11px;"><label><input type="checkbox" name="can_see_stats_user_roles_'.$key.'" value="'.$key.'"'.$checked.'> '.$value.'</label></p>';
+            echo '<input type="checkbox" name="can_see_stats_user_roles_'.$key.'" id="can_see_stats_user_roles_'.$key.'" value="'.$key.'"'.@$checked.'>';
+            echo '<label for="can_see_stats_user_roles_'.$key.'">'.$value.'</label>';
+            echo '<br />';
         }
         do_action( 'ppc_misc_settings_after_stats_allowed_user_roles', $current_settings );
         
@@ -134,6 +138,7 @@ class PPC_meta_boxes {
         echo '<div id="default_stats_time_range_custom_content" class="section">';
         echo PPC_HTML_functions::echo_text_field( 'default_stats_time_range_custom_value', $current_settings['default_stats_time_range_custom_value'], __( 'The desired time range (days)' , 'post-pay-counter') );
         echo '</div>';
+        
         do_action( 'ppc_misc_settings_after_default_time_range', $current_settings );
         ?>
         

@@ -137,6 +137,7 @@ class PPC_ajax_functions {
     function vaporize_user_settings() {
         global $ppc_global_settings;
         self::ppc_check_ajax_referer( 'ppc_vaporize_user_settings' );
+        
         $user_id = (int) $_REQUEST['user_id'];
         
         if( is_int( $user_id ) ) {

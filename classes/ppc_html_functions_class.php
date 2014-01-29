@@ -16,47 +16,54 @@ class PPC_HTML_functions {
      * @since   2.0
      * @param   $current_page string current page title
      * @param   $page_permalink string current page permalink
-     * @param   $current_time_start int stats time start
-     * @param   $current_time_end int stats time end
     */
     
-    function show_stats_page_header( $current_page, $page_permalink, $current_time_start, $current_time_end ) {
+    function show_stats_page_header( $current_page, $page_permalink ) {
         global $ppc_global_settings;
-		?>
 
-<form action="" method="post">
-    <span style="float: left; text-align: center;">
-        <h3 style="margin: 10px 0 5px;">
-            <?php echo sprintf( __( 'Showing stats from %1$s to %2$s' , 'post-pay-counter'), '<input type="text" name="tstart" id="post_pay_counter_time_start" class="mydatepicker" value="'.date( 'Y/m/d', $ppc_global_settings['temp']['tstart'] ).'" accesskey="'.$ppc_global_settings['temp']['tstart'].'" size="8" />', '<input type="text" name="tend" id="post_pay_counter_time_end" class="mydatepicker" value="'.date( 'Y/m/d', $ppc_global_settings['temp']['tend'] ).'" accesskey="'.$ppc_global_settings['temp']['tend'].'" size="8" />' ).' - "'.$current_page.'"'; ?>
-        </h3>
-    </span>
-    <span style="float: right; text-align: center;">
-        <input type="submit" class="button-secondary" name="post_pay_counter_submit" value="<?php _e( 'Update time range' , 'post-pay-counter') ?>" /><br />
-        <a href="<?php echo $page_permalink; ?>" title="<?php _e( 'Get current view permalink' , 'post-pay-counter'); ?>" style="font-size: smaller;"><?php _e( 'Get current view permalink' , 'post-pay-counter'); ?></a>
-    </span>
-</form>
-<div class="clear"></div>
-<hr class="ppc_hr_divider" />
-    <?php }
+        echo '<form action="" method="post">';
+        echo '<div id="ppc_stats_header">';
+        
+        echo '<div id="ppc_stats_header_datepicker">';
+        echo '<h3>';
+        echo sprintf( __( 'Showing stats from %1$s to %2$s' , 'post-pay-counter'), '<input type="text" name="tstart" id="post_pay_counter_time_start" class="mydatepicker" value="'.date( 'Y/m/d', $ppc_global_settings['stats_tstart'] ).'" accesskey="'.$ppc_global_settings['stats_tstart'].'" size="8" />', '<input type="text" name="tend" id="post_pay_counter_time_end" class="mydatepicker" value="'.date( 'Y/m/d', $ppc_global_settings['stats_tend'] ).'" accesskey="'.$ppc_global_settings['stats_tend'].'" size="8" />' ).' - "'.$current_page.'"';
+        echo '</h3>';
+        echo '</div>';
+        
+        echo '<div id="ppc_stats_header_features">';
+        echo '<span id="ppc_stats_header_links">';
+        echo '<a href="'.admin_url( $ppc_global_settings['stats_menu_link'].'&amp;tstart='.$ppc_global_settings['stats_tstart'].'&amp;tend='.$ppc_global_settings['stats_tend'] ).'" title="'.__( 'Back to general' , 'post-pay-counter').'">'.__( 'Back to general' , 'post-pay-counter').'</a>';
+        
+        do_action( 'ppc_stats_header_links', $page_permalink );
+        
+        echo '</span>';
+        echo '<input type="submit" class="button-secondary" name="post_pay_counter_submit" value="'.__( 'Update time range' , 'post-pay-counter').'" /><br />';
+        echo '<a href="'.$page_permalink.'" title="'.__( 'Get current view permalink' , 'post-pay-counter').'">'.__( 'Get current view permalink' , 'post-pay-counter').'</a>';
+        echo '</div>';
+
+        echo '</form>';
+        echo '<div class="clear"></div>';
+        echo '<hr class="ppc_hr_divider" />';
+    }
     
     /**
      * Shows HTML stats.
      *
      * @access  public
      * @since   2.0
-     * @param   $formatted_data array formatted stats
-     * @param   $raw_data array ordered-by-author stats
+     * @param   $formatted_stats array formatted stats
+     * @param   $raw_stats array ordered-by-author stats
      * @param   $author array optional whether detailed stats
     */
     
-    function get_html_stats( $formatted_data, $raw_data, $author = NULL ) {
-        global $current_user;
+    function get_html_stats( $formatted_stats, $raw_stats, $author = NULL ) {
+        global $current_user, $ppc_global_settings;
         $perm = new PPC_permissions();
         
         echo '<table class="widefat fixed" id="ppc_stats_table">';
         echo '<thead>';
         echo '<tr>';
-        foreach( $formatted_data['cols'] as $col_id => $value ) { //cols are the same both for general and user
+        foreach( $formatted_stats['cols'] as $col_id => $value ) { //cols work the same both for general and user
             echo '<th scope="col">'.$value.'</th>';
         }
         
@@ -71,14 +78,14 @@ class PPC_HTML_functions {
         
         echo '<tfoot>';
         echo '<tr>';
-        foreach( $formatted_data['cols'] as $col_id => $value ) {
+        foreach( $formatted_stats['cols'] as $col_id => $value ) {
             echo '<th scope="col">'.$value.'</th>';
         }
         
         if( is_array( $author ) ) {
-            do_action( 'ppc_general_stats_html_cols_after_default' );
-        } else {
             do_action( 'ppc_author_stats_html_cols_after_default' );
+        } else {
+            do_action( 'ppc_general_stats_html_cols_after_default' );
         }
         
         echo '</tr>';
@@ -87,68 +94,65 @@ class PPC_HTML_functions {
         echo '<tbody>';
         
         if( is_array( $author ) ) {
-            list( $author, $author_stats ) = each( $formatted_data['data'] );
+            list( $author, $author_stats ) = each( $formatted_stats['stats'] );
             $user_settings = PPC_general_functions::get_settings( $author, true );
-            
-            foreach( $formatted_data['data'] as $author_id => $author_stats ) {
                 
-                foreach( $author_stats as $post_id => $post_stats ) {
-                    $post = $raw_data[$author_id][$post_id];
-                    
-                    $tr_opacity = '';
-                    if( $user_settings['counting_payment_only_when_total_threshold'] ) {
-                        if( $post->ppc_misc['exceed_threshold'] == false ) {
-                            $tr_opacity = ' style="opacity: 0.40;"';
-                        }
+            foreach( $author_stats as $post_id => $post_stats ) {
+                $post = $raw_stats[$author][$post_id];
+                
+                $tr_opacity = '';
+                if( $user_settings['counting_payment_only_when_total_threshold'] ) {
+                    if( $post->ppc_misc['exceed_threshold'] == false ) {
+                        $tr_opacity = ' style="opacity: 0.40;"';
                     }
-                    
-                    echo '<tr'.$tr_opacity.'>';
-                    
-                    foreach( $post_stats as $field_name => $field_value ) {
-                        $post_permalink = get_permalink( $post->ID );
-                        
-                        switch( $field_name ) {
-                            case 'post_title':
-                                $field_value = '<a href="'.$post_permalink.'" title="'.$post->post_title.'">'.$field_value.'</a>';
-                                break;
-                            
-                            case 'post_total_payment':
-                                $field_value = '<abbr title="'.$post->ppc_misc['tooltip'].'" class="ppc_payment_column">'.$field_value.'</abbr>';
-                                break;
-                        }
-                        
-                        echo '<td class="'.$field_name.'">'.apply_filters( 'ppc_author_stats_html_each_field_value', $field_value, $field_name, $post ).'</td>';
-                    }
-                    
-                    do_action( 'ppc_author_stats_html_after_each_default', $author_id, $formatted_data, $post );
-                    
-                    echo '</tr>';
                 }
+                
+                echo '<tr'.$tr_opacity.'>';
+                
+                foreach( $post_stats as $field_name => $field_value ) {
+                    $post_permalink = get_permalink( $post->ID );
+                    
+                    switch( $field_name ) {
+                        case 'post_title':
+                            $field_value = '<a href="'.$post_permalink.'" title="'.$post->post_title.'">'.$field_value.'</a>';
+                            break;
+                        
+                        case 'post_total_payment':
+                            $field_value = '<abbr title="'.$post->ppc_misc['tooltip_normal_payment'].'" class="ppc_payment_column">'.$field_value.'</abbr>';
+                            break;
+                    }
+                    
+                    echo '<td class="'.$field_name.'">'.apply_filters( 'ppc_author_stats_html_each_field_value', $field_value, $field_name, $post ).'</td>';
+                }
+                
+                do_action( 'ppc_author_stats_html_after_each_default', $author, $formatted_stats, $post );
+                
+                echo '</tr>';
             }
             
         } else {
             
-            foreach( $formatted_data['data'] as $author_id => $author_data ) {
+            foreach( $formatted_stats['stats'] as $author => $author_stats ) {
                 echo '<tr>';
                 
-                foreach( $author_data as $field_name => $field_value ) {
+                foreach( $author_stats as $field_name => $field_value ) {
                     //Cases in which other stuff needs to be added to the output
                     switch( $field_name ) {
                         case 'author_name':
-                            if( $perm->can_see_others_detailed_stats() OR $author_id == $current_user->ID ) {
-                                $field_value = '<a href="'.PPC_general_functions::get_the_author_link( $author_id ).'" title="'.__( 'Go to detailed view' , 'post-pay-counter').'">'.$field_value.'</a>';
+                            if( $perm->can_see_others_detailed_stats() OR $author == $current_user->ID ) {
+                                $field_value = '<a href="'.PPC_general_functions::get_the_author_link( $author ).'" title="'.__( 'Go to detailed view' , 'post-pay-counter').'">'.$field_value.'</a>';
                             }
                             break;
                         
                         case 'author_total_payment':
-                            $field_value = '<abbr title="'.$raw_data[$author_id]['total']['ppc_misc']['tooltip'].'" class="ppc_payment_column">'.$field_value.'</abbr>';
+                            $field_value = '<abbr title="'.$raw_stats[$author]['total']['ppc_misc']['tooltip_normal_payment'].'" class="ppc_payment_column">'.$field_value.'</abbr>';
                             break;
                     }
                     
-                    echo '<td class="'.$field_name.'">'.apply_filters( 'ppc_general_stats_html_each_field_value', $field_value, $field_name, $raw_data[$author_id] ).'</td>';
+                    echo '<td class="'.$field_name.'">'.apply_filters( 'ppc_general_stats_html_each_field_value', $field_value, $field_name, $raw_stats[$author] ).'</td>';
                 }
                 
-                do_action( 'ppc_general_stats_html_after_each_default', $author_id, $formatted_data, $raw_data );
+                do_action( 'ppc_general_stats_html_after_each_default', $author, $formatted_stats, $raw_stats );
                 
                 echo '</tr>';
             }
@@ -173,26 +177,14 @@ class PPC_HTML_functions {
         
         echo '<table class="widefat fixed">';
         echo '<tr>';
-        echo '<td width="40%">Total displayed posts:</td>';
+        echo '<td width="40%">'.__( 'Total displayed posts:', 'post-pay-counter' ).'</td>';
         echo '<td align="left" width="10%">'.$overall_stats['posts'].'</td>';
-        echo '<td width="35%">Total displayed payment:</td>';
-        echo '<td align="left" width="15%">'.sprintf( '%.2f', $overall_stats['payment'] ).'</td>';
+        echo '<td width="35%">'.__( 'Total displayed payment:', 'post-pay-counter' ).'</td>';
+        echo '<td align="left" width="15%">'.$overall_stats['payment'].'</td>';
         echo '</tr>';
-        
-        //Check if current user is allowed to pdf export, using the noheader parameter to allow csv download
-        if( 1 == 0 AND $perm->can_pdf_export() ) { ?>
-        <tr>
-            <?php if( isset( $get_and_post['author'] ) ) { ?>
-            <td colspan="4" align="center"><a href="<?php //echo wp_nonce_url( admin_url( self::$stats_menu_link.'&amp;author='.$get_and_post['author'].'&amp;tstart='.$get_and_post['tstart'].'&amp;tend='.$get_and_post['tend'].'&amp;export=csv&amp;noheader=true' ), 'post_pay_counter_csv_export_author' ) ?>" title="Export to pdf">Export stats to pdf</a></td>
-            <?php } else { ?>
-            <td colspan="4" align="center"><a href="<?php //echo wp_nonce_url( admin_url( self::$stats_menu_link.'&amp;tstart='.$get_and_post['tstart'].'&amp;tend='.$get_and_post['tend'].'&amp;export=csv&amp;noheader=true' ), 'post_pay_counter_csv_export_general' ) ?>" title="Export to csv">Export stats to csv</a></td>
-            <?php } ?>
-        </tr>
-        <?php }
-        
         echo '</table>';
         
-        do_action( 'ppc_overall_stats' );
+        do_action( 'ppc_html_overall_stats' );
     }
     
     /**
