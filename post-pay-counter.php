@@ -4,7 +4,7 @@ Plugin Name: Post Pay Counter
 Plugin URI: http://www.thecrowned.org/wordpress-plugins/post-pay-counter
 Description: Easily handle authors' pay on a multi-author blog by computing posts' remuneration basing on admin defined rules. Define the time range you would like to have stats about, and the plugin will do the rest.
 Author: Stefano Ottolenghi
-Version: 2.0.7
+Version: 2.0.8
 Author URI: http://www.thecrowned.org/
 */
 
@@ -45,11 +45,11 @@ class post_pay_counter {
         global $ppc_global_settings;
         
         $ppc_global_settings['current_version'] = get_option( 'ppc_current_version' );
-        $ppc_global_settings['newest_version'] = '2.0.7';
+        $ppc_global_settings['newest_version'] = '2.0.8';
         $ppc_global_settings['option_name'] = 'ppc_settings';
         $ppc_global_settings['folder_path'] = plugins_url( '/', __FILE__ );
-        $ppc_global_settings['options_menu_link'] = 'admin.php?page=post_pay_counter_options';
-        $ppc_global_settings['stats_menu_link'] = 'admin.php?page=post_pay_counter_show_stats';
+        $ppc_global_settings['options_menu_link'] = 'admin.php?page=ppc-options';
+        $ppc_global_settings['stats_menu_link'] = 'admin.php?page=ppc-stats';
         $ppc_global_settings['cap_manage_options'] = 'post_pay_counter_manage_options';
         $ppc_global_settings['cap_access_stats'] = 'post_pay_counter_access_stats';
         $ppc_global_settings['temp'] = array( 'settings' => array() );
@@ -69,7 +69,7 @@ class post_pay_counter {
         $ppc_global_settings['general_settings'] = PPC_general_functions::get_settings( 'general' );
         
         //Add left menu entries for both stats and options pages
-        add_action( 'admin_menu', array( &$this, 'post_pay_counter_admin_menus' ) );
+        add_action( 'admin_menu', array( $this, 'post_pay_counter_admin_menus' ) );
         //add_action( 'network_admin_menu', array( $this, 'post_pay_counter_network_admin_menus' ) );
         
         //Hook for the install procedure
@@ -113,9 +113,9 @@ class post_pay_counter {
     function post_pay_counter_admin_menus() {
         global $ppc_global_settings;
         
-        add_menu_page( 'Post Pay Counter', 'Post Pay Counter', $ppc_global_settings['cap_access_stats'], 'post_pay_counter_show_stats', array( $this, 'show_stats' ) );
-        add_submenu_page( 'post_pay_counter_show_stats', 'Post Pay Counter Stats', 'Stats', 'post_pay_counter_access_stats', 'post_pay_counter_show_stats', array( $this, 'show_stats' ) );
-        $ppc_global_settings['options_menu_slug'] = add_submenu_page( 'post_pay_counter_show_stats', 'Post Pay Counter Options', 'Options', $ppc_global_settings['cap_manage_options'], 'post_pay_counter_options', array( $this, 'show_options' ) );
+        add_menu_page( 'Post Pay Counter', 'Post Pay Counter', $ppc_global_settings['cap_access_stats'], 'ppc-stats', array( $this, 'show_stats' ) );
+        add_submenu_page( 'ppc-stats', 'Post Pay Counter Stats', 'Stats', 'post_pay_counter_access_stats', 'ppc-stats', array( $this, 'show_stats' ) );
+        $ppc_global_settings['options_menu_slug'] = add_submenu_page( 'ppc-stats', 'Post Pay Counter Options', 'Options', $ppc_global_settings['cap_manage_options'], 'ppc-options', array( $this, 'show_options' ) );
     }
     
     //Adds first level side menu (network admin)

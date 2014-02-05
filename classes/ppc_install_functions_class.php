@@ -178,7 +178,7 @@ class PPC_install_functions {
             update_option( $ppc_global_settings['option_name'], $default_settings['general'] );
         }
         
-        PPC_general_functions::manage_cap_allowed_user_roles_plugin_pages( $ppc_global_settings['can_see_options_user_roles'], $ppc_global_settings['can_see_stats_user_roles'] );
+        PPC_general_functions::manage_cap_allowed_user_roles_plugin_pages( $default_settings['general']['can_see_options_user_roles'], $default_settings['general']['can_see_stats_user_roles'] );
     }
 }
 
