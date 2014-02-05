@@ -79,9 +79,9 @@ class post_pay_counter {
         add_action( 'wpmu_new_blog', array( 'PPC_install_functions', 'ppc_new_blog_install' ), 10, 6);
         
         //On load plugin pages
-        add_action( 'load-post-pay-counter_page_post_pay_counter_options', array( &$this, 'on_load_options_page_get_settings' ), 1 );
-        add_action( 'load-post-pay-counter_page_post_pay_counter_options', array( &$this, 'on_load_options_page_enqueue' ), 2 );
-        add_action( 'load-toplevel_page_post_pay_counter_show_stats', array( &$this, 'on_load_stats_page' ) );
+        add_action( 'load-post-pay-counter_page_ppc-options', array( &$this, 'on_load_options_page_get_settings' ), 1 );
+        add_action( 'load-post-pay-counter_page_ppc-options', array( &$this, 'on_load_options_page_enqueue' ), 2 );
+        add_action( 'load-toplevel_page_ppc-stats', array( &$this, 'on_load_stats_page' ) );
         //add_action( 'load-toplevel_page_post_pay_counter_show_network_stats', array( &$this, 'on_load_stats_page' ) );
         
         //Localization
