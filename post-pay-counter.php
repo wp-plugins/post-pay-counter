@@ -4,7 +4,7 @@ Plugin Name: Post Pay Counter
 Plugin URI: http://www.thecrowned.org/wordpress-plugins/post-pay-counter
 Description: Easily handle authors' pay on a multi-author blog by computing posts' remuneration basing on admin defined rules. Define the time range you would like to have stats about, and the plugin will do the rest.
 Author: Stefano Ottolenghi
-Version: 2.0.8
+Version: 2.0.9
 Author URI: http://www.thecrowned.org/
 */
 
@@ -45,7 +45,7 @@ class post_pay_counter {
         global $ppc_global_settings;
         
         $ppc_global_settings['current_version'] = get_option( 'ppc_current_version' );
-        $ppc_global_settings['newest_version'] = '2.0.8';
+        $ppc_global_settings['newest_version'] = '2.0.9';
         $ppc_global_settings['option_name'] = 'ppc_settings';
         $ppc_global_settings['folder_path'] = plugins_url( '/', __FILE__ );
         $ppc_global_settings['options_menu_link'] = 'admin.php?page=ppc-options';
@@ -79,17 +79,17 @@ class post_pay_counter {
         add_action( 'wpmu_new_blog', array( 'PPC_install_functions', 'ppc_new_blog_install' ), 10, 6);
         
         //On load plugin pages
-        add_action( 'load-post-pay-counter_page_ppc-options', array( &$this, 'on_load_options_page_get_settings' ), 1 );
-        add_action( 'load-post-pay-counter_page_ppc-options', array( &$this, 'on_load_options_page_enqueue' ), 2 );
-        add_action( 'load-toplevel_page_ppc-stats', array( &$this, 'on_load_stats_page' ) );
+        add_action( 'load-post-pay-counter_page_ppc-options', array( $this, 'on_load_options_page_get_settings' ), 1 );
+        add_action( 'load-post-pay-counter_page_ppc-options', array( $this, 'on_load_options_page_enqueue' ), 2 );
+        add_action( 'load-toplevel_page_ppc-stats', array( $this, 'on_load_stats_page' ) );
         //add_action( 'load-toplevel_page_post_pay_counter_show_network_stats', array( &$this, 'on_load_stats_page' ) );
         
         //Localization
-        add_action( 'plugins_loaded', array( &$this, 'load_localization' ) );
+        add_action( 'plugins_loaded', array( $this, 'load_localization' ) );
         
         //Custom links besides the usual "Edit" and "Deactivate"
-        add_filter( 'plugin_action_links', array( &$this, 'ppc_settings_meta_link' ), 10, 2 );
-        add_filter( 'plugin_row_meta', array( &$this, 'ppc_donate_meta_link' ), 10, 2 );
+        add_filter( 'plugin_action_links', array( $this, 'ppc_settings_meta_link' ), 10, 2 );
+        add_filter( 'plugin_row_meta', array( $this, 'ppc_donate_meta_link' ), 10, 2 );
         
         //Hook to show the posts' word count as a column in the posts list
         //add_filter( 'manage_posts_columns', array( $this, 'post_pay_counter_column_word_count' ) );
@@ -114,7 +114,7 @@ class post_pay_counter {
         global $ppc_global_settings;
         
         add_menu_page( 'Post Pay Counter', 'Post Pay Counter', $ppc_global_settings['cap_access_stats'], 'ppc-stats', array( $this, 'show_stats' ) );
-        add_submenu_page( 'ppc-stats', 'Post Pay Counter Stats', 'Stats', 'post_pay_counter_access_stats', 'ppc-stats', array( $this, 'show_stats' ) );
+        add_submenu_page( 'ppc-stats', 'Post Pay Counter Stats', 'Stats', $ppc_global_settings['cap_access_stats'], 'ppc-stats', array( $this, 'show_stats' ) );
         $ppc_global_settings['options_menu_slug'] = add_submenu_page( 'ppc-stats', 'Post Pay Counter Options', 'Options', $ppc_global_settings['cap_manage_options'], 'ppc-options', array( $this, 'show_options' ) );
     }
     
@@ -170,15 +170,15 @@ class post_pay_counter {
         global $ppc_global_settings;
         wp_enqueue_script( 'post' );
         
-        add_meta_box( 'post_pay_counter_counting_settings', 'Counting Settings', array( 'PPC_meta_boxes', 'meta_box_counting_settings' ), $ppc_global_settings['options_menu_slug'], 'normal', 'default', self::$options_page_settings );
-        add_meta_box( 'post_pay_counter_permissions', 'Permissions', array( 'PPC_meta_boxes', 'meta_box_permissions' ), $ppc_global_settings['options_menu_slug'], 'normal', 'default', self::$options_page_settings );
-        add_meta_box( 'post_pay_counter_support_the_fucking_author', 'Support the author', array( 'PPC_meta_boxes', 'meta_box_support_the_fucking_author' ), $ppc_global_settings['options_menu_slug'], 'side' );
-        add_meta_box( 'post_pay_counter_pro_features', 'Everything you\'re missing by not being PRO', array( 'PPC_meta_boxes', 'meta_box_pro_features' ), $ppc_global_settings['options_menu_slug'], 'side' );
+        add_meta_box( 'ppc_counting_settings', 'Counting Settings', array( 'PPC_meta_boxes', 'meta_box_counting_settings' ), $ppc_global_settings['options_menu_slug'], 'normal', 'default', self::$options_page_settings );
+        add_meta_box( 'ppc_permissions', 'Permissions', array( 'PPC_meta_boxes', 'meta_box_permissions' ), $ppc_global_settings['options_menu_slug'], 'normal', 'default', self::$options_page_settings );
+        add_meta_box( 'ppc_support_the_fucking_author', 'Support the author', array( 'PPC_meta_boxes', 'meta_box_support_the_fucking_author' ), $ppc_global_settings['options_menu_slug'], 'side' );
+        add_meta_box( 'ppc_pro_features', 'Everything you\'re missing by not being PRO', array( 'PPC_meta_boxes', 'meta_box_pro_features' ), $ppc_global_settings['options_menu_slug'], 'side' );
         
         
         if( ! isset( $_GET['userid'] ) OR ( isset( $_GET['userid'] ) AND ! is_numeric( $_GET['userid'] ) ) ) {
-            add_meta_box( 'post_pay_counter_personalize_settings', 'Personalize Settings', array( 'PPC_meta_boxes', 'meta_box_personalize_settings' ), $ppc_global_settings['options_menu_slug'], 'side', 'default', self::$options_page_settings );
-            add_meta_box( 'post_pay_counter_misc', 'Miscellanea', array( 'PPC_meta_boxes', 'meta_box_misc_settings' ), $ppc_global_settings['options_menu_slug'], 'side', 'default', self::$options_page_settings );
+            add_meta_box( 'ppc_personalize_settings', 'Personalize Settings', array( 'PPC_meta_boxes', 'meta_box_personalize_settings' ), $ppc_global_settings['options_menu_slug'], 'side', 'default', self::$options_page_settings );
+            add_meta_box( 'ppc_misc_settings', 'Miscellanea', array( 'PPC_meta_boxes', 'meta_box_misc_settings' ), $ppc_global_settings['options_menu_slug'], 'side', 'default', self::$options_page_settings );
             //add_meta_box( 'post_pay_counter_trial_settings', 'Trial Settings', array( $this, 'meta_box_trial_settings' ), $ppc_global_settings['options_menu_slug'], 'normal', 'default', self::$options_page_settings );
         }
         
@@ -286,7 +286,7 @@ class post_pay_counter {
         global $ppc_global_settings;
        
        if( $file == plugin_basename( __FILE__ ) ) {
-            $links[] = '<a href="'.admin_url( $ppc_global_settings['options_menu_link'] ).'" title="'.__('Settings', 'post-pay-counter').'">'.__('Settings', 'post-pay-counter').'</a>';
+            $links[] = '<a href="'.admin_url( $ppc_global_settings['options_menu_link'] ).'" title="'.__( 'Settings', 'post-pay-counter' ).'">'.__( 'Settings', 'post-pay-counter' ).'</a>';
        }
      
         return $links;
@@ -303,7 +303,7 @@ class post_pay_counter {
     
     function ppc_donate_meta_link( $links, $file ) {
        if( $file == plugin_basename( __FILE__ ) ) {
-            $links[] = '<a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SM5Q9BVU4RT22" title="'.__('Donate', 'post-pay-counter').'">'.__('Donate', 'post-pay-counter').'</a>';
+            $links[] = '<a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SM5Q9BVU4RT22" title="'.__( 'Donate', 'post-pay-counter' ).'">'.__( 'Donate', 'post-pay-counter' ).'</a>';
        }
      
         return $links;
@@ -445,12 +445,12 @@ class post_pay_counter {
             
             do_action( 'ppc_html_stats_author_before_stats_form' );
             
-            echo '<form action="#" method="post" id="ppc_stats">';
+            echo '<form action="#" method="post" id="ppc_stats" accesskey="'.$author.'">'; //accesskey holds author id
             echo PPC_HTML_functions::get_html_stats( $stats['formatted_stats'], $stats['raw_stats'], $author );
-            echo '</form>';
             
             do_action( 'ppc_html_stats_author_after_stats_form' );
             
+            echo '</form>';
             echo '<div class="ppc_table_divider"></div>';
             
         //GENERAL STATS
@@ -467,10 +467,10 @@ class post_pay_counter {
             
             echo '<form action="#" method="post" id="ppc_stats">';
             echo PPC_HTML_functions::get_html_stats( $stats['formatted_stats'], $stats['raw_stats'] );
-            echo '</form>';
             
             do_action( 'ppc_html_stats_general_after_stats_form' );
             
+            echo '</form>';
             echo '<div class="ppc_table_divider"></div>';
         }
         
@@ -478,6 +478,8 @@ class post_pay_counter {
         echo PPC_HTML_functions::print_overall_stats( $overall_stats );
         
         do_action( 'ppc_html_stats_after_overall_stats' );
+        
+        echo '</div>';
     }
 }
 

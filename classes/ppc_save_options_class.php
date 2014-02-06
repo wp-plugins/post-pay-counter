@@ -131,7 +131,7 @@ class PPC_save_options {
             }
         }
         
-        $new_settings = apply_filters( 'ppc_save_misc_settings', $new_settings, $current_settings );
+        $new_settings = apply_filters( 'ppc_save_misc_settings', $new_settings, $settings );
         $new = array_merge( $current_settings, $new_settings );
         
         $update = self::update_settings( $settings['userid'], $new );
@@ -180,6 +180,8 @@ class PPC_save_options {
     
     static function update_settings( $userid, $settings ) {
         global $ppc_global_settings;
+        
+        if( $settings == PPC_general_functions::get_settings( $settings['userid'] ) ) { return; } //avoid updating with same data, which would result in an error
         
         if( is_numeric( $userid ) ) {
             $settings['userid'] = (int) $settings['userid'];

@@ -64,7 +64,7 @@ class PPC_meta_boxes {
         global $wp_roles, $ppc_global_settings;
         $current_settings = $current_settings['args'];
         
-        echo '<form id="ppc_misc_settings" method="post">';
+        echo '<form id="ppc_misc_settings_form" method="post">';
         
         //Post types to be included in countings
         echo '<p>'.__( 'Choose the post types you would like to be included in countings. There are some you may have never seen: they are probably Wordpress built-in ones.', 'post-pay-counter').'</p>';
@@ -146,7 +146,6 @@ class PPC_meta_boxes {
         <div class="ppc_save_error" id="ppc_misc_settings_error"></div>
         <div class="save_settings">
             <img src="<?php echo $ppc_global_settings['folder_path'].'style/images/ajax-loader.gif'; ?>" title="<?php _e( 'Loading' , 'post-pay-counter'); ?>" alt="<?php _e( 'Loading' , 'post-pay-counter'); ?>" class="ajax_loader" id="ppc_misc_settings_ajax_loader" />
-            <input type="hidden" name="userid" value="<?php echo $current_settings['userid']; ?>" />
             <input type="submit" class="button-primary" name="ppc_save_misc_settings" id="ppc_save_misc_settings" value="<?php _e( 'Save options' , 'post-pay-counter') ?>" />
         </div>
         <div class="clear"></div>
@@ -167,7 +166,7 @@ class PPC_meta_boxes {
         $current_settings = $current_settings['args'];
         
         echo '<p>'.__( 'Here you can define the criteria which post payments will be computed with.' , 'post-pay-counter').'</p>';
-        echo '<form action="" id="ppc_counting_settings" method="post">';
+        echo '<form action="" id="ppc_counting_settings_form" method="post">';
         
         //Basic payment
         echo '<div class="section">';
@@ -297,7 +296,7 @@ class PPC_meta_boxes {
         global $ppc_global_settings;
         $current_settings = $current_settings['args'];
         
-        echo '<form action="" id="ppc_permissions" method="post">';
+        echo '<form action="" id="ppc_permissions_form" method="post">';
         echo '<p>'.__( 'Just a few fields to help you preventing users from seeing things they should not see. Administrators are subject to the same permissions; if you wish they did not, personalize their user settings.' , 'post-pay-counter').'</p>';
         echo PPC_HTML_functions::echo_p_field( __( 'Users can see other users\' general stats' , 'post-pay-counter'), $current_settings['can_see_others_general_stats'], 'checkbox', 'can_see_others_general_stats', __( 'If unchecked, users will only be able to see their stats in the general page. Other users\' names, posts and pay counts will not be displayed.' , 'post-pay-counter') );
         echo PPC_HTML_functions::echo_p_field( __( 'Users can see other users\' detailed stats' , 'post-pay-counter'), $current_settings['can_see_others_detailed_stats'], 'checkbox', 'can_see_others_detailed_stats', __( 'If unchecked, users will not be able to see other users\' detailed stats (ie. written posts details) but still able to see general ones. ' , 'post-pay-counter') );

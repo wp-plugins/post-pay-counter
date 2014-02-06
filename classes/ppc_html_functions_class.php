@@ -41,6 +41,7 @@ class PPC_HTML_functions {
         echo '<a href="'.$page_permalink.'" title="'.__( 'Get current view permalink' , 'post-pay-counter').'">'.__( 'Get current view permalink' , 'post-pay-counter').'</a>';
         echo '</div>';
 
+        echo '</div>';
         echo '</form>';
         echo '<div class="clear"></div>';
         echo '<hr class="ppc_hr_divider" />';

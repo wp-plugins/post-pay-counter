@@ -86,6 +86,25 @@ class PPC_general_functions {
     }
     
     /**
+     * Gets non capitalized input.
+     * 
+     * Grants compatibility with PHP < 5.3.
+     *
+     * @access  public
+     * @since   2.0.9
+     * @param   $string string to lowercase
+     * @return  string lowercased
+    */
+	
+	static function lcfirst( $string ) {
+        if( function_exists( 'lcfirst' ) ) {
+            return lcfirst( $string );
+        } else {
+            return (string) ( strtolower( substr( $string, 0, 1 ) ).substr( $string, 1 ) );
+		}
+    }
+    
+    /**
      * Determines the number of effective words for a given post content.
      * 
      * Trims blockquotes if requested; strip HTML tags (keeping their content). The regex basically reduces all kind of white spaces to one " ", trims punctuation and accounts a word as 
@@ -93,7 +112,7 @@ class PPC_general_functions {
      *
      * @access  public
      * @since   2.0
-     * @param   object the WP post object
+     * @param   $post object the WP post object
      * @return  array the words data
     */
     
@@ -270,7 +289,7 @@ class PPC_general_functions {
         $allowed_user_roles_options_page_remove_cap  = array_diff( $wp_roles_to_use, $allowed_user_roles_options_page );
         
         foreach( $allowed_user_roles_options_page_add_cap as $single ) {
-            $current_role = get_role( lcfirst( $single ) );
+            $current_role = get_role( self::lcfirst( $single ) );
             
             if( is_object( $current_role ) AND ! $current_role->has_cap( $ppc_global_settings['cap_manage_options'] ) ) {
                 $current_role->add_cap( $ppc_global_settings['cap_manage_options'] );
@@ -278,7 +297,7 @@ class PPC_general_functions {
         }
         
         foreach( $allowed_user_roles_options_page_remove_cap as $single ) {
-            $current_role = get_role( lcfirst( $single ) );
+            $current_role = get_role( self::lcfirst( $single ) );
             
             if( is_object( $current_role ) AND $current_role->has_cap( $ppc_global_settings['cap_manage_options'] ) ) {
                 $current_role->remove_cap( $ppc_global_settings['cap_manage_options'] );
@@ -286,7 +305,7 @@ class PPC_general_functions {
         }
         
         foreach( $allowed_user_roles_stats_page_add_cap as $single ) {
-            $current_role = get_role( lcfirst( $single ) );
+            $current_role = get_role( self::lcfirst( $single ) );
             
             if( is_object( $current_role ) AND ! $current_role->has_cap( $ppc_global_settings['cap_access_stats'] ) ) {
                 $current_role->add_cap( $ppc_global_settings['cap_access_stats'] );
@@ -294,7 +313,7 @@ class PPC_general_functions {
         }
         
         foreach( $allowed_user_roles_stats_page_remove_cap as $single ) {
-            $current_role = get_role( lcfirst( $single ) );
+            $current_role = get_role( self::lcfirst( $single ) );
             
             if( is_object( $current_role ) AND $current_role->has_cap( $ppc_global_settings['cap_access_stats'] ) ) {
                 $current_role->remove_cap( $ppc_global_settings['cap_access_stats'] );

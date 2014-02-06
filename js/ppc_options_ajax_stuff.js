@@ -9,7 +9,7 @@ jQuery(document).ready(function($) {
         var data = {
             action: "ppc_save_counting_settings",
             _ajax_nonce: ppc_options_ajax_stuff_vars.nonce_ppc_save_counting_settings,
-            form_data: $('#ppc_counting_settings').serialize()
+            form_data: $('#ppc_counting_settings_form').serialize()
         };
         
         $.post(ajaxurl, data, function(response) {
@@ -34,7 +34,7 @@ jQuery(document).ready(function($) {
         var data = {
             action: "ppc_save_misc_settings",
             _ajax_nonce: ppc_options_ajax_stuff_vars.nonce_ppc_save_misc_settings,
-            form_data: $('#ppc_misc_settings').serialize()
+            form_data: $('#ppc_misc_settings_form').serialize()
         };
         
         $.post(ajaxurl, data, function(response) {
@@ -59,7 +59,7 @@ jQuery(document).ready(function($) {
         var data = {
             action: "ppc_save_permissions",
             _ajax_nonce: ppc_options_ajax_stuff_vars.nonce_ppc_save_permissions,
-            form_data: $('#ppc_permissions').serialize()
+            form_data: $('#ppc_permissions_form').serialize()
         };
         
         $.post(ajaxurl, data, function(response) {
