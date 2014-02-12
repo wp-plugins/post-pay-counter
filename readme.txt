@@ -3,7 +3,7 @@ Contributors: Ste_95
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SM5Q9BVU4RT22
 Tags: counter, authors, payment, stats, multi author, post management, post
 Tested up to: 3.8
-Stable tag: 2.0.9
+Stable tag: 2.0.8
 Requires at least: 3.7
 
 Easily handle authors' pay on a multi-author blog by computing posts' remuneration basing on admin defined rules.
@@ -28,10 +28,22 @@ The Post Pay Counter plugin allows you to easily calculate and handle authors' p
 3. Head to the configuration page first. The plugin already comes with a predefined set of settings, but you may want to set it up to better suit your needs.
 5. That's it, done! You can now check the stats page to browse all the countings.
 
-== Changelog ==
-= 2.0.9 =
-**IMPORTANT NOTICE: If you have installed a version below 2.0, the plugin needs to be reinstalled** due to its different settings storage system and the availability of new features. Also, the **following features are currently missing**: post payment bonus, trial settings, full multisite integration, word count in post list. They will be added soon. If you need one specifically, let me know in order to make up a priority list.
+== Frequently Asked Questions ==
+= You said I could pay per visit. How do I do that? =
+The plugin does not keep track of visits, it can only keep it in mind when computing the payment. You either need to have a plugin who keeps track of visits, and put the post_meta name of the field in which it stores the visits (must be a number), or get the PRO version of Post Pay Counter and use your Google Analytics account to get visits data.
 
+= I installed the plugin but it does not show up in the menu. Also, if I go to the settings page, it says I am not authorized =
+That is probably due to a permissions manager plugin you have on your blog. Check that capabilities *post_pay_counter_access_stats* and *post_pay_counter_manage_options* are correctly assigned and working.
+
+== Changelog ==
+= 2.1 =
+* Added *System info* page for easier troubleshooting. Please include those data when asking for support.
+* PRO version available: added a notification & updated link.
+* Installation procedure now grants by default all permissions to administrator by personalizing their settings (the user id of the user who installs the plugin is taken).
+* Fixed: misc settings would not save.
+* Fixed: added css dependency for *wp-admin* without which plugin's css may be overriden.
+
+= 2.0.9 =
 * Various markup fixing, among which a non-closed div in stats which messed up with the page layout.
 * Fix to grant compatibility with PHP < 5.3.
 
@@ -76,7 +88,7 @@ The Post Pay Counter plugin allows you to easily calculate and handle authors' p
 * Fixed a bug in which posts published on the time frame boundaries days would not show up in stats.
 
 = 2.0 =
-**IMPORTANT NOTICE: Version 2.0 needs to be reinstalled** if you had a previous version due to its different settings storage system and the availability of new features. Also, the **following features are currently missing**: post payment bonus, trial settings, csv esport, full multisite integration, word count in post list. They will be added soon. If you need one specifically, let me know in order to make up a priority list.
+**IMPORTANT NOTICE: Versions 2.0 or higher need to be reinstalled** if you had a previous version due to its different settings storage system and the availability of new features. Also, the **following features are currently missing**: post payment bonus, trial settings, csv esport, full multisite integration, word count in post list. They will be added soon. If you need one specifically, let me know in order to make up a priority list.
 
 * Almost complete plugin redesign and code refactoring which should give dramatic speed improvements. Less data is stored in the database, making requests lighter.
 * The plugin is now fully extensible, check the list of hooks and filters.
