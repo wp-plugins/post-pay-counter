@@ -25,7 +25,7 @@ class PPC_meta_boxes {
             __( 'Valid forever' , 'post-pay-counter') => __( 'buy a license, and it will be yours forever - no renewal or whatever! And you still get updates!' , 'post-pay-counter')
         );
         
-        printf( '<p>'.__( 'There are so many things you are missing by not running the PRO version of the Post Pay Counter! Remember that PRO features are always %1$sone click away%2$s!' , 'post-pay-counter'), '<a target="_blank" href="http://www.thecrowned.org/wordpress-plugins/post-pay-counter-pro" title="Post Pay Counter PRO">', '</a>' ).':</p>';
+        printf( '<p>'.__( 'There are so many things you are missing by not running the PRO version of the Post Pay Counter! Remember that PRO features are always %1$sone click away%2$s!' , 'post-pay-counter'), '<a target="_blank" href="http://www.thecrowned.org/post-pay-counter-pro" title="Post Pay Counter PRO">', '</a>' ).':</p>';
         echo '<ul style="margin: 0 0 15px 2em;">';
         foreach( $pro_features as $key => $single ) {
             echo '<li style="list-style-type: square;"><strong>'.$key.'</strong>: '.$single.'</li>';
@@ -45,7 +45,7 @@ class PPC_meta_boxes {
         
         echo '<p>'.__( 'If you like the Post Pay Counter, there are a couple of crucial things you can do to support its development' , 'post-pay-counter').':</p>';
         echo '<ul style="margin: 0 0 15px 2em; padding: 0">';
-        echo '<li style="list-style-image: url(\''.$ppc_global_settings['folder_path'].'style/images/pro.png\');"><a target="_blank" href="http://www.thecrowned.org/wordpress-plugins/post-pay-counter-pro" title="'.__( 'Go PRO' , 'post-pay-counter').'"><strong>'.__( 'Go PRO' , 'post-pay-counter').'</strong></a>. '.__( 'Try the PRO version: more functions, more stuff!' , 'post-pay-counter').'</li>';
+        echo '<li style="list-style-image: url(\''.$ppc_global_settings['folder_path'].'style/images/pro.png\');"><a target="_blank" href="http://www.thecrowned.org/post-pay-counter-pro" title="'.__( 'Go PRO' , 'post-pay-counter').'"><strong>'.__( 'Go PRO' , 'post-pay-counter').'</strong></a>. '.__( 'Try the PRO version: more functions, more stuff!' , 'post-pay-counter').'</li>';
         echo '<li style="list-style-image: url(\''.$ppc_global_settings['folder_path'].'style/images/paypal.png\');"><a target="_blank" href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SM5Q9BVU4RT22" title="'.__( 'Donate money' , 'post-pay-counter').'"><strong>'.__( 'Donate money' , 'post-pay-counter').'</strong></a>. '.__( 'Plugins do not write themselves: they need time, effort, brainstorming and troubleshooting, and I give all of that free of charge. Donations of every amount are absolutely welcome.' , 'post-pay-counter').'</li>';
         echo '<li style="list-style-image: url(\''.$ppc_global_settings['folder_path'].'style/images/amazon.png\');">'.sprintf( __( 'Give me something from my %1$sAmazon Wishlist%2$s.' , 'post-pay-counter'), '<a target="_blank" href="http://www.amazon.it/registry/wishlist/1JWAS1MWTLROQ" title="Amazon Wishlist">', '</a>' ).'</li>';
         echo '<li style="list-style-image: url(\''.$ppc_global_settings['folder_path'].'style/images/star.png\');">'.sprintf( __( 'Rate it in the %1$sWordpress Directory%3$s and share the %2$sofficial page%3$s.' , 'post-pay-counter'), '<a target="_blank" href="http://wordpress.org/extend/plugins/post-pay-counter/" title="Wordpress directory">', '<a target="_blank" href="http://www.thecrowned.org/post-pay-counter" title="Official plugin page">', '</a>' ).'</li>';
