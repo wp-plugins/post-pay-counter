@@ -64,7 +64,7 @@ class post_pay_counter {
             
             do_action( 'ppc_updated' );
             
-            echo '<div id="message" class="updated fade"><p>'.sprintf( __( 'Post Pay Counter was successfully updated to version %1$s. Want to have a look at the %2$sOptions page%3$s, or at the %4$schangelog%3$s?' ), $ppc_global_settings['newest_version'], '<a href="'.admin_url( $ppc_global_settings['options_menu_link'] ).'" title="'.__( 'Go to Options page' ).'">', '</a>', '<a href="http://wordpress.org/extend/plugins/post-pay-counter/changelog/" title="'.__( 'Go to changelog' ).'">' ).'</p></div>';
+            echo '<div id="message" class="updated fade"><p>'.sprintf( __( 'Post Pay Counter was successfully updated to version %1$s. Want to have a look at the %2$sOptions page%3$s, or at the %4$schangelog%3$s?' ), $ppc_global_settings['newest_version'], '<a href="'.admin_url( $ppc_global_settings['options_menu_link'] ).'" title="'.__( 'Go to Options page' ).'">', '</a>', '<a href="http://wordpress.org/extend/plugins/post-pay-counter/changelog/" target="_blank" title="'.__( 'Go to changelog' ).'">' ).'</p></div>';
         }
         
         $ppc_global_settings['general_settings'] = PPC_general_functions::get_settings( 'general' );
@@ -357,7 +357,7 @@ class post_pay_counter {
         global $wpdb, $current_user, $ppc_global_settings;
          
         echo '<div class="wrap">';
-        echo '<div style="float: right; color: #777; margin-top: 15px;">'.apply_filters( 'ppc_options_installed_version', __( 'Installed version' , 'post-pay-counter').': '.$ppc_global_settings['current_version'] ).'</div>';
+        echo '<div style="float: right; color: #777; margin-top: 15px;">'.apply_filters( 'ppc_options_installed_version', __( 'Installed version' , 'post-pay-counter').': '.$ppc_global_settings['current_version'].' - <a href="http://www.thecrowned.org/forums/forum/post-pay-counter" title="'.__( 'Support', 'post-pay-counter' ).'" target="_blank">'.__( 'Support', 'post-pay-counter' ).'</a>' ).'</div>';
         echo '<h2>Post Pay Counter '.__( 'Options' , 'post-pay-counter').'</h2>';
         echo '<div class="clear"></div>';
         echo '<p>'.__( 'From this page you can configure the Post Pay Counter plugin. You will find all the information you need inside each following box and, for every available function, clicking on the info icon on the right of them.' , 'post-pay-counter').'</p>';         
