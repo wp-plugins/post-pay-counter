@@ -48,8 +48,23 @@ class PPC_update_class {
         global $ppc_global_settings;
         
         $general_settings = PPC_general_functions::get_settings( 'general' );
-        
-        PPC_general_functions::manage_cap_allowed_user_roles_plugin_pages( $general_settings['can_see_options_user_roles'], $general_settings['can_see_stats_user_roles'] );
+		
+		/* 
+		 * Version 2.1.1 
+		 */
+		
+		//Fixed: installation added personalized user settings in place of general ones
+		if( $general_settings['userid'] != 'general' ) {
+            delete_option( $ppc_global_settings['option_name'] );
+            unset( $ppc_global_settings['general_settings'] );
+            
+			PPC_install_functions::ppc_install_procedure();
+		}
+		
+		$general_settings = PPC_general_functions::get_settings( 'general' );
+		
+		PPC_general_functions::manage_cap_allowed_user_roles_plugin_pages( $general_settings['can_see_options_user_roles'], $general_settings['can_see_stats_user_roles'] );
+		
         update_option( 'ppc_current_version', $ppc_global_settings['newest_version'] );
     }
 }

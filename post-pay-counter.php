@@ -4,7 +4,7 @@ Plugin Name: Post Pay Counter
 Plugin URI: http://www.thecrowned.org/wordpress-plugins/post-pay-counter
 Description: Easily handle authors' pay on a multi-author blog by computing posts' remuneration basing on admin defined rules. Define the time range you would like to have stats about, and the plugin will do the rest.
 Author: Stefano Ottolenghi
-Version: 2.1
+Version: 2.1.1
 Author URI: http://www.thecrowned.org/
 */
 
@@ -46,7 +46,7 @@ class post_pay_counter {
         global $ppc_global_settings;
         
         $ppc_global_settings['current_version'] = get_option( 'ppc_current_version' );
-        $ppc_global_settings['newest_version'] = '2.1';
+        $ppc_global_settings['newest_version'] = '2.1.1';
         $ppc_global_settings['option_name'] = 'ppc_settings';
         $ppc_global_settings['folder_path'] = plugins_url( '/', __FILE__ );
         $ppc_global_settings['options_menu_link'] = 'admin.php?page=ppc-options';
@@ -55,17 +55,7 @@ class post_pay_counter {
         $ppc_global_settings['cap_access_stats'] = 'post_pay_counter_access_stats';
         $ppc_global_settings['temp'] = array( 'settings' => array() );
         
-        //If current_version option is DIFFERENT from the latest release number, launch the update procedure.
-        if( $ppc_global_settings['current_version'] != $ppc_global_settings['newest_version'] ) {
-            require_once( 'classes/ppc_update_class.php' );
-            
-            PPC_update_class::update();
-            $ppc_global_settings['current_version'] = $ppc_global_settings['newest_version'];
-            
-            do_action( 'ppc_updated' );
-            
-            echo '<div id="message" class="updated fade"><p>'.sprintf( __( 'Post Pay Counter was successfully updated to version %1$s. Want to have a look at the %2$sOptions page%3$s, or at the %4$schangelog%3$s?' ), $ppc_global_settings['newest_version'], '<a href="'.admin_url( $ppc_global_settings['options_menu_link'] ).'" title="'.__( 'Go to Options page' ).'">', '</a>', '<a href="http://wordpress.org/extend/plugins/post-pay-counter/changelog/" target="_blank" title="'.__( 'Go to changelog' ).'">' ).'</p></div>';
-        }
+        add_action( 'plugins_loaded', array( $this, 'maybe_update' ) );
         
         $ppc_global_settings['general_settings'] = PPC_general_functions::get_settings( 'general' );
         
@@ -131,6 +121,28 @@ class post_pay_counter {
         $ppc_global_settings['options_menu_slug'] = add_submenu_page( 'post_pay_counter_show_network_stats', 'Post Pay Counter Options', 'Options', 'post_pay_counter_manage_options', 'post_pay_counter_network_options', array( $this, 'post_pay_counter_network_options' ) );
         $ppc_global_settings['options_menu_link'] = 'admin.php?page=post_pay_counter_network_options';
     }*/
+    
+    /**
+     * If current_version option is DIFFERENT from the latest release number, launch the update procedure.
+     *
+     * @access  public
+     * @since   2.1.1
+    */
+    
+    function maybe_update() {
+        global $ppc_global_settings;
+        
+        if( $ppc_global_settings['current_version'] != $ppc_global_settings['newest_version'] ) {
+            require_once( 'classes/ppc_update_class.php' );
+            
+            PPC_update_class::update();
+            $ppc_global_settings['current_version'] = $ppc_global_settings['newest_version'];
+            
+            echo '<div id="message" class="updated fade"><p>'.sprintf( __( 'Post Pay Counter was successfully updated to version %1$s. Want to have a look at the %2$sOptions page%3$s, or at the %4$schangelog%3$s?' ), $ppc_global_settings['newest_version'], '<a href="'.admin_url( $ppc_global_settings['options_menu_link'] ).'" title="'.__( 'Go to Options page' ).'">', '</a>', '<a href="http://wordpress.org/extend/plugins/post-pay-counter/changelog/" target="_blank" title="'.__( 'Go to changelog' ).'">' ).'</p></div>';
+            
+            do_action( 'ppc_updated' );
+        }
+    }
     
     /**
      * Reponsible of the datepicker's files, plugin's js and css loading in the stats page

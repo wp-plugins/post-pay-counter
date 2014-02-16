@@ -63,7 +63,9 @@ class PPC_install_functions {
     static function ppc_install_procedure() {
         global $ppc_global_settings, $current_user;
         
-        update_option( 'ppc_current_version', $ppc_global_settings['newest_version'] );
+        if( ! is_object( $current_user ) ) {
+            get_currentuserinfo();
+        }
         
         $default_settings = array(
             'general' => array( 
@@ -257,17 +259,20 @@ class PPC_install_functions {
     			'can_see_countings_special_settings' => 1
             )
 		);
-        
+        var_dump(PPC_general_functions::get_settings( 'general' ));
         if( ! is_array( PPC_general_functions::get_settings( 'general' ) ) ) {
             update_option( $ppc_global_settings['option_name'], $default_settings['general'] );
         }
         
-        //Grant current user all permissions by personalizing his user
-        if( ! is_array( PPC_general_functions::get_settings( $current_user->ID ) ) ) {
-            update_option( $ppc_global_settings['option_name'], $default_settings['admin'] );
+        //Grant current user all permissions by personalizing his user (if not already)
+        $admin_settings = PPC_general_functions::get_settings( $current_user->ID );
+        if( $admin_settings['userid'] == 'general' ) {
+            update_user_option( $ppc_global_settings['option_name'], $default_settings['admin'] );
         }
         
         PPC_general_functions::manage_cap_allowed_user_roles_plugin_pages( $default_settings['general']['can_see_options_user_roles'], $default_settings['general']['can_see_stats_user_roles'] );
+        
+        update_option( 'ppc_current_version', $ppc_global_settings['newest_version'] );
     }
 }
 

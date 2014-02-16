@@ -3,7 +3,7 @@ Contributors: Ste_95
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SM5Q9BVU4RT22
 Tags: counter, authors, payment, stats, multi author, post management, post
 Tested up to: 3.8
-Stable tag: 2.1
+Stable tag: 2.1.1
 Requires at least: 3.7
 
 Easily handle authors' pay on a multi-author blog by computing posts' remuneration basing on admin defined rules.
@@ -36,6 +36,9 @@ The plugin does not keep track of visits, it can only keep it in mind when compu
 That is probably due to a permissions manager plugin you have on your blog. Check that capabilities *post_pay_counter_access_stats* and *post_pay_counter_manage_options* are correctly assigned and working.
 
 == Changelog ==
+= 2.1.1 =
+* Fixed: new installations would add personalized user settings in place of general ones.
+
 = 2.1 =
 * Added *System info* page for easier troubleshooting. Please include those data when asking for support.
 * PRO version available: added a notification & updated link.
