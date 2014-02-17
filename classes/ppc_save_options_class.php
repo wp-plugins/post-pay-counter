@@ -42,8 +42,10 @@ class PPC_save_options {
         //Counting methods/systems (Radio fields)
         $counting_words_system = PPC_options_fields::get_radio_value( $settings['counting_words_system'], 'counting_words_system_zonal', 'counting_words_system_incremental' );
         $counting_visits_method = PPC_options_fields::get_radio_value( $settings['counting_visits_method'], 'counting_visits_google_analytics', 'counting_visits_postmeta' );
-        $counting_visits_system = PPC_options_fields::get_radio_value( $settings['counting_visits_system'], 'counting_visits_system_zonal', 'counting_visits_system_incremental' ); 
-        $new_settings = array_merge( $new_settings, $counting_words_system, $counting_visits_method, $counting_visits_system );
+        $counting_visits_system = PPC_options_fields::get_radio_value( $settings['counting_visits_system'], 'counting_visits_system_zonal', 'counting_visits_system_incremental' );
+        $counting_images_system = PPC_options_fields::get_radio_value( $settings['counting_images_system'], 'counting_images_system_zonal', 'counting_images_system_incremental' );
+        $counting_comments_system = PPC_options_fields::get_radio_value( $settings['counting_comments_system'], 'counting_comments_system_zonal', 'counting_comments_system_incremental' ); 
+        $new_settings = array_merge( $new_settings, $counting_words_system, $counting_visits_method, $counting_visits_system, $counting_images_system, $counting_comments_system );
         
         //Fields that need special attention (text)
         $new_settings['basic_payment_value'] = (float) str_replace( ',', '.', $settings['basic_payment_value'] );
@@ -53,11 +55,11 @@ class PPC_save_options {
         $new_settings['counting_visits_system_incremental_value'] = (float) str_replace( ',', '.', $settings['counting_visits_system_incremental_value'] );
         $new_settings['counting_visits_threshold_max'] = (int) $settings['counting_visits_threshold_max'];
         $new_settings['counting_images_threshold_min'] = (int) $settings['counting_images_threshold_min'];
-        $new_settings['counting_images_value'] = (float) str_replace( ',', '.', $settings['counting_images_value'] );
         $new_settings['counting_images_threshold_max'] = (int) $settings['counting_images_threshold_max'];
+        $new_settings['counting_images_system_incremental_value'] = (float) str_replace( ',', '.', $settings['counting_images_system_incremental_value'] );
         $new_settings['counting_comments_threshold_min'] = (int) $settings['counting_comments_threshold_min'];
-        $new_settings['counting_comments_value'] = (float) str_replace( ',', '.', $settings['counting_comments_value'] );
         $new_settings['counting_comments_threshold_max'] = (int) $settings['counting_comments_threshold_max'];
+        $new_settings['counting_comments_system_incremental_value'] = (float) str_replace( ',', '.', $settings['counting_comments_system_incremental_value'] );
         $new_settings['counting_payment_total_threshold'] = (float) str_replace( ',', '.', $settings['counting_payment_total_threshold'] );
         
         foreach( $settings as $option => $value ) {
@@ -79,6 +81,19 @@ class PPC_save_options {
             if( preg_match_all( '/visits_([0-9]+)_zone_payment/', $option, $matches ) === 1 AND $value != 0 ) {
                 $new_settings['counting_visits_system_zonal_value'][$matches[1][0]]['payment'] = (float) str_replace( ',', '.', $value );
             }
+            if( preg_match_all( '/images_([0-9]+)_zone_threshold/', $option, $matches ) === 1 AND $value != 0 ) {
+                $new_settings['counting_images_system_zonal_value'][$matches[1][0]]['threshold'] = (int) $value;
+            }
+            if( preg_match_all( '/images_([0-9]+)_zone_payment/', $option, $matches ) === 1 AND $value != 0 ) {
+                $new_settings['counting_images_system_zonal_value'][$matches[1][0]]['payment'] = (float) str_replace( ',', '.', $value );
+            }
+            if( preg_match_all( '/comments_([0-9]+)_zone_threshold/', $option, $matches ) === 1 AND $value != 0 ) {
+                $new_settings['counting_comments_system_zonal_value'][$matches[1][0]]['threshold'] = (int) $value;
+            }
+            if( preg_match_all( '/comments_([0-9]+)_zone_payment/', $option, $matches ) === 1 AND $value != 0 ) {
+                $new_settings['counting_comments_system_zonal_value'][$matches[1][0]]['payment'] = (float) str_replace( ',', '.', $value );
+            }
+            
         }
         
         $new_settings = apply_filters( 'ppc_save_counting_settings', $new_settings, $current_settings );

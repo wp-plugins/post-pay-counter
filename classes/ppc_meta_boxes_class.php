@@ -227,7 +227,6 @@ class PPC_meta_boxes {
         echo PPC_options_fields::echo_payment_systems( 'images', array( 'counting_images_system_zonal' => $current_settings['counting_images_system_zonal'], 'counting_images_system_zonal_value' => $current_settings['counting_images_system_zonal_value'], 'counting_images_system_incremental' => $current_settings['counting_images_system_incremental'], 'counting_images_system_incremental_value' => $current_settings['counting_images_system_incremental_value'] ) );
         echo '<div class="title">'.__( 'Counting options' , 'post-pay-counter').'</div>';
         echo PPC_HTML_functions::echo_text_field( 'counting_images_threshold_min', $current_settings['counting_images_threshold_min'], __( 'Start paying per image after image #' , 'post-pay-counter') );
-        echo PPC_HTML_functions::echo_text_field( 'counting_images_value', $current_settings['counting_images_value'], 'Payment for each image' );
         echo PPC_HTML_functions::echo_text_field( 'counting_images_threshold_max', $current_settings['counting_images_threshold_max'], __( 'Stop paying per image after image #' , 'post-pay-counter') );
         echo PPC_HTML_functions::echo_p_field( 'Include featured image in counting', $current_settings['counting_images_include_featured'], 'checkbox', 'counting_images_include_featured', __( 'Determines whether the featured image will be included in image counting.' , 'post-pay-counter') );
         echo '</div>';
@@ -245,7 +244,6 @@ class PPC_meta_boxes {
         echo PPC_options_fields::echo_payment_systems( 'comments', array( 'counting_comments_system_zonal' => $current_settings['counting_comments_system_zonal'], 'counting_comments_system_zonal_value' => $current_settings['counting_comments_system_zonal_value'], 'counting_comments_system_incremental' => $current_settings['counting_comments_system_incremental'], 'counting_comments_system_incremental_value' => $current_settings['counting_comments_system_incremental_value'] ) );
         echo '<div class="title">'.__( 'Counting options' , 'post-pay-counter').'</div>';
         echo PPC_HTML_functions::echo_text_field( 'counting_comments_threshold_min', $current_settings['counting_comments_threshold_min'], __( 'Start paying per comment after comment #' , 'post-pay-counter') );
-        echo PPC_HTML_functions::echo_text_field( 'counting_comments_value', $current_settings['counting_comments_value'], __( 'Payment for each comment' , 'post-pay-counter') );
         echo PPC_HTML_functions::echo_text_field( 'counting_comments_threshold_max', $current_settings['counting_comments_threshold_max'], __( 'Stop paying per comment after comment #' , 'post-pay-counter') );
         echo '</div>';
         echo '</div>';

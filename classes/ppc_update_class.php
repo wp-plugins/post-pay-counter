@@ -49,23 +49,69 @@ class PPC_update_class {
         
         $general_settings = PPC_general_functions::get_settings( 'general' );
 		
-		/* 
-		 * Version 2.1.1 
-		 */
-		
-		//Fixed: installation added personalized user settings in place of general ones
-		if( $general_settings['userid'] != 'general' ) {
-            delete_option( $ppc_global_settings['option_name'] );
-            unset( $ppc_global_settings['general_settings'] );
+        switch( $ppc_global_settings['current_version'] ) {
             
-			PPC_install_functions::ppc_install_procedure();
-		}
-		
+            case "2.1":
+            
+        		/* 
+        		 * Version 2.1.1 
+        		 */
+        		
+        		//Fixed: installation added personalized user settings in place of general ones
+        		if( $general_settings['userid'] != 'general' ) {
+                    delete_option( $ppc_global_settings['option_name'] );
+                    unset( $ppc_global_settings['general_settings'] );
+                    
+        			PPC_install_functions::ppc_install_procedure();
+        		}
+                
+                break;
+            
+            case "2.1.1":
+                
+                /*
+                 * Version 2.1.2
+                 */
+                 
+                //Images & comments problems with counting systems - general and personalized settings update
+                $general_settings['counting_images_system_incremental_value'] = $general_settings['counting_images_value'];
+                $general_settings['counting_comments_system_incremental_value'] = $general_settings['counting_comments_value'];
+                unset( $general_settings['counting_images_value'], $general_settings['counting_comments_value'] );
+                if( ! update_option( $ppc_global_settings['option_name'], $general_settings ) ) {
+                    return new WP_Error( 'ppc_update_2.1.2_error', __( 'Error: could not update settings.' ) );
+                }
+                
+                $args = array(
+        			'meta_key' => $ppc_global_settings['option_name'],
+                    'fields' => 'ids'
+                );
+        		$personalized_users = get_users( $args );
+        		foreach( $personalized_users as $user ) {
+        			$user_settings = PPC_general_functions::get_settings( $user ); 
+        			
+        			$user_settings['counting_images_system_incremental_value'] = $user_settings['counting_images_value'];
+                    $user_settings['counting_comments_system_incremental_value'] = $user_settings['counting_comments_value'];
+                    unset( $user_settings['counting_images_value'], $user_settings['counting_comments_value'] );
+                    update_option( $ppc_global_settings['option_name'], $user_settings );
+        			
+        			if( ! update_user_option( $user, $ppc_global_settings['option_name'], $user_settings ) ) {
+        				return new WP_Error( 'ppc_update_2.1.2_error', __( 'Error: could not update user\'s settings.' ) );
+        			}
+        		}
+                
+                break;
+        }
+    		
 		$general_settings = PPC_general_functions::get_settings( 'general' );
 		
 		PPC_general_functions::manage_cap_allowed_user_roles_plugin_pages( $general_settings['can_see_options_user_roles'], $general_settings['can_see_stats_user_roles'] );
 		
         update_option( 'ppc_current_version', $ppc_global_settings['newest_version'] );
+        
+        //PRO gets deactivated as soon as PPC is deactivated - if it was active before, reactivate if now
+        if( get_option( 'ppcp_active' ) == 1 ) {
+            activate_plugin( 'post-pay-counter-pro/post-pay-counter-pro.php' );
+        }
     }
 }
 

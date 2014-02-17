@@ -117,9 +117,8 @@ class PPC_install_functions {
                     )
                 ),
                 'counting_images_system_incremental' => 1,
-                'counting_images_system_incremental_value' => 0.01,
+                'counting_images_system_incremental_value' => 0.2,
                 'counting_images_threshold_min' => 2,
-                'counting_images_value' => 0.2,
                 'counting_images_threshold_max' => 10,
                 'counting_images_include_featured' => 1,
                 'counting_comments' => 1,
@@ -135,9 +134,8 @@ class PPC_install_functions {
                     )
                 ),
                 'counting_comments_system_incremental' => 1,
-                'counting_comments_system_incremental_value' => 0.01,
+                'counting_comments_system_incremental_value' => 0.2,
                 'counting_comments_threshold_min' => 2,
-                'counting_comments_value' => 0.2,
                 'counting_comments_threshold_max' => 10,
                 'counting_payment_total_threshold' => 0,
                 'counting_payment_only_when_total_threshold' => 0,
