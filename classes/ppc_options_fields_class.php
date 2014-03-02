@@ -16,15 +16,22 @@ class PPC_options_fields {
      * @param   $name string field name
      * @param   $value string field value
      * @param   $id string field id
+	 * @param 	$disabled bool whether field should be disabled
      * @return  string the html of the radio field
     */
     
-    function generate_radio_field( $setting, $name, $value, $id ) {
-        if( $setting == 1 ) {
-            return '<input type="radio" name="'.$name.'" value="'.$value.'" id="'.$id.'" checked="checked" />';
-        } else {
-            return '<input type="radio" name="'.$name.'" value="'.$value.'" id="'.$id.'" />';
+    function generate_radio_field( $setting, $name, $value, $id, $disabled ) {
+        $disabled_html = '';
+		if( $disabled ) {
+			$disabled_html = ' disabled="disabled"';
+		}
+		
+		$checked_html = '';
+		if( $setting ) {
+            $checked_html = ' checked="checked"';
         }
+		
+		return '<input type="radio" name="'.$name.'" value="'.$value.'" id="'.$id.'" '.$checked_html.$disabled_html.'/>';
     }
     
     /**
@@ -35,15 +42,22 @@ class PPC_options_fields {
      * @param   $setting int current setting value (either 0 or 1)
      * @param   $name string field name
      * @param   $id string field id
+	 * @param 	$disabled bool whether field should be disabled
      * @return  string the html of the checkbox field
     */
             
-    function generate_checkbox_field( $setting, $name, $id ) {        
-        if( $setting == 1 ) {
-            return '<input type="checkbox" name="'.$name.'" id="'.$id.'" checked="checked" />';
-        } else {
-            return '<input type="checkbox" name="'.$name.'" id="'.$id.'" />';
+    function generate_checkbox_field( $setting, $name, $value, $id, $disabled ) {
+        $disabled_html = '';
+		if( $disabled ) {
+			$disabled_html = ' disabled="disabled"';
+		}
+		
+		$checked_html = '';
+		if( $setting ) {
+            $checked_html = ' checked="checked"';
         }
+		
+		return '<input type="checkbox" name="'.$name.'" value="'.$value.'" id="'.$id.'" '.$checked_html.$disabled_html.'/>';
     }
     
     /**

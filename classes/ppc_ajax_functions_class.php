@@ -31,10 +31,12 @@ class PPC_ajax_functions {
      * @param   $nonce string the WP nonce  
     */
     
-    function save_counting_settings() {
+    static function save_counting_settings() {
         self::ppc_check_ajax_referer( 'ppc_save_counting_settings' );
         
-        $save_settings = PPC_save_options::save_counting_settings( $_REQUEST['form_data'] );
+        parse_str( $_REQUEST['form_data'], $settings );
+        
+        $save_settings = PPC_save_options::save_counting_settings( $settings );
         if( is_wp_error( $save_settings ) ) {
             die( $save_settings->get_error_message() );
         }
@@ -49,10 +51,12 @@ class PPC_ajax_functions {
      * @param   $nonce string the WP nonce  
     */
     
-    function save_misc_settings() {
+    static function save_misc_settings() {
         self::ppc_check_ajax_referer( 'ppc_save_misc_settings' );
         
-        $save_settings = PPC_save_options::save_misc_settings( $_REQUEST['form_data'] );
+        parse_str( $_REQUEST['form_data'], $settings );
+        
+        $save_settings = PPC_save_options::save_misc_settings( $settings );
         if( is_wp_error( $save_settings ) ) {
             die( $save_settings->get_error_message() );
         }
@@ -67,10 +71,12 @@ class PPC_ajax_functions {
      * @param   $nonce string the WP nonce  
     */
     
-    function save_permissions() {
+    static function save_permissions() {
         self::ppc_check_ajax_referer( 'ppc_save_permissions' );
         
-        $save_settings = PPC_save_options::save_permissions( $_REQUEST['form_data'] );
+        parse_str( $_REQUEST['form_data'], $settings );
+        
+        $save_settings = PPC_save_options::save_permissions( $settings );
         if( is_wp_error( $save_settings ) ) {
             die( $save_settings->get_error_message() );
         }
@@ -84,7 +90,7 @@ class PPC_ajax_functions {
      * @since   2.0  
     */
     
-    function personalize_fetch_users_by_roles() {
+    static function personalize_fetch_users_by_roles() {
         global $ppc_global_settings;
         self::ppc_check_ajax_referer( 'ppc_personalize_fetch_users_by_roles' );
         
@@ -110,6 +116,7 @@ class PPC_ajax_functions {
         $n = 0;
         $html = '';
         echo '<table>';
+        
         foreach( $users_to_show->results as $single ) {
             if( $n % 3 == 0 ) {
                 $html .= '<tr>';
@@ -121,8 +128,10 @@ class PPC_ajax_functions {
             
             echo apply_filters( 'ppc_html_personalize_list_print_user', $html );
             
+            $html = '';
             $n++;
         }
+        
         echo '</table>';
         exit;
     }
@@ -134,7 +143,7 @@ class PPC_ajax_functions {
      * @since   2.0  
     */
     
-    function vaporize_user_settings() {
+    static function vaporize_user_settings() {
         global $ppc_global_settings;
         self::ppc_check_ajax_referer( 'ppc_vaporize_user_settings' );
         
@@ -147,6 +156,36 @@ class PPC_ajax_functions {
             
             die( 'ok'.__( 'User\'s settings deleted successfully. You will be redirected to the general options page.' , 'post-pay-counter') );
         }
+    }
+    
+    /**
+     * Imports settings.
+     *
+     * @access  public
+     * @since   2.1.3
+    */
+    
+    static function import_settings() {
+        global $ppc_global_settings;
+        self::ppc_check_ajax_referer( 'ppc_import_settings' );
+        
+        $to_import = unserialize( base64_decode( $_REQUEST['import_settings_content'] ) );
+        
+        if( is_array( $to_import ) AND isset( $to_import['userid'] ) ) {
+            
+            $update = PPC_save_options::update_settings( $to_import['userid'], $to_import );
+            
+            if( is_wp_error( $update ) ) {
+                echo $update->get_error_message();
+            } else {
+                echo 'ok';
+            }
+        
+        } else {
+            _e( 'What are you importing, cows?', 'post-pay-counter' );
+        }
+        
+        exit;
     }
 }
 ?>

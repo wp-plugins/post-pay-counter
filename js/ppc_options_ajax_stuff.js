@@ -54,7 +54,7 @@ jQuery(document).ready(function($) {
     $('#ppc_save_permissions').on("click", function(e) {
         e.preventDefault();
         $('#ppc_permissions_ajax_loader').css('display', 'inline');
-        $('#ppc_permissions_error').css('display', 'error');
+        $('#ppc_permissions_error').css('display', 'none');
         
         var data = {
             action: "ppc_save_permissions",
@@ -119,6 +119,31 @@ jQuery(document).ready(function($) {
             } else {
                 alert(ppc_options_ajax_stuff_vars.localized_vaporize_user_success);
                 window.location.replace(ppc_options_ajax_stuff_vars.ppc_options_url);
+            }
+        });
+    });
+    /* </DELETE USER'S PERSONALIZED SETTINGS> */
+    
+    /* <IMPORT/EXPORT SETTINGS> */
+    $('#ppc_import_settings').on('click', function(e) {
+        e.preventDefault();
+        $('#ppc_import_settings_ajax_loader').css('display', 'inline');
+        $('#ppc_import_settings_error').css('display', 'none');
+        
+        var data = {
+            action: "ppc_import_settings",
+            import_settings_content: $("#ppc_import_settings_content").val(),
+            _ajax_nonce: ppc_options_ajax_stuff_vars.nonce_ppc_import_settings
+        };
+        
+        $.post(ajaxurl, data, function(response) {
+            $('#ppc_import_settings_ajax_loader').css('display', 'none');
+            
+            if(response.indexOf('ok') < 0) {
+                $('#ppc_import_settings_error').html(response);
+                $('#ppc_import_settings_error').css('display', 'inline');
+            } else {
+				$('#ppc_import_settings_success').css('display', 'inline');
             }
         });
     });

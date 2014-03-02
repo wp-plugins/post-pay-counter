@@ -2,8 +2,8 @@
 Contributors: Ste_95
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SM5Q9BVU4RT22
 Tags: counter, authors, payment, stats, multi author, post management, post
-Tested up to: 3.8
-Stable tag: 2.1.2
+Tested up to: 3.8.1
+Stable tag: 2.2
 Requires at least: 3.7
 
 Easily handle authors' pay on a multi-author blog by computing posts' remuneration basing on admin defined rules.
@@ -19,6 +19,8 @@ The Post Pay Counter plugin allows you to easily calculate and handle authors' p
 * Personalize user's settings, so that special settings only apply to a particular user. Different settings can be made viewable in the stats or hidden depending on your needs.
 * Customizable permissions to prevent your users to see stats and use functions they are not supposed to.
 * And... works with custom post types, narrow your payments only to chosen user groups, and more.
+
+Also, we have a **[PRO version](www.thecrowned.org/post-pay-counter-pro)** with many more features!
 
 [youtube https://www.youtube.com/watch?v=mSFjvR-2zCI]
 
@@ -36,6 +38,12 @@ The plugin does not keep track of visits, it can only keep it in mind when compu
 That is probably due to a permissions manager plugin you have on your blog. Check that capabilities *post_pay_counter_access_stats* and *post_pay_counter_manage_options* are correctly assigned and working.
 
 == Changelog ==
+= 2.2 =
+* Feature: import/export settings from a plugin installation to another.
+* Fixed: personalizable users list duplicated and triplicated usernames.
+* Fixed: problems with computing payment for images and comments.
+* Change: version number is now castable to float - no more 2.1.2, became 2.12.
+
 = 2.1.2 =
 * Fixed: images and comments counting had problems with their counting systems and didn't update properly.
 * Fixed: PRO version gets reactivated after PPC is updated.

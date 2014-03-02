@@ -203,20 +203,24 @@ class PPC_HTML_functions {
      * @return  string the html 
     */
     
-    function echo_p_field( $text, $setting, $field, $name, $tooltip_description = NULL, $value = NULL, $id = NULL ) {
+    function echo_p_field( $text, $setting, $field, $name, $tooltip_description = NULL, $value = NULL, $id = NULL, $disabled = false ) {
 	   global $ppc_global_settings;
-    
+		
         $html = '<p style="height: 11px;">';
-        $html .= '<span class="ppc_tooltip">';
-        $html .= '<img src="'.$ppc_global_settings['folder_path'].'style/images/info.png'.'" title="'.$tooltip_description.'" class="tooltip_container" />';
-        $html .= '</span>';
+        
+		if( is_string( $tooltip_description ) ) {
+			$html .= '<span class="ppc_tooltip">';
+			$html .= '<img src="'.$ppc_global_settings['folder_path'].'style/images/info.png'.'" title="'.$tooltip_description.'" class="ppc_tooltip_container" />';
+			$html .= '</span>';
+		}
+		
         $html .= '<label>';
         $html .= '<span class="checkable_input">';
          
         if( $field == 'radio' ) { 
-            $html .= PPC_options_fields::generate_radio_field( $setting, $name, $value, $id ); 
+            $html .= PPC_options_fields::generate_radio_field( $setting, $name, $value, $id, $disabled ); 
         } else if( $field == 'checkbox' ) { 
-            $html .= PPC_options_fields::generate_checkbox_field( $setting, $name, $id ); 
+            $html .= PPC_options_fields::generate_checkbox_field( $setting, $name, $value, $id, $disabled ); 
         }
                 
         $html .= '</span>';

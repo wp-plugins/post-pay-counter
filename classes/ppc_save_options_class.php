@@ -16,7 +16,6 @@ class PPC_save_options {
     */
     
     static function save_counting_settings( $settings ) {
-        parse_str( $settings, $settings );
         $current_settings = PPC_general_functions::get_settings( $settings['userid'] );
         $new_settings = array(
             'userid' => $settings['userid'], 'counting_allowed_post_statuses' => array( 'publish' => 1, 'future' => 0, 'pending' => 0 )
@@ -114,7 +113,6 @@ class PPC_save_options {
     */
     
     static function save_misc_settings( $settings ) {
-        parse_str( $settings, $settings );
         $current_settings = PPC_general_functions::get_settings( 'general' );
         $new_settings = array( 'counting_allowed_post_types' => array(), 'counting_allowed_user_roles' => array(), 'can_see_options_user_roles' => array(), 'can_see_stats_user_roles' => array() );
         
@@ -167,7 +165,6 @@ class PPC_save_options {
     */
     
     static function save_permissions( $settings ) {
-        parse_str( $settings, $settings );
         $current_settings = PPC_general_functions::get_settings( $settings['userid'] );
         $new_settings = array( 'userid' => $settings['userid'] );
         

@@ -4,7 +4,7 @@ Plugin Name: Post Pay Counter
 Plugin URI: http://www.thecrowned.org/wordpress-plugins/post-pay-counter
 Description: Easily handle authors' pay on a multi-author blog by computing posts' remuneration basing on admin defined rules. Define the time range you would like to have stats about, and the plugin will do the rest.
 Author: Stefano Ottolenghi
-Version: 2.1.2
+Version: 2.2
 Author URI: http://www.thecrowned.org/
 */
 
@@ -46,7 +46,7 @@ class post_pay_counter {
         global $ppc_global_settings;
         
         $ppc_global_settings['current_version'] = get_option( 'ppc_current_version' );
-        $ppc_global_settings['newest_version'] = '2.1.2';
+        $ppc_global_settings['newest_version'] = '2.2';
         $ppc_global_settings['option_name'] = 'ppc_settings';
         $ppc_global_settings['folder_path'] = plugins_url( '/', __FILE__ );
         $ppc_global_settings['options_menu_link'] = 'admin.php?page=ppc-options';
@@ -95,6 +95,7 @@ class post_pay_counter {
         add_action( 'wp_ajax_ppc_save_misc_settings', array( 'PPC_ajax_functions', 'save_misc_settings' ) );
         add_action( 'wp_ajax_ppc_personalize_fetch_users_by_roles', array( 'PPC_ajax_functions', 'personalize_fetch_users_by_roles' ) );
         add_action( 'wp_ajax_ppc_vaporize_user_settings', array( 'PPC_ajax_functions', 'vaporize_user_settings' ) );
+        add_action( 'wp_ajax_ppc_import_settings', array( 'PPC_ajax_functions', 'import_settings' ) );
     }
     
     /**
@@ -199,6 +200,8 @@ class post_pay_counter {
             //add_meta_box( 'ppc_trial_settings', 'Trial Settings', array( $this, 'meta_box_trial_settings' ), $ppc_global_settings['options_menu_slug'], 'normal', 'default', self::$options_page_settings );
         }
         
+        add_meta_box( 'ppc_import_export_settings', 'Import/Export Settings', array( 'PPC_meta_boxes', 'meta_box_import_export_settings' ), $ppc_global_settings['options_menu_slug'], 'side', 'default', self::$options_page_settings );
+        
         wp_enqueue_style( 'jquery.tooltip.theme', $ppc_global_settings['folder_path'].'style/tipTip.css' );
         wp_enqueue_style( 'ppc_options_style', $ppc_global_settings['folder_path'].'style/ppc_options_style.css', array( 'wp-admin' ) );
         wp_enqueue_script( 'jquery-tooltip-plugin', $ppc_global_settings['folder_path'].'js/jquery.tiptip.min.js', array( 'jquery' ) );
@@ -209,6 +212,7 @@ class post_pay_counter {
             'nonce_ppc_save_misc_settings' => wp_create_nonce( 'ppc_save_misc_settings' ),
             'nonce_ppc_personalize_fetch_users_by_roles' => wp_create_nonce( 'ppc_personalize_fetch_users_by_roles' ),
             'nonce_ppc_vaporize_user_settings' => wp_create_nonce( 'ppc_vaporize_user_settings' ),
+            'nonce_ppc_import_settings' => wp_create_nonce( 'ppc_import_settings' ),
             'localized_vaporize_user_success' => __( 'User\'s settings successfully deleted. You will be redirected to the general options page.' , 'post-pay-counter'),
             'ppc_options_url' => $ppc_global_settings['options_menu_link']
         ) );

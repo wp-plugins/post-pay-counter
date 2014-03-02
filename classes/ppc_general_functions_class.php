@@ -204,7 +204,9 @@ class PPC_general_functions {
         if( $post_images['real'] <= $settings['counting_images_threshold_min'] ) {
             $post_images['to_count'] = 0;
         } else {
-            if( $settings['counting_images_threshold_max'] > 0 AND $post_images['real'] > $settings['counting_images_threshold_max'] ) {
+            if( $settings['counting_images_threshold_max'] == 0 AND $settings['counting_images_threshold_min'] == 0 ) { //If both upper and lower thresholds are 0, then no limit
+                $post_images['to_count'] = $post_images['real'];
+            } else if( $settings['counting_images_threshold_max'] > 0 AND $post_images['real'] > $settings['counting_images_threshold_max'] ) {
                 $post_images['to_count'] = $settings['counting_images_threshold_max'] - $settings['counting_images_threshold_min'];
             } else {
                 $post_images['to_count'] = $post_images['real'] - $settings['counting_images_threshold_min'];
@@ -236,7 +238,9 @@ class PPC_general_functions {
         if( $post_comments['real'] <= $settings['counting_comments_threshold_min'] ) {
             $post_comments['to_count'] = 0;
         } else {
-            if( $settings['counting_comments_threshold_max'] > 0 AND $post_comments['real'] > $settings['counting_comments_threshold_max'] ) {
+            if( $settings['counting_comments_threshold_max'] == 0 AND $settings['counting_comments_threshold_min'] == 0 ) { //If both upper and lower thresholds are 0, then no limit
+                $post_comments['to_count'] = $post_comments['real'];
+            } else if( $settings['counting_comments_threshold_max'] > 0 AND $post_comments['real'] > $settings['counting_comments_threshold_max'] ) {
                 $post_comments['to_count'] = $settings['counting_comments_threshold_max'] - $settings['counting_comments_threshold_min'];
             } else {
                 $post_comments['to_count'] = $post_comments['real'] - $settings['counting_comments_threshold_min'];

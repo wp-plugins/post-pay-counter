@@ -257,7 +257,7 @@ class PPC_install_functions {
     			'can_see_countings_special_settings' => 1
             )
 		);
-        var_dump(PPC_general_functions::get_settings( 'general' ));
+        
         if( ! is_array( PPC_general_functions::get_settings( 'general' ) ) ) {
             update_option( $ppc_global_settings['option_name'], $default_settings['general'] );
         }
