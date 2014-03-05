@@ -20,7 +20,7 @@ The Post Pay Counter plugin allows you to easily calculate and handle authors' p
 * Customizable permissions to prevent your users to see stats and use functions they are not supposed to.
 * And... works with custom post types, narrow your payments only to chosen user groups, and more.
 
-Also, we have a **[PRO version](www.thecrowned.org/post-pay-counter-pro)** with many more features!
+Also, we have a **[PRO version](http://www.thecrowned.org/post-pay-counter-pro)** with many more features!
 
 [youtube https://www.youtube.com/watch?v=mSFjvR-2zCI]
 
