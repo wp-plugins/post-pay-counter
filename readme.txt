@@ -250,7 +250,7 @@ These the changes from the old Monthly Post Counter:
 
 == Screenshots ==
 1. Post Pay Counter settings page
-2. Use the tooltips beside each field to know what you can do with them
+2. Use the tooltips besides each field to know what you can do with them
 3. Post Pay Counter general stats (i.e. all author are shown). The provided datapicker allows to edit the time range and select the wished stats
 4. Post Pay Counter per author stats. Datapicker avaiable here, too
 5. The tooltip with all the counting details
