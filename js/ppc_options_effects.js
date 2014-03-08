@@ -50,17 +50,25 @@ function post_pay_counter_checkbox_auto_toggle(toggle_click, toggle_click_conten
 }
 
 jQuery(document).ready(function($) {
-	//Payments systems
+	//Counting types
+    post_pay_counter_checkbox_auto_toggle("#basic_payment", "#ppc_basic_payment_content");
+    post_pay_counter_checkbox_auto_toggle("#counting_words", "#ppc_counting_words_content");
+    post_pay_counter_checkbox_auto_toggle("#counting_visits", "#ppc_counting_visits_content");
+    post_pay_counter_checkbox_auto_toggle("#counting_images", "#ppc_counting_images_content");
+    post_pay_counter_checkbox_auto_toggle("#counting_comments", "#ppc_counting_comments_content");
+    
+    //Payments systems
 	post_pay_counter_radio_auto_toggle("#counting_words_system_zonal", "#counting_words_system_zonal_content", "#counting_words_system_incremental", "#counting_words_system_incremental_content");
 	post_pay_counter_radio_auto_toggle("#counting_visits_system_zonal", "#counting_visits_system_zonal_content", "#counting_visits_system_incremental", "#counting_visits_system_incremental_content");
 	post_pay_counter_radio_auto_toggle("#counting_images_system_zonal", "#counting_images_system_zonal_content", "#counting_images_system_incremental", "#counting_images_system_incremental_content");
 	post_pay_counter_radio_auto_toggle("#counting_comments_system_zonal", "#counting_comments_system_zonal_content", "#counting_comments_system_incremental", "#counting_comments_system_incremental_content");
-	//Stats default time date range
+	
+    //Stats default time date range
 	post_pay_counter_radio_auto_toggle("#default_stats_time_range_custom", "#default_stats_time_range_custom_content", "#default_stats_time_range_month", "#default_stats_time_range_month_content");
 	post_pay_counter_radio_auto_toggle("#default_stats_time_range_custom", "#default_stats_time_range_custom_content", "#default_stats_time_range_week", "#default_stats_time_range_week_content");
     
     //Initializes tooltips
-	$(".tooltip_container").tipTip({
+	$(".ppc_tooltip_container").tipTip({
 		activation: "click",
 		keepAlive:  "true",
 		maxWidth:   "300px"

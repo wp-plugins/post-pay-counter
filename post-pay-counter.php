@@ -4,7 +4,7 @@ Plugin Name: Post Pay Counter
 Plugin URI: http://www.thecrowned.org/wordpress-plugins/post-pay-counter
 Description: Easily handle authors' pay on a multi-author blog by computing posts' remuneration basing on admin defined rules. Define the time range you would like to have stats about, and the plugin will do the rest.
 Author: Stefano Ottolenghi
-Version: 2.2
+Version: 2.21
 Author URI: http://www.thecrowned.org/
 */
 
@@ -38,6 +38,10 @@ require_once( 'classes/ppc_install_functions_class.php' );
 require_once( 'classes/ppc_permissions_class.php' );
 require_once( 'classes/ppc_meta_boxes_class.php' );
 require_once( 'classes/ppc_system_info_class.php' );
+require_once( 'classes/ppc_error_class.php' );
+
+define( 'PPC_DEBUG_SHOW', false );
+define( 'PPC_DEBUG_LOG', true );
 
 class post_pay_counter {
     public static $options_page_settings;
@@ -46,8 +50,9 @@ class post_pay_counter {
         global $ppc_global_settings;
         
         $ppc_global_settings['current_version'] = get_option( 'ppc_current_version' );
-        $ppc_global_settings['newest_version'] = '2.2';
+        $ppc_global_settings['newest_version'] = '2.21';
         $ppc_global_settings['option_name'] = 'ppc_settings';
+        $ppc_global_settings['option_errors'] = 'ppc_errors';
         $ppc_global_settings['folder_path'] = plugins_url( '/', __FILE__ );
         $ppc_global_settings['options_menu_link'] = 'admin.php?page=ppc-options';
         $ppc_global_settings['stats_menu_link'] = 'admin.php?page=ppc-stats';
@@ -193,14 +198,14 @@ class post_pay_counter {
         add_meta_box( 'ppc_support_the_fucking_author', 'Support the author', array( 'PPC_meta_boxes', 'meta_box_support_the_fucking_author' ), $ppc_global_settings['options_menu_slug'], 'side' );
         add_meta_box( 'ppc_pro_features', 'Everything you\'re missing by not being PRO', array( 'PPC_meta_boxes', 'meta_box_pro_features' ), $ppc_global_settings['options_menu_slug'], 'side' );
         
-        
         if( ! isset( $_GET['userid'] ) OR ( isset( $_GET['userid'] ) AND ! is_numeric( $_GET['userid'] ) ) ) {
             add_meta_box( 'ppc_personalize_settings', 'Personalize Settings', array( 'PPC_meta_boxes', 'meta_box_personalize_settings' ), $ppc_global_settings['options_menu_slug'], 'side', 'default', self::$options_page_settings );
-            add_meta_box( 'ppc_misc_settings', 'Miscellanea', array( 'PPC_meta_boxes', 'meta_box_misc_settings' ), $ppc_global_settings['options_menu_slug'], 'side', 'default', self::$options_page_settings );
+            add_meta_box( 'ppc_misc_settings', 'Miscellanea', array( 'PPC_meta_boxes', 'meta_box_misc_settings' ), $ppc_global_settings['options_menu_slug'], 'normal', 'default', self::$options_page_settings );
             //add_meta_box( 'ppc_trial_settings', 'Trial Settings', array( $this, 'meta_box_trial_settings' ), $ppc_global_settings['options_menu_slug'], 'normal', 'default', self::$options_page_settings );
         }
         
         add_meta_box( 'ppc_import_export_settings', 'Import/Export Settings', array( 'PPC_meta_boxes', 'meta_box_import_export_settings' ), $ppc_global_settings['options_menu_slug'], 'side', 'default', self::$options_page_settings );
+        add_meta_box( 'ppc_error_log', 'Error log', array( 'PPC_meta_boxes', 'meta_box_error_log' ), $ppc_global_settings['options_menu_slug'], 'side', 'default', self::$options_page_settings );
         
         wp_enqueue_style( 'jquery.tooltip.theme', $ppc_global_settings['folder_path'].'style/tipTip.css' );
         wp_enqueue_style( 'ppc_options_style', $ppc_global_settings['folder_path'].'style/ppc_options_style.css', array( 'wp-admin' ) );

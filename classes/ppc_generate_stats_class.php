@@ -100,7 +100,8 @@ class PPC_generate_stats {
         $requested_posts = new WP_Query( $args );
         
         if( $requested_posts->found_posts == 0 ) {
-            return new WP_Error( 'empty_selection', __( 'Error: no posts were selected' , 'post-pay-counter'), $args );
+            $error = new PPC_Error( 'empty_selection', __( 'Error: no posts were selected' , 'post-pay-counter'), $args, false );
+            return $error->return_error();
         }
         
         return $requested_posts->posts;
@@ -263,7 +264,7 @@ class PPC_generate_stats {
                 
                 $formatted_stats['stats'][$author_id]['author_id'] = $author_id;
                 $formatted_stats['stats'][$author_id]['author_name'] = $author_data->display_name;
-                $formatted_stats['stats'][$author_id]['author_written_posts'] = $posts['total']['ppc_misc']['posts'];
+                $formatted_stats['stats'][$author_id]['author_written_posts'] = (int) $posts['total']['ppc_misc']['posts'];
                 $formatted_stats['stats'][$author_id]['author_total_payment'] = sprintf( '%.2f', $posts['total']['ppc_payment']['normal_payment']['total'] );
                 
                 $formatted_stats['stats'][$author_id] = apply_filters( 'ppc_general_stats_format_stats_after_each_default', $formatted_stats['stats'][$author_id], $author_id, $posts );

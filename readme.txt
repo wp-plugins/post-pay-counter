@@ -3,7 +3,7 @@ Contributors: Ste_95
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SM5Q9BVU4RT22
 Tags: counter, authors, payment, stats, multi author, post management, post
 Tested up to: 3.8.1
-Stable tag: 2.2
+Stable tag: 2.21
 Requires at least: 3.7
 
 Easily handle authors' pay on a multi-author blog by computing posts' remuneration basing on admin defined rules.
@@ -20,7 +20,7 @@ The Post Pay Counter plugin allows you to easily calculate and handle authors' p
 * Customizable permissions to prevent your users to see stats and use functions they are not supposed to.
 * And... works with custom post types, narrow your payments only to chosen user groups, and more.
 
-Also, we have a **[PRO version](http://www.thecrowned.org/post-pay-counter-pro)** with many more features!
+**Also, we have a [PRO version](http://www.thecrowned.org/post-pay-counter-pro) with many more features!**
 
 [youtube https://www.youtube.com/watch?v=mSFjvR-2zCI]
 
@@ -38,6 +38,12 @@ The plugin does not keep track of visits, it can only keep it in mind when compu
 That is probably due to a permissions manager plugin you have on your blog. Check that capabilities *post_pay_counter_access_stats* and *post_pay_counter_manage_options* are correctly assigned and working.
 
 == Changelog ==
+= 2.21 =
+* Tweak: payments types (basic, words, visits, images, comments), when unchecked, have their details hidden.
+* New: error handling class and debug features. Errors get logged when PPC_DEBUG_LOG is true (some errors get logged anyway) and detailed errors data is shown when PPC_DEBUG_SHOW is true (lines 42-43 of post-pay-counter.php). Not all errors have been updated to use the class yet. See the errors log in the Options page.
+* Fixed: update had broken tooltip info feature.
+* Fixed: problems when the image/comments lower threshold was set but the upper threshold was left to zero.
+
 = 2.2 =
 * Feature: import/export settings from a plugin installation to another.
 * Fixed: personalizable users list duplicated and triplicated usernames.
@@ -250,7 +256,7 @@ These the changes from the old Monthly Post Counter:
 
 == Screenshots ==
 1. Post Pay Counter settings page
-2. Use the tooltips besides each field to know what you can do with them
+2. Use the tooltips beside each field to know what you can do with them
 3. Post Pay Counter general stats (i.e. all author are shown). The provided datapicker allows to edit the time range and select the wished stats
 4. Post Pay Counter per author stats. Datapicker avaiable here, too
 5. The tooltip with all the counting details

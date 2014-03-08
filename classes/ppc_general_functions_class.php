@@ -49,7 +49,7 @@ class PPC_general_functions {
         } else if( get_userdata( $userid ) AND $user_settings = get_user_option( $ppc_global_settings['option_name'], $userid ) ) {
             $perm = new PPC_permissions();
             
-            if( $check_current_user_cap_special == TRUE AND ! $perm->can_see_countings_special_settings() ) {
+            if( $check_current_user_cap_special == TRUE AND ( ! $perm->can_see_countings_special_settings() AND $current_user->ID != $userid ) ) {
                 $userid = $current_user->ID;
             }
             
@@ -201,14 +201,28 @@ class PPC_general_functions {
             }
         }
         
+        //Set max alllowed images number
+        $allowed_images = $settings['counting_images_threshold_max'] - $settings['counting_images_threshold_min'];
+        
+        //If lower threshold is not met, set count to 0
         if( $post_images['real'] <= $settings['counting_images_threshold_min'] ) {
             $post_images['to_count'] = 0;
         } else {
-            if( $settings['counting_images_threshold_max'] == 0 AND $settings['counting_images_threshold_min'] == 0 ) { //If both upper and lower thresholds are 0, then no limit
+            
+            //If both upper and lower thresholds are 0, then no limit
+            if( $allowed_images == 0 ) {
                 $post_images['to_count'] = $post_images['real'];
-            } else if( $settings['counting_images_threshold_max'] > 0 AND $post_images['real'] > $settings['counting_images_threshold_max'] ) {
-                $post_images['to_count'] = $settings['counting_images_threshold_max'] - $settings['counting_images_threshold_min'];
-            } else {
+            
+            //If there's no upper threshold but lower threshold is set (ie. (max-min)<0), set count to count-min
+            } else if( $allowed_images < 0 AND $post_images['real'] > $allowed_images ) {
+                $post_images['to_count'] = $post_images['real'] - $settings['counting_images_threshold_min'];
+            
+            //If count exceeds upper threshold, set count to max-min
+            } else if( $allowed_images > 0 AND $post_images['real'] > $allowed_images ) {
+                $post_images['to_count'] = $allowed_images;
+            
+            //If count lies between thresholds, set it to the count-min
+            } else if( $allowed_images > 0 AND $post_images['real'] <= $allowed_images ) {
                 $post_images['to_count'] = $post_images['real'] - $settings['counting_images_threshold_min'];
             }
         }
@@ -235,14 +249,28 @@ class PPC_general_functions {
             'to_count' => 0 
         );
         
+        //Set max alllowed comments number
+        $allowed_comments = $settings['counting_comments_threshold_max'] - $settings['counting_comments_threshold_min'];
+        
+        //If lower threshold is not met, set count to 0
         if( $post_comments['real'] <= $settings['counting_comments_threshold_min'] ) {
             $post_comments['to_count'] = 0;
         } else {
-            if( $settings['counting_comments_threshold_max'] == 0 AND $settings['counting_comments_threshold_min'] == 0 ) { //If both upper and lower thresholds are 0, then no limit
+            
+            //If both upper and lower thresholds are 0, then no limit
+            if( $allowed_comments == 0 ) {
                 $post_comments['to_count'] = $post_comments['real'];
-            } else if( $settings['counting_comments_threshold_max'] > 0 AND $post_comments['real'] > $settings['counting_comments_threshold_max'] ) {
-                $post_comments['to_count'] = $settings['counting_comments_threshold_max'] - $settings['counting_comments_threshold_min'];
-            } else {
+            
+            //If there's no upper threshold but lower threshold is set (ie. (max-min)<0), set count to count-min
+            } else if( $allowed_comments < 0 AND $post_comments['real'] > $allowed_comments ) {
+                $post_comments['to_count'] = $post_comments['real'] - $settings['counting_comments_threshold_min'];
+            
+            //If count exceeds upper threshold, set count to max-min
+            } else if( $allowed_comments > 0 AND $post_comments['real'] > $allowed_comments ) {
+                $post_comments['to_count'] = $allowed_comments;
+            
+            //If count lies between thresholds, set it to the count-min
+            } else if( $allowed_comments > 0 AND $post_comments['real'] <= $allowed_comments ) {
                 $post_comments['to_count'] = $post_comments['real'] - $settings['counting_comments_threshold_min'];
             }
         }

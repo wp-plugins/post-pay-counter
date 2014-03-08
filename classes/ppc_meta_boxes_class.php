@@ -175,9 +175,9 @@ class PPC_meta_boxes {
         echo '<div class="section">';
         echo '<div class="title">'.__( 'Basic payment' , 'post-pay-counter').'</div>';
         echo '<div class="main">';
-        echo PPC_HTML_functions::echo_p_field( __( 'Basic, assured payment' , 'post-pay-counter'), $current_settings['basic_payment'], 'checkbox', 'basic_payment', __( 'You may define a starting value for post payment. This means that each post will earn at least this amount, to which all the other credits will be added. In this way you can be sure that no post will be paid less than a certain amount, but that only valuable posts will make it to higher points.' , 'post-pay-counter') );
+        echo PPC_HTML_functions::echo_p_field( __( 'Basic, assured payment' , 'post-pay-counter'), $current_settings['basic_payment'], 'checkbox', 'basic_payment', __( 'You may define a starting value for post payment. This means that each post will earn at least this amount, to which all the other credits will be added. In this way you can be sure that no post will be paid less than a certain amount, but that only valuable posts will make it to higher points.' , 'post-pay-counter'), NULL, 'basic_payment' );
         echo '</div>';
-        echo '<div class="content">';
+        echo '<div class="content" id="ppc_basic_payment_content">';
         echo PPC_HTML_functions::echo_text_field( 'basic_payment_value', $current_settings['basic_payment_value'], __( 'Basic payment fixed value' , 'post-pay-counter') );
         echo '</div>';
         echo '</div>';
@@ -187,9 +187,9 @@ class PPC_meta_boxes {
         echo '<div class="section">';
         echo '<div class="title">'.__( 'Payment on word counting' , 'post-pay-counter').'</div>';
         echo '<div class="main">';
-        echo PPC_HTML_functions::echo_p_field( __( 'Words contribute to payment computation' , 'post-pay-counter'), $current_settings['counting_words'], 'checkbox', 'counting_words', __( 'You may define a post value basing on the number of words that make it up as well. The longer a post is, the more time is supposed to have taken the author to write it, the more it should be paid. You will be able to choose how much each word is worth.' , 'post-pay-counter') );
+        echo PPC_HTML_functions::echo_p_field( __( 'Words contribute to payment computation' , 'post-pay-counter'), $current_settings['counting_words'], 'checkbox', 'counting_words', __( 'You may define a post value basing on the number of words that make it up as well. The longer a post is, the more time is supposed to have taken the author to write it, the more it should be paid. You will be able to choose how much each word is worth.' , 'post-pay-counter'), NULL, 'counting_words' );
         echo '</div>';
-        echo '<div class="content">';
+        echo '<div class="content" id="ppc_counting_words_content">';
         echo '<div class="title">'.__( 'Counting system' , 'post-pay-counter').'</div>';
         echo PPC_options_fields::echo_payment_systems( 'words', array( 'counting_words_system_zonal' => $current_settings['counting_words_system_zonal'], 'counting_words_system_zonal_value' => $current_settings['counting_words_system_zonal_value'], 'counting_words_system_incremental' => $current_settings['counting_words_system_incremental'], 'counting_words_system_incremental_value' => $current_settings['counting_words_system_incremental_value'] ) );
         echo '<div class="title">'.__( 'Counting options' , 'post-pay-counter').'</div>';
@@ -202,9 +202,9 @@ class PPC_meta_boxes {
         echo '<div class="section">';
         echo '<div class="title">'.__( 'Payment on visit counting' , 'post-pay-counter').'</div>';
         echo '<div class="main">';
-        echo PPC_HTML_functions::echo_p_field( __( 'Visits contribute to payment computation' , 'post-pay-counter'), $current_settings['counting_visits'], 'checkbox', 'counting_visits', __( 'You may define a post value basing on the number of visits that it registers as well. The more people see a post, the more interesting the post is supposed to be, the more it should be paid. You will be able to choose how much each visit is worth.' , 'post-pay-counter') );
+        echo PPC_HTML_functions::echo_p_field( __( 'Visits contribute to payment computation' , 'post-pay-counter'), $current_settings['counting_visits'], 'checkbox', 'counting_visits', __( 'You may define a post value basing on the number of visits that it registers as well. The more people see a post, the more interesting the post is supposed to be, the more it should be paid. You will be able to choose how much each visit is worth.' , 'post-pay-counter'), NULL, 'counting_visits' );
         echo '</div>';
-        echo '<div class="content">';
+        echo '<div class="content" id="ppc_counting_visits_content">';
         echo '<div class="title">'.__( 'Counting method' , 'post-pay-counter').'</div>';
         echo PPC_HTML_functions::echo_p_field( __( 'I have my own visit counter' , 'post-pay-counter'), $current_settings['counting_visits_postmeta'], 'radio', 'counting_visits_method', sprintf( __( 'If you already have some plugin counting visits for you, and you know the %1$s name it stores them into, you can use those data to compute payments. Activate this setting and put the %1$s in the field below.' , 'post-pay-counter'), '<em>postmeta</em>' ), 'counting_visits_postmeta', 'counting_visits_postmeta' );
         echo '<div id="counting_visits_postmeta_content" class="field_value">';
@@ -223,9 +223,9 @@ class PPC_meta_boxes {
         echo '<div class="section">';
         echo '<div class="title">'.__( 'Payment on images counting' , 'post-pay-counter').'</div>';
         echo '<div class="main">';
-        echo PPC_HTML_functions::echo_p_field( __( 'Images contribute to payment computation' , 'post-pay-counter'), $current_settings['counting_images'], 'checkbox', 'counting_images', sprintf( __( 'You may define a post value basing on the number of images it contains. Maybe more images make a post cleaerer to the readers, and should thus be paid something more. You will be able to choose: when you want the image counting to come in, meaning how many images are free of charge and after which one they should be paid; how much each image is worth; how many images at maximum should be paid (0 = no maximum, infinite). E.g. we have a post with 5 images, and the fields below are set like this: %s. The image payment would be 1.0 bacause image #3 and image #4 are counted.' , 'post-pay-counter'), '<em>2; 0.5; 4</em>' ) );
+        echo PPC_HTML_functions::echo_p_field( __( 'Images contribute to payment computation' , 'post-pay-counter'), $current_settings['counting_images'], 'checkbox', 'counting_images', sprintf( __( 'You may define a post value basing on the number of images it contains. Maybe more images make a post cleaerer to the readers, and should thus be paid something more. You will be able to choose: when you want the image counting to come in, meaning how many images are free of charge and after which one they should be paid; how much each image is worth; how many images at maximum should be paid (0 = no maximum, infinite). E.g. we have a post with 5 images, and the fields below are set like this: %s. The image payment would be 1.0 bacause image #3 and image #4 are counted.' , 'post-pay-counter'), '<em>2; 0.5; 4</em>' ), NULL, 'counting_images' );
         echo '</div>';
-        echo '<div class="content">';
+        echo '<div class="content" id="ppc_counting_images_content">';
         echo '<div class="title">'.__( 'Counting system' , 'post-pay-counter').'</div>';
         echo PPC_options_fields::echo_payment_systems( 'images', array( 'counting_images_system_zonal' => $current_settings['counting_images_system_zonal'], 'counting_images_system_zonal_value' => $current_settings['counting_images_system_zonal_value'], 'counting_images_system_incremental' => $current_settings['counting_images_system_incremental'], 'counting_images_system_incremental_value' => $current_settings['counting_images_system_incremental_value'] ) );
         echo '<div class="title">'.__( 'Counting options' , 'post-pay-counter').'</div>';
@@ -240,9 +240,9 @@ class PPC_meta_boxes {
         echo '<div class="section">';
         echo '<div class="title">'.__( 'Payment on comments counting' , 'post-pay-counter').'</div>';
         echo '<div class="main">';
-        echo PPC_HTML_functions::echo_p_field( __( 'Comments contribute to payment computation' , 'post-pay-counter'), $current_settings['counting_comments'], 'checkbox', 'counting_comments', sprintf( __( 'You may define a post value basing on the number of comments it receives. You will be able to choose: when you want the comment counting to come in, meaning how many comments are free of charge and after which one they should be paid; how much each comment is worth; how many comments at maximum should be paid (0 = no maximum, infinite). E.g. we have a post with 30 images, and the fields below are set like this: %s. The comment payment would be 2.5 bacause comments from #11 included to #25 included are counted.' , 'post-pay-counter'), '<em>10; 0.1; 25</em>' ) );
+        echo PPC_HTML_functions::echo_p_field( __( 'Comments contribute to payment computation' , 'post-pay-counter'), $current_settings['counting_comments'], 'checkbox', 'counting_comments', sprintf( __( 'You may define a post value basing on the number of comments it receives. You will be able to choose: when you want the comment counting to come in, meaning how many comments are free of charge and after which one they should be paid; how much each comment is worth; how many comments at maximum should be paid (0 = no maximum, infinite). E.g. we have a post with 30 images, and the fields below are set like this: %s. The comment payment would be 2.5 bacause comments from #11 included to #25 included are counted.' , 'post-pay-counter'), '<em>10; 0.1; 25</em>' ), NULL, 'counting_comments' );
         echo '</div>';
-        echo '<div class="content">';
+        echo '<div class="content" id="ppc_counting_comments_content">';
         echo '<div class="title">'.__( 'Counting system' , 'post-pay-counter').'</div>';
         echo PPC_options_fields::echo_payment_systems( 'comments', array( 'counting_comments_system_zonal' => $current_settings['counting_comments_system_zonal'], 'counting_comments_system_zonal_value' => $current_settings['counting_comments_system_zonal_value'], 'counting_comments_system_incremental' => $current_settings['counting_comments_system_incremental'], 'counting_comments_system_incremental_value' => $current_settings['counting_comments_system_incremental_value'] ) );
         echo '<div class="title">'.__( 'Counting options' , 'post-pay-counter').'</div>';
@@ -430,6 +430,39 @@ class PPC_meta_boxes {
         echo '<img src="'.$ppc_global_settings['folder_path'].'style/images/ajax-loader.gif'.'" title="'.__( 'Loading' , 'post-pay-counter').'" alt="'.__( 'Loading' , 'post-pay-counter').'" class="ajax_loader" id="ppc_personalize_settings_ajax_loader" />';
         echo '</div>';
         echo '<div class="clear"></div>';
+    }
+    
+    /**
+     * Displays the metabox "Error log" in the Options page  
+     *
+     * @access  public
+     * @since   2.21
+     * @param   object WP post object
+     * @param   array plugin settings
+    */
+    
+    function meta_box_error_log( $post, $current_settings ) {
+        global $ppc_global_settings;
+        $current_settings = $current_settings['args'];
+        
+        $errors = get_option( $ppc_global_settings['option_errors'] );
+        
+        echo '<p>'.__( 'Errors which may happen during the plugin execution are logged and showed here. If something is nothing working properly, please send this list along with your support request.', 'post-pay-counter' ).'</p>';
+        echo '<textarea readonly="readonly" onclick="this.focus();this.select()" style="width: 100%; height: 150px;" name="ppc_error_log" title="'.__( 'To copy the error log, click below then press Ctrl + C (PC) or Cmd + C (Mac).', 'post-pay-counter' ).'">';
+        
+        if( is_array( $errors ) AND count( $errors ) > 0 ) {
+            foreach( $errors as $error ) {
+                echo date( 'Y-m-d H:m:s', $error['time'] )."\n";
+                echo $error['debug_message']."\n\n";
+            }
+        }
+        
+        echo '</textarea>';
+        
+        /*echo '<div class="save_settings">';
+        echo '<img src="'.$ppc_global_settings['folder_path'].'style/images/ajax-loader.gif'.'" title="'.__( 'Loading' , 'post-pay-counter').'" alt="'.__( 'Loading' , 'post-pay-counter').'" class="ajax_loader" id="ppc_personalize_settings_ajax_loader" />';
+        echo '</div>';
+        echo '<div class="clear"></div>';*/
     }
 }
 ?>
