@@ -462,6 +462,7 @@ class PPC_meta_boxes {
         echo '</textarea>';
         ?>
         
+        <br />
         <input type="button" name="ppc_clear_error_log" id="ppc_clear_error_log" value="<?php _e( 'Clear error log', 'post-pay-counter' ); ?>" class="button-secondary" style="float: right;" />
         
         <div class="ppc_save_success" id="ppc_error_log_success"><?php _e( 'Log was successfully cleared.' , 'post-pay-counter'); ?></div>
