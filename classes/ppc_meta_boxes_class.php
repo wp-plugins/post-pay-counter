@@ -33,7 +33,7 @@ class PPC_meta_boxes {
         }
         echo '</ul>';
         
-        printf( '<p>'.__( 'Something you would like is missing? Complete the %1$sfeatures survey%2$s and let us know what our priorities should be!', 'post-pay-counter'), '<a target="_blank" href="www.thecrowned.org/post-pay-counter-pro-features-survey" title="'.__( 'Post Pay Counter PRO - Features survey' ).'">', '</a>' ).'</p>';
+        printf( '<p>'.__( 'Something you would like is missing? Complete the %1$sfeatures survey%2$s and let us know what our priorities should be!', 'post-pay-counter'), '<a target="_blank" href="http://www.thecrowned.org/post-pay-counter-pro-features-survey" title="'.__( 'Post Pay Counter PRO - Features survey' ).'">', '</a>' ).'</p>';
     }
     
     /**
