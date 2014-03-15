@@ -50,7 +50,7 @@ class PPC_Error {
         //If logging enabled, push error with others
         if( PPC_DEBUG_LOG AND $log ) {
             $errors_already = get_option( $ppc_global_settings['option_errors'] );
-            $errors_already = $errors;
+            $errors = $errors_already;
             $errors[] = $error_details;
             
             if( ! $errors_already ) {
