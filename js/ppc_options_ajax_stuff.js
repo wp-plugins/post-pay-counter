@@ -147,6 +147,31 @@ jQuery(document).ready(function($) {
             }
         });
     });
-    /* </DELETE USER'S PERSONALIZED SETTINGS> */
+    /* </IMPORT/EXPORT SETTINGS> */
+    
+    /* <ERROR LOG> */
+    $('#ppc_clear_error_log').on('click', function(e) {
+        e.preventDefault();
+        $('#ppc_error_log_ajax_loader').css('display', 'inline');
+        $('#ppc_error_log_error').css('display', 'none');
+        $('#ppc_error_log_success').css('display', 'none');
+        
+        var data = {
+            action: "ppc_clear_error_log",
+            _ajax_nonce: ppc_options_ajax_stuff_vars.nonce_ppc_clear_error_log
+        };
+        
+        $.post(ajaxurl, data, function(response) {
+            $('#ppc_error_log_ajax_loader').css('display', 'none');
+            
+            if(response.indexOf('ok') < 0) {
+                $('#ppc_error_log_error').html(response);
+                $('#ppc_error_log_error').css('display', 'inline');
+            } else {
+				$('#ppc_error_log_success').css('display', 'inline');
+            }
+        });
+    });
+    /* </ERROR LOG> */
 
 });

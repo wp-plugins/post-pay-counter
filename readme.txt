@@ -3,7 +3,7 @@ Contributors: Ste_95
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SM5Q9BVU4RT22
 Tags: counter, authors, payment, stats, multi author, post management, post
 Tested up to: 3.8.1
-Stable tag: 2.21
+Stable tag: 2.22
 Requires at least: 3.7
 
 Easily handle authors' pay on a multi-author blog by computing posts' remuneration basing on admin defined rules.
@@ -28,7 +28,7 @@ The Post Pay Counter plugin allows you to easily calculate and handle authors' p
 1. Upload the directory of the Post Pay Counter in your wp-content/plugins directory; note that you need the whole folder, not only the single files.
 2. Activate the plugin through the "Activate" button in the "Plugins" page of your WordPress.
 3. Head to the configuration page first. The plugin already comes with a predefined set of settings, but you may want to set it up to better suit your needs.
-5. That's it, done! You can now check the stats page to browse all the countings.
+5. That's it, you are done! You can now check the stats page to browse all the countings.
 
 == Frequently Asked Questions ==
 = You said I could pay per visit. How do I do that? =
@@ -37,7 +37,19 @@ The plugin does not keep track of visits, it can only keep it in mind when compu
 = I installed the plugin but it does not show up in the menu. Also, if I go to the settings page, it says I am not authorized =
 That is probably due to a permissions manager plugin you have on your blog. Check that capabilities *post_pay_counter_access_stats* and *post_pay_counter_manage_options* are correctly assigned and working.
 
+= I don't want errors to be logged =
+Set to *false* the constant *PPC_DEBUG_LOG* in *post-pay-counter.php*, it is located at line 44.
+From this: *define( 'PPC_DEBUG_LOG', true );*
+It must become: *define( 'PPC_DEBUG_LOG', false );*
+
 == Changelog ==
+= 2.22 =
+* New: possible to clear error log.
+* Tweak: some errors do not get logged anyway (like *empty_selection*).
+* Fixed: if payment threshold was set, posts which did not meet it would not count as written posts in stats.
+* Fixed: error log option is not autoloaded by default now.
+* Fixed: unexpected output during activation notice.
+
 = 2.21 =
 * Tweak: payments types (basic, words, visits, images, comments), when unchecked, have their details hidden.
 * New: error handling class and debug features. Errors get logged when PPC_DEBUG_LOG is true (some errors get logged anyway) and detailed errors data is shown when PPC_DEBUG_SHOW is true (lines 42-43 of post-pay-counter.php). Not all errors have been updated to use the class yet. See the errors log in the Options page.
@@ -260,3 +272,6 @@ These the changes from the old Monthly Post Counter:
 3. Post Pay Counter general stats (i.e. all author are shown). The provided datapicker allows to edit the time range and select the wished stats
 4. Post Pay Counter per author stats. Datapicker avaiable here, too
 5. The tooltip with all the counting details
+
+== Languages ==
+The plugins is currently only available in English. If you want to translate it in your own language and get a discount on the PRO version, [contact us](http://www.thecrowned.org/contact-me)!

@@ -259,13 +259,17 @@ class PPC_install_functions {
 		);
         
         if( ! is_array( PPC_general_functions::get_settings( 'general' ) ) ) {
-            update_option( $ppc_global_settings['option_name'], $default_settings['general'] );
+            if( ! get_option( $ppc_global_settings['option_name'] ) ) {
+                add_option( $ppc_global_settings['option_name'], $default_settings['general'], '', 'no' );
+            } else {
+                update_option( $ppc_global_settings['option_name'], $default_settings['general'] );
+            }
         }
         
         //Grant current user all permissions by personalizing his user (if not already)
         $admin_settings = PPC_general_functions::get_settings( $current_user->ID );
         if( $admin_settings['userid'] == 'general' ) {
-            update_user_option( $ppc_global_settings['option_name'], $default_settings['admin'] );
+            update_user_option( $current_user->ID, $ppc_global_settings['option_name'], $default_settings['admin'] );
         }
         
         PPC_general_functions::manage_cap_allowed_user_roles_plugin_pages( $default_settings['general']['can_see_options_user_roles'], $default_settings['general']['can_see_stats_user_roles'] );

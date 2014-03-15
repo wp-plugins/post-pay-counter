@@ -18,11 +18,11 @@ class PPC_meta_boxes {
     
     static function meta_box_pro_features() { 
         $pro_features = array(
-            __( 'Google Analytics' , 'post-pay-counter') => __( 'use your account on the world-leading website visits tracking system to pay writers also basing on how many times their posts were seen.' , 'post-pay-counter'),
+            __( 'Google Analytics' , 'post-pay-counter') => __( 'use your account on the world-leading website visits tracking system to pay writers per visit.' , 'post-pay-counter'),
             __( 'Mark as paid' , 'post-pay-counter') => __( 'keep track of your writers\' past payments by marking post as paid and reviewing payments from a detailed payment history. Let the plugin keep track of how much each writer should be paid basing on past payments.' , 'post-pay-counter'),
             __( 'Csv export', 'post-pay-counter') => __( 'download stats for offline consulting or storing.' , 'post-pay-counter' ),
             __( 'Shortcode', 'post-pay-counter' ) => __( 'put stats in public static pages and wherever suits your needs.', 'post-pay-counter' ),
-            __( 'Valid forever' , 'post-pay-counter') => __( 'buy a license, and it will be yours forever - no renewal or whatever! And you still get updates!' , 'post-pay-counter')
+			__( 'Stats in post editing page', 'post-pay-counter' ) => __( 'see post stats in edit page and exclude individual posts from stats.', 'post-pay-counter' )
         );
         
         printf( '<p>'.__( 'There are so many things you are missing by not running the PRO version of the Post Pay Counter! Remember that PRO features are always %1$sone click away%2$s!' , 'post-pay-counter'), '<a target="_blank" href="http://www.thecrowned.org/post-pay-counter-pro" title="Post Pay Counter PRO">', '</a>' ).':</p>';
@@ -447,7 +447,7 @@ class PPC_meta_boxes {
         
         $errors = get_option( $ppc_global_settings['option_errors'] );
         
-        echo '<p>'.__( 'Errors which may happen during the plugin execution are logged and showed here. If something is nothing working properly, please send this list along with your support request.', 'post-pay-counter' ).'</p>';
+        echo '<p>'.sprintf( __( 'Errors which may happen during the plugin execution are logged and showed here. If something is not working properly, please send this list along with your support request. The log is cleared every now and then, but you can empty it manually with the button below. If you do not want errors to be logged at all, see the %1$sFAQ%2$s.', 'post-pay-counter' ), '<a href="http://wordpress.org/plugins/post-pay-counter/faq/" title="'.__( 'Frequently asked questions' ).'">', '</a>' ).'</p>';
         echo '<textarea readonly="readonly" onclick="this.focus();this.select()" style="width: 100%; height: 150px;" name="ppc_error_log" title="'.__( 'To copy the error log, click below then press Ctrl + C (PC) or Cmd + C (Mac).', 'post-pay-counter' ).'">';
         
         if( is_array( $errors ) AND count( $errors ) > 0 ) {
@@ -455,14 +455,23 @@ class PPC_meta_boxes {
                 echo date( 'Y-m-d H:m:s', $error['time'] )."\n";
                 echo $error['debug_message']."\n\n";
             }
+        } else {
+            _e( 'That\'s great, nothing has gone wrong so far!', 'post-pay-counter' );
         }
         
         echo '</textarea>';
+        ?>
         
-        /*echo '<div class="save_settings">';
-        echo '<img src="'.$ppc_global_settings['folder_path'].'style/images/ajax-loader.gif'.'" title="'.__( 'Loading' , 'post-pay-counter').'" alt="'.__( 'Loading' , 'post-pay-counter').'" class="ajax_loader" id="ppc_personalize_settings_ajax_loader" />';
-        echo '</div>';
-        echo '<div class="clear"></div>';*/
+        <input type="button" name="ppc_clear_error_log" id="ppc_clear_error_log" value="<?php _e( 'Clear error log', 'post-pay-counter' ); ?>" class="button-secondary" style="float: right;" />
+        
+        <div class="ppc_save_success" id="ppc_error_log_success"><?php _e( 'Log was successfully cleared.' , 'post-pay-counter'); ?></div>
+        <div class="ppc_save_error" id="ppc_error_log_error"></div>
+        <div class="save_settings">
+        <img src="<?php echo $ppc_global_settings['folder_path'].'style/images/ajax-loader.gif'; ?>" title="<?php _e( 'Loading' , 'post-pay-counter'); ?>" alt="<?php _e( 'Loading' , 'post-pay-counter'); ?>" class="ajax_loader" id="ppc_error_log_ajax_loader" />
+        </div>
+        <div class="clear"></div>
+        
+        <?php
     }
 }
 ?>

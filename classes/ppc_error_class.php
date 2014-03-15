@@ -23,11 +23,10 @@ class PPC_Error {
      * @param   $code string Error code
      * @param   $message string Error message
      * @param   $data mixed (optional) Error data
-     * @param   $log bool (optional) Logging status
-     * @return  object WP_Error with current error details
+     * @param   $log bool (optional) Whether error should be logged
     */
     
-    function __construct( $code, $message, $data = array(), $log = false ) {
+    function __construct( $code, $message, $data = array(), $log = true ) {
         global $ppc_global_settings;
         
         $error_details = array(
@@ -38,7 +37,7 @@ class PPC_Error {
         );
         
         //If debug or logging enabled, make up detailed error (only shown if requested)
-        if( PPC_DEBUG_SHOW OR PPC_DEBUG_LOG OR $log ) {
+        if( PPC_DEBUG_SHOW OR ( PPC_DEBUG_LOG AND $log ) ) {
             $error_details['debug_message'] = 'An error was thrown with code "'.$code.'", message "'.$message.'" and debug data "'.var_export( $data, true ).'".';
         }
         
@@ -49,19 +48,33 @@ class PPC_Error {
         }
         
         //If logging enabled, push error with others
-        if( PPC_DEBUG_LOG or $log ) {
-            $errors = get_option( $ppc_global_settings['option_errors'] );
+        if( PPC_DEBUG_LOG AND $log ) {
+            $errors_already = get_option( $ppc_global_settings['option_errors'] );
+            $errors_already = $errors;
             $errors[] = $error_details;
             
-            if( ! update_option( $ppc_global_settings['option_errors'], $errors ) ) {
-                $this->wp_error = new WP_Error( 'ppc_update_errors', 'Could not update errors option.' );
+            if( ! $errors_already ) {
+                if( add_option( $ppc_global_settings['option_errors'], $errors, '', 'no' ) ) {
+                    $this->wp_error = new WP_Error( 'ppc_update_errors', 'Could not update errors option.' );
+                }
+            } else {
+                if( update_option( $ppc_global_settings['option_errors'], $errors ) ) {
+                    $this->wp_error = new WP_Error( 'ppc_update_errors', 'Could not update errors option.' );
+                }
             }
         }
         
         $this->wp_error = new WP_Error( $error_details['code'], $error_details['output'] );
-        
-        //$this->return_error();
     }
+    
+    /**
+     * Returns the error stored in the class var.
+     * 
+     * @since   2.21
+     * @access  public
+     * 
+     * @return  object WP_Error with current error details
+    */
     
     function return_error() {
         return $this->wp_error;

@@ -4,7 +4,7 @@ Plugin Name: Post Pay Counter
 Plugin URI: http://www.thecrowned.org/wordpress-plugins/post-pay-counter
 Description: Easily handle authors' pay on a multi-author blog by computing posts' remuneration basing on admin defined rules. Define the time range you would like to have stats about, and the plugin will do the rest.
 Author: Stefano Ottolenghi
-Version: 2.21
+Version: 2.22
 Author URI: http://www.thecrowned.org/
 */
 
@@ -50,7 +50,7 @@ class post_pay_counter {
         global $ppc_global_settings;
         
         $ppc_global_settings['current_version'] = get_option( 'ppc_current_version' );
-        $ppc_global_settings['newest_version'] = '2.21';
+        $ppc_global_settings['newest_version'] = '2.22';
         $ppc_global_settings['option_name'] = 'ppc_settings';
         $ppc_global_settings['option_errors'] = 'ppc_errors';
         $ppc_global_settings['folder_path'] = plugins_url( '/', __FILE__ );
@@ -59,9 +59,6 @@ class post_pay_counter {
         $ppc_global_settings['cap_manage_options'] = 'post_pay_counter_manage_options';
         $ppc_global_settings['cap_access_stats'] = 'post_pay_counter_access_stats';
         $ppc_global_settings['temp'] = array( 'settings' => array() );
-        
-        add_action( 'plugins_loaded', array( $this, 'maybe_update' ) );
-        
         $ppc_global_settings['general_settings'] = PPC_general_functions::get_settings( 'general' );
         
         //Add left menu entries for both stats and options pages
@@ -74,6 +71,9 @@ class post_pay_counter {
         //Hook on blog adding on multisite wp to install the plugin there either
         add_action( 'wpmu_new_blog', array( 'PPC_install_functions', 'ppc_new_blog_install' ), 10, 6);
         
+		//Plugin update routine
+		add_action( 'plugins_loaded', array( $this, 'maybe_update' ) );
+		
         //On load plugin pages
         add_action( 'load-post-pay-counter_page_ppc-options', array( $this, 'on_load_options_page_get_settings' ), 1 );
         add_action( 'load-post-pay-counter_page_ppc-options', array( $this, 'on_load_options_page_enqueue' ), 2 );
@@ -101,6 +101,7 @@ class post_pay_counter {
         add_action( 'wp_ajax_ppc_personalize_fetch_users_by_roles', array( 'PPC_ajax_functions', 'personalize_fetch_users_by_roles' ) );
         add_action( 'wp_ajax_ppc_vaporize_user_settings', array( 'PPC_ajax_functions', 'vaporize_user_settings' ) );
         add_action( 'wp_ajax_ppc_import_settings', array( 'PPC_ajax_functions', 'import_settings' ) );
+        add_action( 'wp_ajax_ppc_clear_error_log', array( 'PPC_ajax_functions', 'clear_error_log' ) );
     }
     
     /**
@@ -218,6 +219,7 @@ class post_pay_counter {
             'nonce_ppc_personalize_fetch_users_by_roles' => wp_create_nonce( 'ppc_personalize_fetch_users_by_roles' ),
             'nonce_ppc_vaporize_user_settings' => wp_create_nonce( 'ppc_vaporize_user_settings' ),
             'nonce_ppc_import_settings' => wp_create_nonce( 'ppc_import_settings' ),
+            'nonce_ppc_clear_error_log' => wp_create_nonce( 'ppc_clear_error_log' ),
             'localized_vaporize_user_success' => __( 'User\'s settings successfully deleted. You will be redirected to the general options page.' , 'post-pay-counter'),
             'ppc_options_url' => $ppc_global_settings['options_menu_link']
         ) );

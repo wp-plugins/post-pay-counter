@@ -123,6 +123,13 @@ class PPC_generate_stats {
             $sorted_array[$single->post_author][$post_id] = $single;
             $user_settings = PPC_general_functions::get_settings( $single->post_author, true );
             
+            //Written posts count
+            if( ! isset( $sorted_array[$single->post_author]['total']['ppc_misc']['posts'] ) ) {
+                $sorted_array[$single->post_author]['total']['ppc_misc']['posts'] = 1;
+            } else {
+                $sorted_array[$single->post_author]['total']['ppc_misc']['posts']++;
+            }
+            
             //Don't include in general stats count posts below threshold
             if( $user_settings['counting_payment_only_when_total_threshold'] ) {
                 if( $single->ppc_misc['exceed_threshold'] == false ) {
@@ -152,12 +159,6 @@ class PPC_generate_stats {
     			}
             }
             
-            if( ! isset( $sorted_array[$single->post_author]['total']['ppc_misc']['posts'] ) ) {
-                $sorted_array[$single->post_author]['total']['ppc_misc']['posts'] = 1;
-            } else {
-                $sorted_array[$single->post_author]['total']['ppc_misc']['posts']++;
-            }
-            
             $sorted_array[$single->post_author] = apply_filters( 'ppc_sort_stats_by_author_foreach_post', $sorted_array[$single->post_author], $single );
         }
         
@@ -172,8 +173,10 @@ class PPC_generate_stats {
             }
             
             //Get tooltip
-            $stats['total']['ppc_misc']['tooltip_normal_payment'] = PPC_counting_stuff::build_payment_details_tooltip( $stats['total']['ppc_count']['normal_count']['to_count'], $stats['total']['ppc_payment']['normal_payment'] );
-            
+            //if( isset( $stats['total']['normal_payment'] ) ) { //prevents notice when all counting types are disabled and post stats are requested            
+                $stats['total']['ppc_misc']['tooltip_normal_payment'] = PPC_counting_stuff::build_payment_details_tooltip( $stats['total']['ppc_count']['normal_count']['to_count'], $stats['total']['ppc_payment']['normal_payment'] );
+            //}
+                        
             $stats = apply_filters( 'ppc_sort_stats_by_author_foreach_author', $stats, $author, $user_settings );
             
             unset( $stats );

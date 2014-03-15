@@ -159,7 +159,7 @@ class PPC_ajax_functions {
     }
     
     /**
-     * Imports settings.
+     * Imports a valid serialized and base64_encoded array of PPC settings.
      *
      * @access  public
      * @since   2.1.3
@@ -186,6 +186,24 @@ class PPC_ajax_functions {
         }
         
         exit;
+    }
+    
+    /**
+     * Clears error log (deletes wp_option).
+     *
+     * @access  public
+     * @since   2.22
+    */
+    
+    static function clear_error_log() {
+        global $ppc_global_settings;
+        self::ppc_check_ajax_referer( 'ppc_clear_error_log' );
+        
+        if( ! delete_option( $ppc_global_settings['option_errors'] ) ) {
+            die( __( 'Error: could not clear error log.', 'post-pay-counter' ) );
+        }
+        
+        die( 'ok' );
     }
 }
 ?>
