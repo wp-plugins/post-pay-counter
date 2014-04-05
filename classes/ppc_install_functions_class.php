@@ -258,11 +258,29 @@ class PPC_install_functions {
             )
 		);
         
-        if( ! is_array( PPC_general_functions::get_settings( 'general' ) ) ) {
-            if( ! get_option( $ppc_global_settings['option_name'] ) ) {
-                add_option( $ppc_global_settings['option_name'], $default_settings['general'], '', 'no' );
+		//Only add default settings if not there already
+		$general_settings = PPC_general_functions::get_settings( 'general' );
+        if( ! is_array( $general_settings ) ) {
+			
+			//Add option if not available, update it otherwise
+            if( get_option( $ppc_global_settings['option_name'] ) === false ) {
+                if( ! add_option( $ppc_global_settings['option_name'], $default_settings['general'], '', 'no' ) ) {
+					$error = new PPC_Error( 'ppc_add_option_general_error', __( 'Could not add general settings option.', 'post-pay-counter' ), array( 
+						'option_name' => $ppc_global_settings['option_name'], 
+						'old_settings' => $general_settings,
+						'default_settings' => $default_settings['general'] 
+					) );
+					trigger_error( $wp_error->get_error_message(), E_USER_ERROR );
+				}
             } else {
-                update_option( $ppc_global_settings['option_name'], $default_settings['general'] );
+                if( ! update_option( $ppc_global_settings['option_name'], $default_settings['general'] ) ) {
+					$error = new PPC_Error( 'ppc_update_option_general_error', __( 'Could not update general settings option.', 'post-pay-counter' ), array( 
+						'option_name' => $ppc_global_settings['option_name'], 
+						'old_settings' => $general_settings,
+						'default_settings' => $default_settings['general'] 
+					) );
+					trigger_error( $wp_error->get_error_message(), E_USER_ERROR );
+				}
             }
         }
         
@@ -277,5 +295,4 @@ class PPC_install_functions {
         update_option( 'ppc_current_version', $ppc_global_settings['newest_version'] );
     }
 }
-
 ?>

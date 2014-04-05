@@ -18,33 +18,37 @@ class PPC_HTML_functions {
      * @param   $page_permalink string current page permalink
     */
     
-    function show_stats_page_header( $current_page, $page_permalink ) {
+    static function show_stats_page_header( $current_page, $page_permalink ) {
         global $ppc_global_settings;
+		?>
+		
+<form action="" method="post">
+	<div id="ppc_stats_header">
 
-        echo '<form action="" method="post">';
-        echo '<div id="ppc_stats_header">';
-        
-        echo '<div id="ppc_stats_header_datepicker">';
-        echo '<h3>';
-        echo sprintf( __( 'Showing stats from %1$s to %2$s' , 'post-pay-counter'), '<input type="text" name="tstart" id="post_pay_counter_time_start" class="mydatepicker" value="'.date( 'Y/m/d', $ppc_global_settings['stats_tstart'] ).'" accesskey="'.$ppc_global_settings['stats_tstart'].'" size="8" />', '<input type="text" name="tend" id="post_pay_counter_time_end" class="mydatepicker" value="'.date( 'Y/m/d', $ppc_global_settings['stats_tend'] ).'" accesskey="'.$ppc_global_settings['stats_tend'].'" size="8" />' ).' - "'.$current_page.'"';
-        echo '</h3>';
-        echo '</div>';
-        
-        echo '<div id="ppc_stats_header_features">';
-        echo '<span id="ppc_stats_header_links">';
-        echo '<a href="'.admin_url( $ppc_global_settings['stats_menu_link'].'&amp;tstart='.$ppc_global_settings['stats_tstart'].'&amp;tend='.$ppc_global_settings['stats_tend'] ).'" title="'.__( 'Back to general' , 'post-pay-counter').'">'.__( 'Back to general' , 'post-pay-counter').'</a>';
-        
-        do_action( 'ppc_stats_header_links', $page_permalink );
-        
-        echo '</span>';
-        echo '<input type="submit" class="button-secondary" name="post_pay_counter_submit" value="'.__( 'Update time range' , 'post-pay-counter').'" /><br />';
-        echo '<a href="'.$page_permalink.'" title="'.__( 'Get current view permalink' , 'post-pay-counter').'">'.__( 'Get current view permalink' , 'post-pay-counter').'</a>';
-        echo '</div>';
+		<div id="ppc_stats_header_datepicker">
+			<h3>
+        <?php echo sprintf( __( 'Showing stats from %1$s to %2$s' , 'post-pay-counter'), '<input type="text" name="tstart" id="post_pay_counter_time_start" class="mydatepicker" value="'.date( 'Y/m/d', $ppc_global_settings['stats_tstart'] ).'" accesskey="'.$ppc_global_settings['stats_tstart'].'" size="8" />', '<input type="text" name="tend" id="post_pay_counter_time_end" class="mydatepicker" value="'.date( 'Y/m/d', $ppc_global_settings['stats_tend'] ).'" accesskey="'.$ppc_global_settings['stats_tend'].'" size="8" />' ).' - "'.$current_page.'"'; ?>
+			</h3>
+		</div>
 
-        echo '</div>';
-        echo '</form>';
-        echo '<div class="clear"></div>';
-        echo '<hr class="ppc_hr_divider" />';
+		<div id="ppc_stats_header_features">
+			<span id="ppc_stats_header_links">
+				<a href="<?php echo admin_url( $ppc_global_settings['stats_menu_link'].'&amp;tstart='.$ppc_global_settings['stats_tstart'].'&amp;tend='.$ppc_global_settings['stats_tend'] ); ?>" title="<?php _e( 'Back to general' , 'post-pay-counter'); ?>"><?php _e( 'Back to general' , 'post-pay-counter'); ?></a>
+        
+        <?php do_action( 'ppc_stats_header_links', $page_permalink ); ?>
+        
+			</span>
+			<input type="submit" class="button-secondary" name="post_pay_counter_submit" value="<?php echo __( 'Update time range' , 'post-pay-counter'); ?>" />
+			<br />
+			<a href="<?php echo $page_permalink; ?>" title="<?php _e( 'Get current view permalink' , 'post-pay-counter'); ?>"><?php _e( 'Get current view permalink' , 'post-pay-counter'); ?></a>
+		</div>
+
+	</div>
+</form>
+<div class="clear"></div>
+<hr class="ppc_hr_divider" />
+		
+		<?php
     }
     
     /**
@@ -57,7 +61,7 @@ class PPC_HTML_functions {
      * @param   $author array optional whether detailed stats
     */
     
-    function get_html_stats( $formatted_stats, $raw_stats, $author = NULL ) {
+    static function get_html_stats( $formatted_stats, $raw_stats, $author = NULL ) {
         global $current_user, $ppc_global_settings;
         $perm = new PPC_permissions();
         
@@ -173,19 +177,35 @@ class PPC_HTML_functions {
     
     static function print_overall_stats( $overall_stats ) {
         global $ppc_global_settings;
-        $perm = new PPC_permissions();
-        $general_settings = PPC_general_functions::get_settings( 'general' );
-        
-        echo '<table class="widefat fixed">';
-        echo '<tr>';
-        echo '<td width="40%">'.__( 'Total displayed posts:', 'post-pay-counter' ).'</td>';
-        echo '<td align="left" width="10%">'.$overall_stats['posts'].'</td>';
-        echo '<td width="35%">'.__( 'Total displayed payment:', 'post-pay-counter' ).'</td>';
-        echo '<td align="left" width="15%">'.$overall_stats['payment'].'</td>';
-        echo '</tr>';
-        echo '</table>';
-        
-        do_action( 'ppc_html_overall_stats' );
+        ?>
+		
+<table class="widefat fixed">
+	<tr>
+		<td width="40%"><?php _e( 'Total displayed posts:', 'post-pay-counter' ); ?></td>
+		<td align="left" width="10%"><?php echo $overall_stats['posts']; ?></td>
+		<td width="35%"><?php _e( 'Total displayed payment:', 'post-pay-counter' ); ?></td>
+		<td align="left" width="15%"><?php echo $overall_stats['payment']; ?></td>
+	</tr>
+	<tr>
+		<td width="40%"><?php _e( 'Total words count:', 'post-pay-counter' ); ?></td>
+		<td align="left" width="10%"><?php echo $overall_stats['count_words']; ?></td>
+		<td width="35%"><?php _e( 'Total visits count:', 'post-pay-counter' ); ?></td>
+		<td align="left" width="15%"><?php echo $overall_stats['count_visits']; ?></td>
+	</tr>
+	<tr>
+		<td width="40%"><?php _e( 'Total images count:', 'post-pay-counter' ); ?></td>
+		<td align="left" width="10%"><?php echo $overall_stats['count_images']; ?></td>
+		<td width="35%"><?php _e( 'Total comments count:', 'post-pay-counter' ); ?></td>
+		<td align="left" width="15%"><?php echo $overall_stats['count_comments']; ?></td>
+	</tr>
+	
+		<?php
+		do_action( 'ppc_html_overall_stats', $overall_stats );
+		?>
+	
+</table>
+	
+	<?php
     }
     
     /**
@@ -203,7 +223,7 @@ class PPC_HTML_functions {
      * @return  string the html 
     */
     
-    function echo_p_field( $text, $setting, $field, $name, $tooltip_description = NULL, $value = NULL, $id = NULL, $disabled = false ) {
+    static function echo_p_field( $text, $setting, $field, $name, $tooltip_description = NULL, $value = NULL, $id = NULL, $disabled = false ) {
 	   global $ppc_global_settings;
 		
         $html = '<p style="height: 11px;">';
@@ -228,7 +248,7 @@ class PPC_HTML_functions {
         $html .= '</label>';
         $html .= '</p>';
         
-        return $html;
+        return apply_filters( 'settings_field_generation', $html );
     }
     
     /**
@@ -243,13 +263,13 @@ class PPC_HTML_functions {
      * @return  string the html
     */
     
-    function echo_text_field( $field_name, $field_value, $label_text, $size = 12 ) {
+    static function echo_text_field( $field_name, $field_value, $label_text, $size = 12 ) {
         $html = '<p>';
         $html .= '<label for="'.$field_name.'">'.$label_text.'</label>';
         $html .= '<input type="text" name="'.$field_name.'" id="'.$field_name.'" size="'.$size.'" value="'.$field_value.'" class="ppc_align_right" />';
         $html .= '</p>';
         
-        return $html;
+        return apply_filters( 'text_field_generation', $html );
     }
 }
 ?>

@@ -70,7 +70,10 @@ class PPC_meta_boxes {
         echo '<form id="ppc_misc_settings_form" method="post">';
         
         //Post types to be included in countings
-        echo '<p>'.__( 'Choose the post types you would like to be included in countings. There are some you may have never seen: they are probably Wordpress built-in ones.', 'post-pay-counter').'</p>';
+        echo '<div class="section">';
+        echo '<div class="title">'.__( 'Allowed post types' , 'post-pay-counter').'</div>';
+        echo '<div class="main">';
+        echo '<p>'.__( 'Choose the post types you would like to be included in countings.', 'post-pay-counter').'</p>';
         
         $all_post_types = get_post_types();
         $allowed_post_types = $current_settings['counting_allowed_post_types'];
@@ -87,9 +90,15 @@ class PPC_meta_boxes {
             echo '<br />';
             
         }
+        
+        echo '</div>';
+        echo '</div>';
         do_action( 'ppc_misc_settings_after_allowed_post_types', $current_settings );
         
         //User roles to be included in countings
+        echo '<div class="section">';
+        echo '<div class="title">'.__( 'Allowed user roles' , 'post-pay-counter').'</div>';
+        echo '<div class="main">';
         echo '<p>'.__( 'Choose the user roles whose posts you would like to be included in countings.', 'post-pay-counter').'</p>';
         
         foreach( $wp_roles->role_names as $key => $value ) {
@@ -103,10 +112,16 @@ class PPC_meta_boxes {
             echo '<label for="user_role_'.$key.'">'.$value.'</label>';
             echo '<br />';
         }
+        
+        echo '</div>';
+        echo '</div>';
         do_action( 'ppc_misc_settings_after_allowed_user_roles', $current_settings );
         
         //Plugin options page access permissions
-        echo '<p style="margin-top: 20px;">'.__( 'Plugin Options can be viewed and edited by following user roles' , 'post-pay-counter').'</p>';
+        echo '<div class="section">';
+        echo '<div class="title">'.__( 'Options page permissions' , 'post-pay-counter').'</div>';
+        echo '<div class="main">';
+        echo '<p>'.__( 'Choose the user roles who are allowed to view and edit plugin settings.' , 'post-pay-counter').'</p>';
         foreach( $wp_roles->role_names as $key => $value ) {
             if( in_array( $key, $current_settings['can_see_options_user_roles'] ) )
                 $checked = ' checked="checked"';
@@ -117,10 +132,16 @@ class PPC_meta_boxes {
             
             unset( $checked );
         }
+        
+        echo '</div>';
+        echo '</div>';
         do_action( 'ppc_misc_settings_after_options_allowed_user_roles', $current_settings );
         
         //Plugin stats page access permissions
-        echo '<p style="margin-top: 20px;">'.__( 'Plugin Stats page can be viewed by following user roles' , 'post-pay-counter').'</p>';
+        echo '<div class="section">';
+        echo '<div class="title">'.__( 'Stats page permissions' , 'post-pay-counter').'</div>';
+        echo '<div class="main">';
+        echo '<p>'.__( 'Choose the user roles who are allowed to view the stats page.' , 'post-pay-counter').'</p>';
         foreach( $wp_roles->role_names as $key => $value ) {
             $checked = '';
             if( in_array( $key, $current_settings['can_see_stats_user_roles'] ) ) {
@@ -131,15 +152,23 @@ class PPC_meta_boxes {
             echo '<label for="can_see_stats_user_roles_'.$key.'">'.$value.'</label>';
             echo '<br />';
         }
+        
+        echo '</div>';
+        echo '</div>';
         do_action( 'ppc_misc_settings_after_stats_allowed_user_roles', $current_settings );
         
         //Default stats time range
-        echo '<p style="margin-top: 20px;">'.__( 'These allow you to define the default stats time range. When you open up the stats page, the time range here selected will be shown (although you will be able to change it). More information in the tooltips.' , 'post-pay-counter').'</p>';
+        echo '<div class="section">';
+        echo '<div class="title">'.__( 'Default stats time range' , 'post-pay-counter').'</div>';
+        echo '<div class="main">';
+        echo '<p>'.__( 'When you open up the stats page, the time range here selected will be shown (although you will be able to change it). More information in the tooltips.' , 'post-pay-counter').'</p>';
         echo PPC_HTML_functions::echo_p_field( 'Current week', $current_settings['default_stats_time_range_week'], 'radio', 'default_stats_time_range', __( 'With this, the plugin will display in the stats all the published posts from the beginning of the week to the current day (week starts on Monday). This will be the default settings: you will still be able to change the time range the way you want it. You should select this if you usually pay your writers weekly.' , 'post-pay-counter'), 'default_stats_time_range_week', 'default_stats_time_range_week' );
         echo PPC_HTML_functions::echo_p_field( 'Current month', $current_settings['default_stats_time_range_month'], 'radio', 'default_stats_time_range', __( 'With this, the plugin will display in the stats all the published posts from the beginning of the month to the current day. This will be the default settings: you will still be able to change the time range the way you want it. You should select this if you usually pay your writers monthly.' , 'post-pay-counter'), 'default_stats_time_range_month', 'default_stats_time_range_month' );
         echo PPC_HTML_functions::echo_p_field( 'This custom number of days', $current_settings['default_stats_time_range_custom'], 'radio', 'default_stats_time_range', __( 'With this, you can manually customize the rime range for the published posts the plugin will display in the stats. This will be the default settings: you will still be able to change the time range the way you want it. So, for example, if you set this to 365 days, in the stats page it will automatically be selected a time frame that goes from the current day to the previous 365 days' , 'post-pay-counter'), 'default_stats_time_range_custom', 'default_stats_time_range_custom' );
         echo '<div id="default_stats_time_range_custom_content" class="section">';
         echo PPC_HTML_functions::echo_text_field( 'default_stats_time_range_custom_value', $current_settings['default_stats_time_range_custom_value'], __( 'The desired time range (days)' , 'post-pay-counter') );
+        echo '</div>';
+        echo '</div>';
         echo '</div>';
         
         do_action( 'ppc_misc_settings_after_default_time_range', $current_settings );

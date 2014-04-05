@@ -4,7 +4,7 @@ Plugin Name: Post Pay Counter
 Plugin URI: http://www.thecrowned.org/wordpress-plugins/post-pay-counter
 Description: Easily handle authors' pay on a multi-author blog by computing posts' remuneration basing on admin defined rules. Define the time range you would like to have stats about, and the plugin will do the rest.
 Author: Stefano Ottolenghi
-Version: 2.22
+Version: 2.23
 Author URI: http://www.thecrowned.org/
 */
 
@@ -50,7 +50,7 @@ class post_pay_counter {
         global $ppc_global_settings;
         
         $ppc_global_settings['current_version'] = get_option( 'ppc_current_version' );
-        $ppc_global_settings['newest_version'] = '2.22';
+        $ppc_global_settings['newest_version'] = '2.23';
         $ppc_global_settings['option_name'] = 'ppc_settings';
         $ppc_global_settings['option_errors'] = 'ppc_errors';
         $ppc_global_settings['folder_path'] = plugins_url( '/', __FILE__ );
@@ -460,10 +460,7 @@ class post_pay_counter {
         if( is_array( $author ) ) {
             echo PPC_HTML_functions::show_stats_page_header( $userdata->display_name, PPC_general_functions::get_the_author_link( $author[0] ) );
             
-            if( ! $perm->can_see_others_detailed_stats() AND $current_user->ID != $author[0] ) {
-                echo __( 'Error: you are not allowed to see this page.' , 'post-pay-counter');
-                return;
-            }
+            if( ! $perm->can_see_others_detailed_stats() AND $current_user->ID != $author[0] ) { return _e( 'You do not have sufficient permissions to access this page' ); }
             
             $stats = PPC_generate_stats::produce_stats( $ppc_global_settings['stats_tstart'], $ppc_global_settings['stats_tend'], $author );
             if( is_wp_error( $stats ) ) {

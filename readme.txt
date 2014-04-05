@@ -3,7 +3,7 @@ Contributors: Ste_95
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SM5Q9BVU4RT22
 Tags: counter, authors, payment, stats, multi author, post management, post
 Tested up to: 3.8.1
-Stable tag: 2.22
+Stable tag: 2.23
 Requires at least: 3.7
 
 Easily handle authors' pay on a multi-author blog by computing posts' remuneration basing on admin defined rules.
@@ -43,6 +43,12 @@ From this: *define( 'PPC_DEBUG_LOG', true );*
 It must become: *define( 'PPC_DEBUG_LOG', false );*
 
 == Changelog ==
+= 2.23 =
+* New: overall stats show total count for words, visits, images and comments.
+* Fixed: settings would not get personalized user's settings in some cases.
+* Fixed: error handling in installation.
+* Tweak: improved settings caching.
+
 = 2.22 =
 * New: possible to clear error log.
 * Tweak: some errors do not get logged anyway (like *empty_selection*).

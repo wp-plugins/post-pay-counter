@@ -67,6 +67,7 @@ class PPC_generate_stats {
         global $current_user, $wpdb, $ppc_global_settings;
         
         $settings = PPC_general_functions::get_settings( $current_user->ID );
+		
         $args = array(
             'post_type' => $settings['counting_allowed_post_types'],
             'post_status' => array_keys( $settings['counting_allowed_post_statuses'], 1 ), //Only statuses with 1 as value are selected
@@ -289,15 +290,54 @@ class PPC_generate_stats {
     static function get_overall_stats( $stats ) {
         $overall_stats = array( 
             'posts' => 0, 
-            'payment' => 0 
+            'payment' => 0,
+			'count_words' => 0,
+			'count_visits' => 0,
+			'count_images' => 0,
+			'count_comments' => 0
         );
         
-        foreach( $stats as $single ) {
-            $overall_stats['posts'] += $single['total']['ppc_misc']['posts'];
-            $overall_stats['payment'] += sprintf( '%.2f', $single['total']['ppc_payment']['normal_payment']['total'] );
+        foreach( $stats as $single ) { 
+            //Posts total count
+			$overall_stats['posts'] += $single['total']['ppc_misc']['posts'];
+            
+			//Normal payment total
+			$overall_stats['payment'] += sprintf( '%.2f', $single['total']['ppc_payment']['normal_payment']['total'] );
+			
+			//Words total count
+			if( isset( $single['total']['ppc_count']['normal_count']['to_count']['words'] ) ) {
+				if( ! isset( $overall_stats['count_words'] ) )
+					$overall_stats['count_words'] = 0;
+				
+				$overall_stats['count_words'] += $single['total']['ppc_count']['normal_count']['to_count']['words'];
+			}
+			
+			//Visits total count
+			if( isset( $single['total']['ppc_count']['normal_count']['to_count']['visits'] ) ) {
+				if( ! isset( $overall_stats['count_visits'] ) )
+					$overall_stats['count_visits'] = 0;
+				
+				$overall_stats['count_visits'] += $single['total']['ppc_count']['normal_count']['to_count']['visits'];
+			}
+			
+			//Images total count
+			if( isset( $single['total']['ppc_count']['normal_count']['to_count']['images'] ) ) {
+				if( ! isset( $overall_stats['count_images'] ) )
+					$overall_stats['count_images'] = 0;
+				
+				$overall_stats['count_images'] += $single['total']['ppc_count']['normal_count']['to_count']['images'];
+			}
+			
+			//Comments total count
+			if( isset( $single['total']['ppc_count']['normal_count']['to_count']['comments'] ) ) {
+				if( ! isset( $overall_stats['count_comments'] ) )
+					$overall_stats['count_comments'] = 0;
+				
+				$overall_stats['count_comments'] += $single['total']['ppc_count']['normal_count']['to_count']['comments'];
+			}
         }
         
-        return apply_filters( 'ppc_overall_stats', $overall_stats );
+        return apply_filters( 'ppc_overall_stats', $overall_stats, $stats );
     }
 }
 ?>
