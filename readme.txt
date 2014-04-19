@@ -44,8 +44,8 @@ It must become: *define( 'PPC_DEBUG_LOG', false );*
 
 == Changelog ==
 = 2.24 =
-Tweak: **dramatic speed increase** on websites with lots of users.
-New: Italian translation (Stefano Ottolenghi).
+* Tweak: **dramatic speed increase** on websites with lots of users.
+* New: Italian translation (Stefano Ottolenghi).
 
 = 2.23 =
 * New: overall stats show total count for words, visits, images and comments.
