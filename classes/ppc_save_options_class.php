@@ -193,16 +193,16 @@ class PPC_save_options {
     static function update_settings( $userid, $settings ) {
         global $ppc_global_settings;
         
-        if( $settings == PPC_general_functions::get_settings( $settings['userid'] ) ) { return; } //avoid updating with same data, which would result in an error
+        if( $settings == PPC_general_functions::get_settings( $settings['userid'] ) ) return; //avoid updating with same data, which would result in an error
         
         if( is_numeric( $userid ) ) {
             $settings['userid'] = (int) $settings['userid'];
             if( ! $update = update_user_option( $userid, $ppc_global_settings['option_name'], $settings ) ) {
-                return new WP_Error( 'save_settings_error', __( 'Error: updating settings failed.' , 'post-pay-counter') );
+                return new WP_Error( 'save_user_settings_error', __( 'Error: could not update settings.' , 'post-pay-counter') );
             }
         } else if( $userid == 'general' ) {
             if( ! $update = update_option( $ppc_global_settings['option_name'], $settings ) ) {
-                return new WP_Error( 'save_settings_error', __( 'Error: updating settings failed.' , 'post-pay-counter') );
+                return new WP_Error( 'save_general_settings_error', __( 'Error: could not update settings.' , 'post-pay-counter') );
             }
             $ppc_global_settings['general_settings'] = $settings;
         }

@@ -26,25 +26,18 @@ class PPC_generate_stats {
         $perm = new PPC_permissions();
         
         //If general stats & CU can't see others' general, behave as if detailed for him
-        if( ! is_array( $author ) AND ! $perm->can_see_others_general_stats() ) {
+        if( ! is_array( $author ) AND ! $perm->can_see_others_general_stats() )
             $requested_posts = PPC_generate_stats::get_requested_posts( $time_start, $time_end, array( $current_user->ID ) );
-        } else {
+        else
             $requested_posts = PPC_generate_stats::get_requested_posts( $time_start, $time_end, $author );
-        }
         
-        if( is_wp_error( $requested_posts ) ) {
-            return $requested_posts;
-        }
+        if( is_wp_error( $requested_posts ) ) return $requested_posts;
         
         $cashed_requested_posts = PPC_counting_stuff::data2cash( $requested_posts, $author );
-        if( is_wp_error( $cashed_requested_posts ) ) {
-            return $cashed_requested_posts;
-        }
+        if( is_wp_error( $cashed_requested_posts ) ) return $cashed_requested_posts;
         
         $grouped_by_author_stats = PPC_generate_stats::group_stats_by_author( $cashed_requested_posts );
-        if( is_wp_error( $grouped_by_author_stats ) ) {
-            return $grouped_by_author_stats;
-        }
+        if( is_wp_error( $grouped_by_author_stats ) ) return $grouped_by_author_stats;
         
         $formatted_stats = PPC_generate_stats::format_stats_for_output( $grouped_by_author_stats, $author );
         
@@ -64,7 +57,7 @@ class PPC_generate_stats {
     */
     
     static function get_requested_posts( $time_start, $time_end, $author = NULL ) {
-        global $current_user, $wpdb, $ppc_global_settings;
+        global $current_user;
         
         $settings = PPC_general_functions::get_settings( $current_user->ID );
 		
@@ -76,29 +69,31 @@ class PPC_generate_stats {
                 'before' => date( 'Y-m-d H:m:s', $time_end ),
                 'inclusive' => true
             ),
-            'orderby' => 'author',
-            'order' => 'ASC',
+            'orderby' => 'date',
+            'order' => 'DESC',
             'posts_per_page' => -1,
-            'ignore_sticky_posts' => 1
+            'ignore_sticky_posts' => 1,
+            'suppress_filters' => false,
+            'ppc_filter_user_roles' => 1
         );
         
         //If a user_id is provided, and is valid, posts only by that author are selected 
-        if( is_array( $author ) ) {
+        if( is_array( $author ) )
             $args['author__in'] = $author;
-        
-        //If no user_id is provided, posts from all the allowed user roles users are selected
-        } else {
-            $allowed_users = array();
-            foreach( $settings['counting_allowed_user_roles'] as $user_role => $value ) {
-                $temp_array = get_users( array( 'role' => $user_role ) );
-                array_merge( $allowed_users, $temp_array );
-            }
-            $args['author__in'] = $allowed_users;
-        }
         
         $args = apply_filters( 'ppc_get_requested_posts_args', $args );
         
+        //Filter for allowed user roles if needed
+        if( $args['ppc_filter_user_roles'] ) 
+            add_filter( 'posts_join', array( 'PPC_generate_stats', 'grp_filter_user_roles' ) );
+        
+        //Unset all custom params from WP_Query args
+        unset( $args['ppc_filter_user_roles'] );
+        
         $requested_posts = new WP_Query( $args );
+        
+        //Remove custom filters
+        remove_filter( 'posts_join', array( 'PPC_generate_stats', 'grp_filter_user_roles' ) );
         
         if( $requested_posts->found_posts == 0 ) {
             $error = new PPC_Error( 'empty_selection', __( 'Error: no posts were selected' , 'post-pay-counter'), $args, false );
@@ -109,13 +104,35 @@ class PPC_generate_stats {
     }
     
     /**
+     * Filters get_requested_posts query for allowed user roles.
+     *
+     * @access  public
+     * @since   2.24
+     * @param   $join string the sql join
+     * @return  string the sql join
+     */
+    
+    static function grp_filter_user_roles( $join ) {
+        global $current_user, $wpdb;
+        
+        $settings = PPC_general_functions::get_settings( $current_user->ID );
+        
+        $join .= 'INNER JOIN '.$wpdb->usermeta.'
+                    ON '.$wpdb->usermeta.'.user_id = '.$wpdb->posts.'.post_author
+                    AND '.$wpdb->usermeta.'.meta_key = "'.$wpdb->get_blog_prefix().'capabilities" 
+                    AND '.$wpdb->usermeta.'.meta_value REGEXP ("'.implode( '|', $settings['counting_allowed_user_roles'] ).'")';
+        
+        return $join;
+    }
+    
+    /**
      * Groups posts array by their authors and computes authors total (count+payment)
      *
      * @access  public
      * @since   2.0
      * @param   $data array the counting data
      * @return  array the counting data, grouped by author id
-    */
+     */
     
     static function group_stats_by_author( $data ) {
         $sorted_array = array();
@@ -125,17 +142,15 @@ class PPC_generate_stats {
             $user_settings = PPC_general_functions::get_settings( $single->post_author, true );
             
             //Written posts count
-            if( ! isset( $sorted_array[$single->post_author]['total']['ppc_misc']['posts'] ) ) {
+            if( ! isset( $sorted_array[$single->post_author]['total']['ppc_misc']['posts'] ) )
                 $sorted_array[$single->post_author]['total']['ppc_misc']['posts'] = 1;
-            } else {
+            else
                 $sorted_array[$single->post_author]['total']['ppc_misc']['posts']++;
-            }
             
             //Don't include in general stats count posts below threshold
             if( $user_settings['counting_payment_only_when_total_threshold'] ) {
-                if( $single->ppc_misc['exceed_threshold'] == false ) {
+                if( $single->ppc_misc['exceed_threshold'] == false )
                     continue;
-                }
             }
             
             //Compute total countings
@@ -153,11 +168,10 @@ class PPC_generate_stats {
             //Compute total payment
             foreach( $single->ppc_payment['normal_payment'] as $what => $value ) {
                 //Avoid notices of non isset index
-    			if( ! isset( $sorted_array[$single->post_author]['total']['ppc_payment']['normal_payment'][$what] ) ) {
+    			if( ! isset( $sorted_array[$single->post_author]['total']['ppc_payment']['normal_payment'][$what] ) )
     				$sorted_array[$single->post_author]['total']['ppc_payment']['normal_payment'][$what] = $value;
-    			} else {
+    			else
     				$sorted_array[$single->post_author]['total']['ppc_payment']['normal_payment'][$what] += $value;
-    			}
             }
             
             $sorted_array[$single->post_author] = apply_filters( 'ppc_sort_stats_by_author_foreach_post', $sorted_array[$single->post_author], $single );
@@ -168,9 +182,8 @@ class PPC_generate_stats {
             
             //Check total threshold
             if( $user_settings['counting_payment_total_threshold'] != 0 ) {
-                if( $stats['total']['ppc_payment']['normal_payment']['total'] > $stats['total']['ppc_misc']['posts'] * $user_settings['counting_payment_total_threshold'] ) {
+                if( $stats['total']['ppc_payment']['normal_payment']['total'] > $stats['total']['ppc_misc']['posts'] * $user_settings['counting_payment_total_threshold'] )
                     $stats['total']['ppc_payment']['normal_payment']['total'] = $stats['total']['ppc_misc']['posts'] * $user_settings['counting_payment_total_threshold'];
-                }
             }
             
             //Get tooltip
@@ -229,7 +242,7 @@ class PPC_generate_stats {
             $formatted_stats['cols'] = apply_filters( 'ppc_author_stats_format_stats_after_cols_default', $formatted_stats['cols'] );
             
             foreach( $author_stats as $key => $post ) {
-                if( $key === 'total' ) { continue; } //Skip author's total
+                if( $key === 'total' ) continue; //Skip author's total
                 
                 $post_date = explode( ' ', $post->post_date );
                 $post_permalink = get_permalink( $post->ID );
@@ -240,15 +253,14 @@ class PPC_generate_stats {
                 $formatted_stats['stats'][$author_id][$post->ID]['post_status'] = $post->post_status;
                 $formatted_stats['stats'][$author_id][$post->ID]['post_publication_date'] = $post_date[0];
                 
-                if( $user_settings['counting_words'] ) {
+                if( $user_settings['counting_words'] )
                     $formatted_stats['stats'][$author_id][$post->ID]['post_words_count'] = $post->ppc_count['normal_count']['real']['words'];
-                } if( $user_settings['counting_visits'] ) {
+                if( $user_settings['counting_visits'] )
                     $formatted_stats['stats'][$author_id][$post->ID]['post_visits_count'] = $post->ppc_count['normal_count']['real']['visits'];
-                } if( $user_settings['counting_comments'] ) {
+                if( $user_settings['counting_comments'] )
                     $formatted_stats['stats'][$author_id][$post->ID]['post_comments_count'] = $post->ppc_count['normal_count']['real']['comments'];
-                } if( $user_settings['counting_images'] ) {
+                if( $user_settings['counting_images'] )
                     $formatted_stats['stats'][$author_id][$post->ID]['post_images_count'] = $post->ppc_count['normal_count']['real']['images'];
-                }
                 
                 $formatted_stats['stats'][$author_id][$post->ID]['post_total_payment'] = sprintf( '%.2f', $post->ppc_payment['normal_payment']['total'] );
                 

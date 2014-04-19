@@ -18,9 +18,8 @@ class PPC_ajax_functions {
     */
     
     static function ppc_check_ajax_referer( $nonce ) {
-        if( ! check_ajax_referer( $nonce, false, false ) ) {
+        if( ! check_ajax_referer( $nonce, false, false ) )
             die( __( 'Error: Seems like AJAX request was not recognised as coming from the right page. Maybe hacking around..?' , 'post-pay-counter') );
-        }
     }
     
     /**
@@ -37,9 +36,8 @@ class PPC_ajax_functions {
         parse_str( $_REQUEST['form_data'], $settings );
         
         $save_settings = PPC_save_options::save_counting_settings( $settings );
-        if( is_wp_error( $save_settings ) ) {
-            die( $save_settings->get_error_message() );
-        }
+        if( is_wp_error( $save_settings ) ) die( $save_settings->get_error_message() );
+		
         die( 'ok' );
     }
     
@@ -57,9 +55,8 @@ class PPC_ajax_functions {
         parse_str( $_REQUEST['form_data'], $settings );
         
         $save_settings = PPC_save_options::save_misc_settings( $settings );
-        if( is_wp_error( $save_settings ) ) {
-            die( $save_settings->get_error_message() );
-        }
+        if( is_wp_error( $save_settings ) ) die( $save_settings->get_error_message() );
+        
         die( 'ok' );
     }
     
@@ -77,9 +74,8 @@ class PPC_ajax_functions {
         parse_str( $_REQUEST['form_data'], $settings );
         
         $save_settings = PPC_save_options::save_permissions( $settings );
-        if( is_wp_error( $save_settings ) ) {
-            die( $save_settings->get_error_message() );
-        }
+        if( is_wp_error( $save_settings ) ) die( $save_settings->get_error_message() );
+        
         die( 'ok' );
     }
     
@@ -109,22 +105,21 @@ class PPC_ajax_functions {
         $args = apply_filters( 'ppc_personalize_fetch_users_args', $args );
         
         $users_to_show = new WP_User_Query( $args );
-        if( $users_to_show->get_total() == 0 ) {
+        if( $users_to_show->get_total() == 0 )
             die( __( 'No users found.' , 'post-pay-counter') );
-        }
         
         $n = 0;
         $html = '';
         echo '<table>';
         
         foreach( $users_to_show->results as $single ) {
-            if( $n % 3 == 0 ) {
+            if( $n % 3 == 0 )
                 $html .= '<tr>';
-            }   
+            
                 $html .= '<td><a href="'.admin_url( $ppc_global_settings['options_menu_link'].'&amp;userid='.$single->ID ).'" title="'.$single->display_name.'">'.$single->display_name.'</a></td>';
-            if( $n % 3 == 2 ) {
+            
+			if( $n % 3 == 2 )
                 $html .= '</tr>';
-            }
             
             echo apply_filters( 'ppc_html_personalize_list_print_user', $html );
             
@@ -175,11 +170,10 @@ class PPC_ajax_functions {
             
             $update = PPC_save_options::update_settings( $to_import['userid'], $to_import );
             
-            if( is_wp_error( $update ) ) {
+            if( is_wp_error( $update ) )
                 echo $update->get_error_message();
-            } else {
+            else
                 echo 'ok';
-            }
         
         } else {
             _e( 'What are you importing, cows?', 'post-pay-counter' );
@@ -200,9 +194,8 @@ class PPC_ajax_functions {
         self::ppc_check_ajax_referer( 'ppc_clear_error_log' );
         
         if( get_option( $ppc_global_settings['option_errors'] ) ) {
-            if( ! delete_option( $ppc_global_settings['option_errors'] ) ) {
+            if( ! delete_option( $ppc_global_settings['option_errors'] ) )
                 die( __( 'Error: could not clear error log.', 'post-pay-counter' ) );
-            }
         }
         
         die( 'ok' );

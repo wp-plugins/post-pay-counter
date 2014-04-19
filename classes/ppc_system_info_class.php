@@ -63,27 +63,23 @@ WP_DEBUG:                 <?php echo defined( 'WP_DEBUG' ) ? WP_DEBUG ? 'Enabled
 WP Table Prefix:          <?php echo "Length: ". strlen( $wpdb->prefix ); echo " Status:"; if ( strlen( $wpdb->prefix )>16 ) {echo " ERROR: Too Long";} else {echo " Acceptable";} echo "\n"; ?>
 
 <?php
-	$request['cmd'] = '_notify-validate';
-
 	$params = array(
-		'sslverify'		=> false,
-		'timeout'		=> 60,
-		'body'			=> $request
+		'body' => ''
 	);
-
-	$response = wp_remote_post( 'https://www.paypal.com/cgi-bin/webscr', $params );
-
+	
+	$response = wp_remote_post( 'http://www.thecrowned.org', $params );
+	
 	if ( ! is_wp_error( $response ) && $response['response']['code'] >= 200 && $response['response']['code'] < 300 ) {
-		$WP_REMOTE_POST =  __( 'wp_remote_post() works', 'post-pay-counter' ) . "\n";
+		$WP_REMOTE_POST =  'wp_remote_post() works' . "\n";
 	} else {
-		$WP_REMOTE_POST =  __( 'wp_remote_post() does not work', 'post-pay-counter' ) . "\n";
+		$WP_REMOTE_POST =  'wp_remote_post() does not work' . "\n";
 	}
 	?>
 WP Remote Post:           <?php echo $WP_REMOTE_POST; ?>
 
 DISPLAY ERRORS:           <?php echo ( ini_get( 'display_errors' ) ) ? 'On (' . ini_get( 'display_errors' ) . ')' : 'N/A'; ?><?php echo "\n"; ?>
-FSOCKOPEN:                <?php echo ( function_exists( 'fsockopen' ) ) ? __( 'Your server supports fsockopen.', 'post-pay-counter' ) : __( 'Your server does not support fsockopen.', 'post-pay-counter' ); ?><?php echo "\n"; ?>
-cURL:                     <?php echo ( function_exists( 'curl_init' ) ) ? __( 'Your server supports cURL.', 'post-pay-counter' ) : __( 'Your server does not support cURL.', 'post-pay-counter' ); ?><?php echo "\n"; ?>
+FSOCKOPEN:                <?php echo ( function_exists( 'fsockopen' ) ) ? 'Your server supports fsockopen.' : 'Your server does not support fsockopen.'; ?><?php echo "\n"; ?>
+cURL:                     <?php echo ( function_exists( 'curl_init' ) ) ? 'Your server supports cURL.' : 'Your server does not support cURL.'; ?><?php echo "\n"; ?>
 
 ACTIVE PLUGINS:
 <?php
@@ -148,6 +144,5 @@ NETWORK ACTIVE PLUGINS:
 		header( 'Content-Disposition: attachment; filename="ppc-system-info.txt"' );
 
 		die( wp_strip_all_tags( $_POST['ppc-sysinfo'] ) );
-		
 	}
 }

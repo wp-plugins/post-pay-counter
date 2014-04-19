@@ -22,10 +22,6 @@ function ppc_uninstall_procedure() {
 	foreach( $all_users as $user_id ) {
 		delete_user_option( $user_id, 'ppc_settings' );
 	}
-    /*$all_posts = get_posts( array( 'fields' => 'ids', 'posts_per_page' => -1, 'post_type' => 'any' ) );
-	foreach( $all_posts as $post_id ) {
-		delete_post_meta( $post_id, 'ppc_payment_bonus' );
-	}*/
 }
 
 //If working on a multisite blog, get all blog ids, foreach them and call the uninstall procedure on each of them

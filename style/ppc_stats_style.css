@@ -3,14 +3,14 @@
 	color: red; 
 	font-weight: bold; 
 	float: left; 
-	width: 80%;
+	width: 70%;
 }
 .ppc_success {
 	display: none;
 	color: green;
 	font-weight: bold;
 	float: left;
-	width: 80%;
+	width: 70%;
 }
 .ppc_ajax_loader {
 	display: none;

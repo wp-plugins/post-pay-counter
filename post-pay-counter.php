@@ -4,7 +4,7 @@ Plugin Name: Post Pay Counter
 Plugin URI: http://www.thecrowned.org/wordpress-plugins/post-pay-counter
 Description: Easily handle authors' pay on a multi-author blog by computing posts' remuneration basing on admin defined rules. Define the time range you would like to have stats about, and the plugin will do the rest.
 Author: Stefano Ottolenghi
-Version: 2.23
+Version: 2.24
 Author URI: http://www.thecrowned.org/
 */
 
@@ -50,7 +50,7 @@ class post_pay_counter {
         global $ppc_global_settings;
         
         $ppc_global_settings['current_version'] = get_option( 'ppc_current_version' );
-        $ppc_global_settings['newest_version'] = '2.23';
+        $ppc_global_settings['newest_version'] = '2.24';
         $ppc_global_settings['option_name'] = 'ppc_settings';
         $ppc_global_settings['option_errors'] = 'ppc_errors';
         $ppc_global_settings['folder_path'] = plugins_url( '/', __FILE__ );
@@ -167,11 +167,10 @@ class post_pay_counter {
             'order' => 'ASC'
         ) );
         
-        if( count( $first_available_post ) == 0 ) {
+        if( count( $first_available_post ) == 0 )
             $first_available_post = time();
-        } else {
+        else
             $first_available_post = strtotime( $first_available_post[0]->post_date );
-        }
         
         wp_enqueue_script( 'jquery-ui-datepicker', $ppc_global_settings['folder_path'].'js/jquery.ui.datepicker.min.js', array( 'jquery', 'jquery-ui-core' ) );
         wp_enqueue_style( 'jquery.ui.theme', $ppc_global_settings['folder_path'].'style/ui-lightness/jquery-ui-1.8.15.custom.css' );
@@ -313,15 +312,14 @@ class post_pay_counter {
     function ppc_settings_meta_link( $links, $file ) {
         global $ppc_global_settings;
        
-       if( $file == plugin_basename( __FILE__ ) ) {
+       if( $file == plugin_basename( __FILE__ ) )
             $links[] = '<a href="'.admin_url( $ppc_global_settings['options_menu_link'] ).'" title="'.__( 'Settings', 'post-pay-counter' ).'">'.__( 'Settings', 'post-pay-counter' ).'</a>';
-       }
      
         return $links;
     }
     
     /**
-     * Shows the "Donate" link in the plugins list (under the description)
+     * Shows the "Donate" and "Go PRO" links in the plugins list (under the description)
      *
      * @access  public
      * @since   2.0
@@ -332,6 +330,7 @@ class post_pay_counter {
     function ppc_donate_meta_link( $links, $file ) {
        if( $file == plugin_basename( __FILE__ ) ) {
             $links[] = '<a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SM5Q9BVU4RT22" title="'.__( 'Donate', 'post-pay-counter' ).'">'.__( 'Donate', 'post-pay-counter' ).'</a>';
+			$links[] = '<a href="www.thecrowned.org/post-pay-counter-pro" title="'.__( 'Go PRO', 'post-pay-counter' ).'">'.__( 'Go PRO', 'post-pay-counter' ).'</a>';
        }
      
         return $links;
@@ -445,11 +444,10 @@ class post_pay_counter {
         $ppc_global_settings['stats_tstart'] = apply_filters( 'ppc_stats_defined_time_start', $get_and_post['tstart'] );
         $ppc_global_settings['stats_tend'] = apply_filters( 'ppc_stats_defined_time_end', $get_and_post['tend'] );
         
-        if( isset( $get_and_post['author'] ) AND is_numeric( $get_and_post['author'] ) AND $userdata = get_userdata( $get_and_post['author'] ) ) {
+        if( isset( $get_and_post['author'] ) AND is_numeric( $get_and_post['author'] ) AND $userdata = get_userdata( $get_and_post['author'] ) )
             $author = array( $get_and_post['author'] );
-        } else {
+        else
             $author = NULL;  
-        }
         
         do_action( 'ppc_before_stats_html', $author );
         
