@@ -84,11 +84,12 @@ class PPC_generate_stats {
         $args = apply_filters( 'ppc_get_requested_posts_args', $args );
         
         //Filter for allowed user roles if needed
-        if( $args['ppc_filter_user_roles'] ) 
+        if( isset( $args['ppc_filter_user_roles'] ) AND $args['ppc_filter_user_roles'] ) 
             add_filter( 'posts_join', array( 'PPC_generate_stats', 'grp_filter_user_roles' ) );
         
         //Unset all custom params from WP_Query args
-        unset( $args['ppc_filter_user_roles'] );
+		if( isset( $args['ppc_filter_user_roles'] ) )
+			unset( $args['ppc_filter_user_roles'] );
         
         $requested_posts = new WP_Query( $args );
         
