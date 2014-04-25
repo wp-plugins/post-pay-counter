@@ -3,7 +3,7 @@ Contributors: Ste_95
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SM5Q9BVU4RT22
 Tags: counter, authors, payment, stats, multi author, post management, post
 Tested up to: 3.9
-Stable tag: 2.24
+Stable tag: 2.25
 Requires at least: 3.7
 
 Easily handle authors' pay on a multi-author blog by computing posts' remuneration basing on admin defined rules.
@@ -43,6 +43,10 @@ From this: *define( 'PPC_DEBUG_LOG', true );*
 It must become: *define( 'PPC_DEBUG_LOG', false );*
 
 == Changelog ==
+= 2.25 =
+* Fixed: blockquotes exclusion from word countings didn't work.
+* Fixed: preventing notice about *ppc_filter_user_roles* from showing due to last update.
+
 = 2.24 =
 * Tweak: **dramatic speed increase** on websites with lots of users.
 * New: Italian translation (Stefano Ottolenghi).

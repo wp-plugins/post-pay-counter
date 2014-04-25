@@ -141,7 +141,7 @@ class PPC_general_functions {
         );
         
         if( $settings['counting_exclude_quotations'] ) {
-            $post_content = preg_replace( '/<(blockquote|q)>.*<\/(blockquote|q)>/s', '', $post->post_content );
+            $post->post_content = preg_replace( '/<(blockquote|q)>.*<\/(blockquote|q)>/s', '', $post->post_content );
         }
         
         $post_words['real'] = (int) preg_match_all( '/\S+\s|\s\S+/', preg_replace( '/[.(),;:!?%#$¿"_+=\\/-]+/', '', preg_replace( '/\'&nbsp;|&#160;|\r|\n|\r\n|\s+/', ' ', strip_tags( $post->post_content ) ) ), $arr );
