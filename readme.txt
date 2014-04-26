@@ -43,6 +43,9 @@ From this: *define( 'PPC_DEBUG_LOG', true );*
 It must become: *define( 'PPC_DEBUG_LOG', false );*
 
 == Changelog ==
+= 2.26 =
+* Fixed: Italian translation wouldn't show.
+
 = 2.25 =
 * Fixed: blockquotes exclusion from word countings didn't work.
 * Fixed: preventing notice about *ppc_filter_user_roles* from showing due to last update.
