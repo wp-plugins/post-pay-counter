@@ -43,9 +43,6 @@ From this: *define( 'PPC_DEBUG_LOG', true );*
 It must become: *define( 'PPC_DEBUG_LOG', false );*
 
 == Changelog ==
-= 2.27 =
-* Fixed: Italian translation wouldn't show (again).
-
 = 2.26 =
 * Fixed: Italian translation wouldn't show.
 
