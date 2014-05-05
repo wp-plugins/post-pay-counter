@@ -92,12 +92,14 @@ class PPC_generate_stats {
 			unset( $args['ppc_filter_user_roles'] );
         
         $requested_posts = new WP_Query( $args );
-        
+		
         //Remove custom filters
         remove_filter( 'posts_join', array( 'PPC_generate_stats', 'grp_filter_user_roles' ) );
         
+		do_action( 'ppc_got_requested_posts', $requested_posts );
+		
         if( $requested_posts->found_posts == 0 ) {
-            $error = new PPC_Error( 'empty_selection', __( 'Error: no posts were selected' , 'post-pay-counter'), $args, false );
+            $error = new PPC_Error( 'empty_selection', __( 'Error: no posts were selected' , 'ppc'), $args, false );
             return $error->return_error();
         }
         
@@ -222,23 +224,23 @@ class PPC_generate_stats {
             list( $author_id, $author_stats ) = each( $data ); 
             $user_settings = PPC_general_functions::get_settings( $author_id, true );
             
-            $formatted_stats['cols']['post_id'] = __( 'ID' , 'post-pay-counter');
-            $formatted_stats['cols']['post_title'] = _x( 'Title', '(Stats page) Post title' , 'post-pay-counter');
-            $formatted_stats['cols']['post_type'] = _x( 'Type', '(Stats page) Post type' , 'post-pay-counter');
-            $formatted_stats['cols']['post_status'] = _x( 'Status', '(Stats page) Post status' , 'post-pay-counter');
-            $formatted_stats['cols']['post_publication_date'] = _x( 'Pub. Date', '(Stats page) Post publication date' , 'post-pay-counter');
+            $formatted_stats['cols']['post_id'] = __( 'ID' , 'ppc');
+            $formatted_stats['cols']['post_title'] = _x( 'Title', '(Stats page) Post title' , 'ppc');
+            $formatted_stats['cols']['post_type'] = _x( 'Type', '(Stats page) Post type' , 'ppc');
+            $formatted_stats['cols']['post_status'] = _x( 'Status', '(Stats page) Post status' , 'ppc');
+            $formatted_stats['cols']['post_publication_date'] = _x( 'Pub. Date', '(Stats page) Post publication date' , 'ppc');
             
             if( $user_settings['counting_words'] ) {
-                $formatted_stats['cols']['post_words_count'] = _x( 'Words', '(Stats page) Post words number' , 'post-pay-counter');
+                $formatted_stats['cols']['post_words_count'] = _x( 'Words', '(Stats page) Post words number' , 'ppc');
             } if( $user_settings['counting_visits'] ) {
-                $formatted_stats['cols']['post_visits_count'] = _x( 'Visits', '(Stats page) Post visits number' , 'post-pay-counter');
+                $formatted_stats['cols']['post_visits_count'] = _x( 'Visits', '(Stats page) Post visits number' , 'ppc');
             } if( $user_settings['counting_comments'] ) {
-                $formatted_stats['cols']['post_comments_count'] = _x( 'Comments', '(Stats page) Post comments number' , 'post-pay-counter');
+                $formatted_stats['cols']['post_comments_count'] = _x( 'Comments', '(Stats page) Post comments number' , 'ppc');
             } if( $user_settings['counting_images'] ) {
-                $formatted_stats['cols']['post_images_count'] = _x( 'Imgs', '(Stats page) Post images number' , 'post-pay-counter');
+                $formatted_stats['cols']['post_images_count'] = _x( 'Imgs', '(Stats page) Post images number' , 'ppc');
             }
             
-            $formatted_stats['cols']['post_total_payment'] = _x( 'Total Pay', '(Stats page) Post total payment' , 'post-pay-counter');
+            $formatted_stats['cols']['post_total_payment'] = _x( 'Total Pay', '(Stats page) Post total payment' , 'ppc');
             
             $formatted_stats['cols'] = apply_filters( 'ppc_author_stats_format_stats_after_cols_default', $formatted_stats['cols'] );
             
@@ -269,10 +271,10 @@ class PPC_generate_stats {
             }
             
         } else {
-            $formatted_stats['cols']['author_id'] = __( 'Author ID' , 'post-pay-counter');
-            $formatted_stats['cols']['author_name'] = __( 'Author Name' , 'post-pay-counter');
-            $formatted_stats['cols']['author_written_posts'] = __( 'Written posts' , 'post-pay-counter');
-            $formatted_stats['cols']['author_total_payment'] = __( 'Total payment' , 'post-pay-counter');
+            $formatted_stats['cols']['author_id'] = __( 'Author ID' , 'ppc');
+            $formatted_stats['cols']['author_name'] = __( 'Author Name' , 'ppc');
+            $formatted_stats['cols']['author_written_posts'] = __( 'Written posts' , 'ppc');
+            $formatted_stats['cols']['author_total_payment'] = __( 'Total payment' , 'ppc');
             
             $formatted_stats['cols'] = apply_filters( 'ppc_general_stats_format_stats_after_cols_default', $formatted_stats['cols'] );
             

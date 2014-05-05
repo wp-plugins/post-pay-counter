@@ -6,7 +6,6 @@
  */
 
 class PPC_counting_stuff {
-    public static $current_counting_system_value;
     public static $settings;
     
     /**
@@ -27,8 +26,11 @@ class PPC_counting_stuff {
             $system = 'counting_'.$counting_type.'_system_'.$single;
             $system_value = 'counting_'.$counting_type.'_system_'.$single.'_value';
             
-            if( self::$settings[$system] == 1 ) {
-                $return = array( 'counting_system' => 'counting_system_'.$single, 'counting_system_value' => self::$settings[$system_value] );
+            if( self::$settings[$system] ) {
+                $return = array( 
+					'counting_system' => 'counting_system_'.$single, 
+					'counting_system_value' => self::$settings[$system_value] 
+				);
                 break;
             }
         }
@@ -87,32 +89,162 @@ class PPC_counting_stuff {
         }
         
         if( self::$settings['counting_words'] ) {
-            $words = PPC_general_functions::count_post_words( $post );
+            $words = self::count_post_words( $post );
             $ppc_count['normal_count']['real']['words'] = $words['real'];
             $ppc_count['normal_count']['to_count']['words'] = $words['to_count'];
         }
         
         if( self::$settings['counting_visits'] ) {
-            $visits = PPC_general_functions::get_post_visits( $post );
+            $visits = self::get_post_visits( $post );
             $ppc_count['normal_count']['real']['visits'] = $visits['real'];
             $ppc_count['normal_count']['to_count']['visits'] = $visits['to_count'];
         }
         
         if( self::$settings['counting_images'] ) {
-            $images = PPC_general_functions::count_post_images( $post );
+            $images = self::get_post_counting( $post, self::count_post_images( $post ), self::$settings['counting_images_threshold_min'], self::$settings['counting_images_threshold_max'], 'images' );
             $ppc_count['normal_count']['real']['images'] = $images['real'];
             $ppc_count['normal_count']['to_count']['images'] = $images['to_count'];
         }
         
         if( self::$settings['counting_comments'] ) {
-            $comments = PPC_general_functions::get_post_comments( $post );
+            $comments = self::get_post_counting( $post, $post->comment_count, self::$settings['counting_comments_threshold_min'], self::$settings['counting_comments_threshold_max'], 'comments' );
             $ppc_count['normal_count']['real']['comments'] = $comments['real'];
             $ppc_count['normal_count']['to_count']['comments'] = $comments['to_count'];
         }
         
-        return apply_filters( 'ppc_get_post_countings', $ppc_count );
+        return apply_filters( 'ppc_get_post_countings', $ppc_count, $post );
     }
     
+	/**
+     * Determines the number counting numbers (i.e. real & to_count) for a given counting type.
+     * 
+     * Keeps track of thresholds. 'to_count' holds the to be paid value (thresholded) while 'real' the real value.
+     *
+     * @access  public
+     * @since   2.27
+     * @param   $post object the WP post object
+	 * @param	$real_counting int the real (without thresholds) counting number for the given counting type
+	 * @param	$threshold_min int lower threshold value
+	 * @param	$threshold_max int upper threshold value
+	 * @param	$what string counting type
+     * @return  array the counting data (real + to_count)
+     */
+    
+    static function get_post_counting( $post, $real_counting, $threshold_min, $threshold_max, $what ) {
+        $post_counting = array( 
+            'real' => (int) $real_counting,
+            'to_count' => 0 
+        );
+        
+        //Set max alllowed number
+        $allowed = $threshold_max - $threshold_min;
+        
+        //If lower threshold is not met, set count to 0
+        if( $real_counting <= $threshold_min ) {
+            $post_counting['to_count'] = 0;
+        } else {
+            
+            //If both upper and lower thresholds are 0, then no limit
+            if( $allowed == 0 ) {
+                $post_counting['to_count'] = $post_counting['real'];
+            
+            //If there's no upper threshold but lower threshold is set (ie. (max-min)<0), set count to count-min
+            } else if( $allowed < 0 AND $real_counting > $allowed ) {
+                $post_counting['to_count'] = $real_counting - $threshold_min;
+            
+            //If count exceeds upper threshold, set count to max-min
+            } else if( $allowed > 0 AND $real_counting > $allowed ) {
+                $post_counting['to_count'] = $allowed;
+            
+            //If count lies between thresholds, set it to the count-min
+            } else if( $allowed > 0 AND $real_counting <= $allowed ) {
+                $post_counting['to_count'] = $real_counting - $threshold_min;
+            }
+        }
+        
+        return apply_filters( 'ppc_counted_post_'.$what, $post_counting );
+    }
+	
+	/**
+     * Determines the number of images for a given post.
+	 *
+     * @access  public
+     * @since   2.27
+     * @param   object the WP post object
+     * @return  int images number
+     */
+    
+    static function count_post_images( $post ) {
+        $post_images = (int) preg_match_all( '/<img[^>]*>/', $post->post_content, $array );
+        
+		//Maybe include features image in counting
+        if( self::$settings['counting_images_include_featured'] ) {
+            if( has_post_thumbnail( $post->ID ) )
+                ++$post_images;
+        }
+        
+        return apply_filters( 'ppc_counted_post_images', $post_images, $post->ID );
+    }
+	
+	/**
+     * Determines the number of effective words for a given post content.
+     * 
+     * Trims blockquotes if requested; strip HTML tags (keeping their content). The regex basically reduces all kind of white spaces to one " " and trims punctuation. Apostrophes count as spaces. Keep track of thresholds. 'to_count' holds the to be paid value (threshold) while 'real' the real value.
+     *
+     * @access  public
+     * @since   2.27
+     * @param   $post object the WP post object
+     * @return  array the words data
+     */
+    
+    static function count_post_words( $post ) {
+        $post_words = array( 
+            'real' => 0, 
+            'to_count' => 0 
+        );
+        
+        if( self::$settings['counting_exclude_quotations'] )
+            $post->post_content = preg_replace( '/<(blockquote|q)>.*<\/(blockquote|q)>/s', '', $post->post_content );
+        
+        $post_words['real'] = (int) str_word_count( preg_replace( '/[.(),;:!?%#$¿"_+=\\/-]+/', '', preg_replace( '/\'&nbsp;|&#160;|\r|\n|\r\n|\s+/', ' ', strip_tags( $post->post_content ) ) ), 0, '\'' );
+        
+        if( self::$settings['counting_words_threshold_max'] > 0 AND $post_words['real'] > self::$settings['counting_words_threshold_max'] )
+            $post_words['to_count'] = self::$settings['counting_words_threshold_max'];
+        else
+            $post_words['to_count'] = $post_words['real'];
+        
+        return apply_filters( 'ppc_counted_post_words', $post_words );
+    }
+    
+    /**
+     * Determines the number of visits for a given post. 
+     * 
+     * Keeps track of thresholds. 'to_count' holds the to be paid value (threshold) while 'real' the real value.
+     *
+     * @access  public
+     * @since   2.27
+     * @param   object the WP post object
+     * @return  array the words data
+    */
+    
+    static function get_post_visits( $post ) {
+        $post_visits = array( 
+            'real' => 0, 
+            'to_count' => 0 
+        );
+        
+        $visits_postmeta = apply_filters( 'ppc_counting_visits_postmeta', self::$settings['counting_visits_postmeta_value'] );
+        
+        $post_visits['real'] = (int) get_post_meta( $post->ID, $visits_postmeta, TRUE );
+        
+        if( self::$settings['counting_visits_threshold_max'] > 0 AND $post_visits['real'] > self::$settings['counting_visits_threshold_max'] )
+            $post_visits['to_count'] = self::$settings['counting_visits_threshold_max'];
+        else
+            $post_visits['to_count'] = $post_visits['real'];
+        
+        return apply_filters( 'ppc_counted_post_visits', $post_visits );
+    }
+	
     /**
      * Computes payment data for the given post. Checks payment threshold.
      *
@@ -144,7 +276,7 @@ class PPC_counting_stuff {
      *
      * @access  public
      * @since   2.0
-     * @param   $countings array the countings
+     * @param   $countings array the countings to be paid
      * @return  array the payment data  
     */
     
@@ -181,6 +313,7 @@ class PPC_counting_stuff {
             $ppc_payment['comments'] = $comments_pay;
         }
         
+		$ppc_payment = apply_filters( 'ppc_get_countings_payment', $ppc_payment, $countings );
         $ppc_payment['total'] = array_sum( $ppc_payment );
         
         return $ppc_payment;
@@ -199,27 +332,22 @@ class PPC_counting_stuff {
     static function build_payment_details_tooltip( $countings, $payment ) {
         $tooltip = '';
         
-        if( self::$settings['basic_payment'] ) {
-            $tooltip .= __( 'Basic payment' , 'post-pay-counter').': '.$countings['basic'].' => '.sprintf( '%.2f', $payment['basic'] ).'&#13;';
-        }
+        if( self::$settings['basic_payment'] )
+            $tooltip .= __( 'Basic payment' , 'ppc').': '.$countings['basic'].' => '.sprintf( '%.2f', $payment['basic'] ).'&#13;';
         
-        if( self::$settings['counting_words'] ) {
-            $tooltip .= __( 'Words payment' , 'post-pay-counter').': '.$countings['words'].' => '.sprintf( '%.2f', $payment['words'] ).'&#13;';
-        }
+        if( self::$settings['counting_words'] )
+            $tooltip .= __( 'Words payment' , 'ppc').': '.$countings['words'].' => '.sprintf( '%.2f', $payment['words'] ).'&#13;';
         
-        if( self::$settings['counting_visits'] ) {
-            $tooltip .= __( 'Visits payment' , 'post-pay-counter').': '.$countings['visits'].' => '.sprintf( '%.2f', $payment['visits'] ).'&#13;';
-        }
+        if( self::$settings['counting_visits'] )
+            $tooltip .= __( 'Visits payment' , 'ppc').': '.$countings['visits'].' => '.sprintf( '%.2f', $payment['visits'] ).'&#13;';
         
-        if( self::$settings['counting_images'] ) {
-            $tooltip .=  __( 'Images payment' , 'post-pay-counter').': '.$countings['images'].' => '.sprintf( '%.2f', $payment['images'] ).'&#13;';
-        }
+        if( self::$settings['counting_images'] )
+            $tooltip .=  __( 'Images payment' , 'ppc').': '.$countings['images'].' => '.sprintf( '%.2f', $payment['images'] ).'&#13;';
         
-        if( self::$settings['counting_comments'] ) {
-            $tooltip .= __( 'Comments payment' , 'post-pay-counter').': '.$countings['comments'].' => '.sprintf( '%.2f', $payment['comments'] );
-        }
+        if( self::$settings['counting_comments'] )
+            $tooltip .= __( 'Comments payment' , 'ppc').': '.$countings['comments'].' => '.sprintf( '%.2f', $payment['comments'] ).'&#13;';
         
-        return apply_filters( 'ppc_payment_details_tooltip', $tooltip );
+        return apply_filters( 'ppc_payment_details_tooltip', $tooltip, $countings, $payment );
     }
     
     /**
@@ -302,18 +430,16 @@ class PPC_counting_stuff {
     */
     
     static function counting_system_zonal( $post_counting, $counting_system_value ) {
-        if( $post_counting < $counting_system_value[0]['threshold'] ) {
-            return 0;
-        }
+        //Immediately return 0 if counting < than first zone
+		if( $post_counting < $counting_system_value[0]['threshold'] ) return 0;
         
         $n = 0;
         $zones_count = count( $counting_system_value );
         while( $n < $zones_count ) {
-            if( $post_counting >= $counting_system_value[$n]['threshold'] AND $n == ( $zones_count - 1 ) ) {
-                return $counting_system_value[$n]['payment'];
-            }
-            if( $post_counting >= $counting_system_value[$n]['threshold'] AND $post_counting < $counting_system_value[$n+1]['threshold'] ) {
-                return $counting_system_value[$n]['payment'];
+            if( $post_counting >= $counting_system_value[$n]['threshold'] ) {   //Counting is > than current zone, that's interesting...
+				if( $n == ( $zones_count - 1 )									//There are no more zones, so this must be the one!
+				OR $post_counting < $counting_system_value[$n+1]['threshold'] ) //Counting is < than next zone, so this is the right one...
+					return $counting_system_value[$n]['payment'];
             }
             ++$n;
         }
@@ -332,28 +458,5 @@ class PPC_counting_stuff {
     static function counting_system_incremental( $post_counting, $counting_system_value ) {
         return $payment = $post_counting * $counting_system_value;
     }
-    
-    /**
-     * Computes merit bonus: retrieves merit bonus from database and adds it.
-     *
-     * @access  public
-     * @param   $post_id int post id
-     * @return  
-     * @todo
-    */
-    
-    /*function add_merit_bonus( $post ) {
-        global $PPC_settings;
-        
-        if( $PPC_settings->allow_merit_bonus == 1 ) {
-            if( $payment_bonus = get_post_meta( $single->ID, 'payment_bonus', true ) ) {
-                $post->payment['bonus_merit'] = $payment_bonus;
-            } else {
-                $post->payment['bonus_merit'] = 0;
-            }
-        }
-        
-        return $post;
-    }*/
 }
 ?>

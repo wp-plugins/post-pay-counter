@@ -25,16 +25,15 @@ class PPC_system_info {
 	static function system_info() {
 		global $wpdb, $ppc_global_settings;
 		
-		if( isset( $_POST['ppc_download_sysinfo'] ) ) {
+		if( isset( $_POST['ppc_download_sysinfo'] ) )
 			self::system_info_download();
-		}
 		
 		?>
 		
 		<div class="wrap">
-			<h2><?php _e( 'System Information', 'post-pay-counter' ) ?></h2>
+			<h2>Post Pay Counter - <?php _e( 'System Information', 'ppc' ) ?></h2>
 			<form action="<?php echo esc_url( wp_nonce_url( admin_url( 'admin.php?page=ppc-system-info&noheader=true' ), 'ppc_download_sysinfo' ) ); ?>" method="post" dir="ltr">
-				<textarea readonly="readonly" onclick="this.focus();this.select()" style="font-family: monospace; width: 700px; height: 500px;" name="ppc-sysinfo" title="<?php _e( 'To copy the system info, click below then press Ctrl + C (PC) or Cmd + C (Mac).', 'post-pay-counter' ); ?>">
+				<textarea readonly="readonly" onclick="this.focus();this.select()" style="font-family: monospace; width: 700px; height: 500px;" name="ppc-sysinfo" title="<?php _e( 'To copy the system info, click below then press Ctrl + C (PC) or Cmd + C (Mac).', 'ppc' ); ?>">
 ### Begin System Info ###
 
 ## Please include this information when posting support requests ##
@@ -121,7 +120,7 @@ NETWORK ACTIVE PLUGINS:
 
 ### End System Info ###</textarea>
 				<p>
-					<input type="submit" name="ppc_download_sysinfo" value="<?php _e( 'Download System Info File', 'post-pay-counter' ); ?>" class="button-primary" />
+					<input type="submit" name="ppc_download_sysinfo" value="<?php _e( 'Download System Info File', 'ppc' ); ?>" class="button-primary" />
 				</p>
 			</form>
 			</div>

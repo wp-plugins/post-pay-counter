@@ -70,9 +70,6 @@ class PPC_general_functions {
             } else {
 				$user_settings = get_user_option( $ppc_global_settings['option_name'], $userid );
 				
-                //if( get_user_option( array_rand( $user_settings_options ), $userid ) ) {
-                    //$general_settings = self::get_settings( 'general' );
-                
 				//If no special settings for this user are available, get general ones
                 if( $user_settings == false ) {
                     $user_settings = self::get_settings( 'general' );
@@ -113,185 +110,10 @@ class PPC_general_functions {
     */
 	
 	static function lcfirst( $string ) {
-        if( function_exists( 'lcfirst' ) ) {
+        if( function_exists( 'lcfirst' ) )
             return lcfirst( $string );
-        } else {
+        else
             return (string) ( strtolower( substr( $string, 0, 1 ) ).substr( $string, 1 ) );
-		}
-    }
-    
-    /**
-     * Determines the number of effective words for a given post content.
-     * 
-     * Trims blockquotes if requested; strip HTML tags (keeping their content). The regex basically reduces all kind of white spaces to one " ", trims punctuation and accounts a word as 
-     * "some non-blank char(s) with a space before or after". Apostrophes count as spaces. Keep track of thresholds. 'to_count' holds the to be paid value (threshold) while 'real' the real value.
-     *
-     * @access  public
-     * @since   2.0
-     * @param   $post object the WP post object
-     * @return  array the words data
-    */
-    
-    static function count_post_words( $post ) {
-        $settings = self::get_settings( $post->post_author, TRUE );
-        
-        $post_words = array( 
-            'real' => 0, 
-            'to_count' => 0 
-        );
-        
-        if( $settings['counting_exclude_quotations'] ) {
-            $post->post_content = preg_replace( '/<(blockquote|q)>.*<\/(blockquote|q)>/s', '', $post->post_content );
-        }
-        
-        $post_words['real'] = (int) preg_match_all( '/\S+\s|\s\S+/', preg_replace( '/[.(),;:!?%#$¿"_+=\\/-]+/', '', preg_replace( '/\'&nbsp;|&#160;|\r|\n|\r\n|\s+/', ' ', strip_tags( $post->post_content ) ) ), $arr );
-        
-        if( $settings['counting_words_threshold_max'] > 0 AND $post_words['real'] > $settings['counting_words_threshold_max'] ) {
-            $post_words['to_count'] = $settings['counting_words_threshold_max'];
-        } else {
-            $post_words['to_count'] = $post_words['real'];
-        }
-        
-        return apply_filters( 'ppc_counted_post_words', $post_words );
-    }
-    
-    /**
-     * Determines the number of visits for a given post. 
-     * 
-     * Keeps track of thresholds. 'to_count' holds the to be paid value (threshold) while 'real' the real value.
-     *
-     * @access  public
-     * @since   2.0
-     * @param   object the WP post object
-     * @return  array the words data
-    */
-    
-    static function get_post_visits( $post ) {
-        global $ppc_global_settings;
-        $settings = self::get_settings( $post->post_author, TRUE );
-        
-        $post_visits = array( 
-            'real' => 0, 
-            'to_count' => 0 
-        );
-        
-        $visits_postmeta = apply_filters( 'ppc_counting_visits_postmeta', $settings['counting_visits_postmeta_value'] );
-        
-        $post_visits['real'] = (int) get_post_meta( $post->ID, $visits_postmeta, TRUE );
-        
-        if( $settings['counting_visits_threshold_max'] > 0 AND $post_visits['real'] > $settings['counting_visits_threshold_max'] ) {
-            $post_visits['to_count'] = $settings['counting_visits_threshold_max'];
-        } else {
-            $post_visits['to_count'] = $post_visits['real'];
-        }
-        
-        return apply_filters( 'ppc_counted_post_visits', $post_visits );
-    }
-    
-    /**
-     * Determines the number of images for a given post. 
-     * 
-     * Keeps track of thresholds. Uses a regex. If requested, fetaured image is counted as well. 'to_count' holds the to be paid value (threshold) while 'real' the real value.
-     *
-     * @access  public
-     * @since   2.0
-     * @param   object the WP post object
-     * @return  array the words data
-    */
-    
-    static function count_post_images( $post ) {
-        $settings = self::get_settings( $post->post_author, TRUE );
-        
-        $post_images = array( 
-            'real' => 0, 
-            'to_count' => 0 
-        );
-                
-        if( preg_match_all( '/<img[^>]*>/', $post->post_content, $array_all_imgs ) ) {
-            $post_images['real'] = (int) ( count( $array_all_imgs[0] ) - 1 );
-        }
-        
-        if( $settings['counting_images_include_featured'] ) {
-            if( has_post_thumbnail( $post->ID ) ) {
-                ++$post_images['real'];
-            }
-        }
-        
-        //Set max alllowed images number
-        $allowed_images = $settings['counting_images_threshold_max'] - $settings['counting_images_threshold_min'];
-        
-        //If lower threshold is not met, set count to 0
-        if( $post_images['real'] <= $settings['counting_images_threshold_min'] ) {
-            $post_images['to_count'] = 0;
-        } else {
-            
-            //If both upper and lower thresholds are 0, then no limit
-            if( $allowed_images == 0 ) {
-                $post_images['to_count'] = $post_images['real'];
-            
-            //If there's no upper threshold but lower threshold is set (ie. (max-min)<0), set count to count-min
-            } else if( $allowed_images < 0 AND $post_images['real'] > $allowed_images ) {
-                $post_images['to_count'] = $post_images['real'] - $settings['counting_images_threshold_min'];
-            
-            //If count exceeds upper threshold, set count to max-min
-            } else if( $allowed_images > 0 AND $post_images['real'] > $allowed_images ) {
-                $post_images['to_count'] = $allowed_images;
-            
-            //If count lies between thresholds, set it to the count-min
-            } else if( $allowed_images > 0 AND $post_images['real'] <= $allowed_images ) {
-                $post_images['to_count'] = $post_images['real'] - $settings['counting_images_threshold_min'];
-            }
-        }
-        
-        return apply_filters( 'ppc_counted_post_images', $post_images );
-    }
-    
-    /**
-     * Determines the number of comments for a given post. 
-     * 
-     * Keeps track of thresholds. 'to_count' holds the to be paid value (threshold) while 'real' the real value.
-     *
-     * @access  public
-     * @since   2.0
-     * @param   object the WP post object
-     * @return  array the words data
-    */
-    
-    static function get_post_comments( $post ) {
-        $settings = self::get_settings( $post->post_author, TRUE );
-        
-        $post_comments = array( 
-            'real' => (int) $post->comment_count, 
-            'to_count' => 0 
-        );
-        
-        //Set max alllowed comments number
-        $allowed_comments = $settings['counting_comments_threshold_max'] - $settings['counting_comments_threshold_min'];
-        
-        //If lower threshold is not met, set count to 0
-        if( $post_comments['real'] <= $settings['counting_comments_threshold_min'] ) {
-            $post_comments['to_count'] = 0;
-        } else {
-            
-            //If both upper and lower thresholds are 0, then no limit
-            if( $allowed_comments == 0 ) {
-                $post_comments['to_count'] = $post_comments['real'];
-            
-            //If there's no upper threshold but lower threshold is set (ie. (max-min)<0), set count to count-min
-            } else if( $allowed_comments < 0 AND $post_comments['real'] > $allowed_comments ) {
-                $post_comments['to_count'] = $post_comments['real'] - $settings['counting_comments_threshold_min'];
-            
-            //If count exceeds upper threshold, set count to max-min
-            } else if( $allowed_comments > 0 AND $post_comments['real'] > $allowed_comments ) {
-                $post_comments['to_count'] = $allowed_comments;
-            
-            //If count lies between thresholds, set it to the count-min
-            } else if( $allowed_comments > 0 AND $post_comments['real'] <= $allowed_comments ) {
-                $post_comments['to_count'] = $post_comments['real'] - $settings['counting_comments_threshold_min'];
-            }
-        }
-        
-        return apply_filters( 'ppc_counted_post_comments', $post_comments );
     }
     
     /**
@@ -339,33 +161,29 @@ class PPC_general_functions {
         foreach( $allowed_user_roles_options_page_add_cap as $single ) {
             $current_role = get_role( self::lcfirst( $single ) );
             
-            if( is_object( $current_role ) AND ! $current_role->has_cap( $ppc_global_settings['cap_manage_options'] ) ) {
+            if( is_object( $current_role ) AND ! $current_role->has_cap( $ppc_global_settings['cap_manage_options'] ) )
                 $current_role->add_cap( $ppc_global_settings['cap_manage_options'] );
-            }
         }
         
         foreach( $allowed_user_roles_options_page_remove_cap as $single ) {
             $current_role = get_role( self::lcfirst( $single ) );
             
-            if( is_object( $current_role ) AND $current_role->has_cap( $ppc_global_settings['cap_manage_options'] ) ) {
+            if( is_object( $current_role ) AND $current_role->has_cap( $ppc_global_settings['cap_manage_options'] ) )
                 $current_role->remove_cap( $ppc_global_settings['cap_manage_options'] );
-            }
         }
         
         foreach( $allowed_user_roles_stats_page_add_cap as $single ) {
             $current_role = get_role( self::lcfirst( $single ) );
             
-            if( is_object( $current_role ) AND ! $current_role->has_cap( $ppc_global_settings['cap_access_stats'] ) ) {
+            if( is_object( $current_role ) AND ! $current_role->has_cap( $ppc_global_settings['cap_access_stats'] ) )
                 $current_role->add_cap( $ppc_global_settings['cap_access_stats'] );
-            }
         }
         
         foreach( $allowed_user_roles_stats_page_remove_cap as $single ) {
             $current_role = get_role( self::lcfirst( $single ) );
             
-            if( is_object( $current_role ) AND $current_role->has_cap( $ppc_global_settings['cap_access_stats'] ) ) {
+            if( is_object( $current_role ) AND $current_role->has_cap( $ppc_global_settings['cap_access_stats'] ) )
                 $current_role->remove_cap( $ppc_global_settings['cap_access_stats'] );
-            }
         }
     }
     
@@ -382,13 +200,12 @@ class PPC_general_functions {
     static function get_default_stats_time_range( $settings ) {
         global $ppc_global_settings;
         
-        if( $settings['default_stats_time_range_week'] == 1 ) {
+        if( $settings['default_stats_time_range_week'] == 1 )
             $ppc_global_settings['stats_tstart'] = strtotime( '00:00:00' ) - ( ( date( 'N' )-1 )*24*60*60 );
-        } else if( $settings['default_stats_time_range_month'] == 1 ) {
+        else if( $settings['default_stats_time_range_month'] == 1 )
             $ppc_global_settings['stats_tstart'] = strtotime( '00:00:00' ) - ( ( date( 'j' )-1 )*24*60*60 );
-        } else if( $settings['default_stats_time_range_custom'] == 1 ) {
+        else if( $settings['default_stats_time_range_custom'] == 1 )
             $ppc_global_settings['stats_tstart'] = strtotime( '00:00:00' ) - ( $settings['default_stats_time_range_custom_value']*24*60*60 );
-        }
         
         $ppc_global_settings['stats_tend'] = time();
     }

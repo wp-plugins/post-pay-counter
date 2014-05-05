@@ -19,7 +19,7 @@ class PPC_ajax_functions {
     
     static function ppc_check_ajax_referer( $nonce ) {
         if( ! check_ajax_referer( $nonce, false, false ) )
-            die( __( 'Error: Seems like AJAX request was not recognised as coming from the right page. Maybe hacking around..?' , 'post-pay-counter') );
+            die( __( 'Error: Seems like AJAX request was not recognised as coming from the right page. Maybe hacking around..?' , 'ppc') );
     }
     
     /**
@@ -106,7 +106,7 @@ class PPC_ajax_functions {
         
         $users_to_show = new WP_User_Query( $args );
         if( $users_to_show->get_total() == 0 )
-            die( __( 'No users found.' , 'post-pay-counter') );
+            die( __( 'No users found.' , 'ppc') );
         
         $n = 0;
         $html = '';
@@ -149,7 +149,7 @@ class PPC_ajax_functions {
             
             do_action( 'ppc_deleted_user_settings', $user_id );
             
-            die( 'ok'.__( 'User\'s settings deleted successfully. You will be redirected to the general options page.' , 'post-pay-counter') );
+            die( 'ok'.__( 'User\'s settings deleted successfully. You will be redirected to the general options page.' , 'ppc') );
         }
     }
     
@@ -176,7 +176,7 @@ class PPC_ajax_functions {
                 echo 'ok';
         
         } else {
-            _e( 'What are you importing, cows?', 'post-pay-counter' );
+            _e( 'What are you importing, cows?', 'ppc' );
         }
         
         exit;
@@ -195,7 +195,7 @@ class PPC_ajax_functions {
         
         if( get_option( $ppc_global_settings['option_errors'] ) ) {
             if( ! delete_option( $ppc_global_settings['option_errors'] ) )
-                die( __( 'Error: could not clear error log.', 'post-pay-counter' ) );
+                die( __( 'Error: could not clear error log.', 'ppc' ) );
         }
         
         die( 'ok' );

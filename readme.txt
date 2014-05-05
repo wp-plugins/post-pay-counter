@@ -20,7 +20,7 @@ The Post Pay Counter plugin allows you to easily calculate and handle authors' p
 * Customizable permissions to prevent your users to see stats and use functions they are not supposed to.
 * And... works with custom post types, narrow your payments only to chosen user groups, and more.
 
-**Also, we have a [PRO version](http://www.thecrowned.org/post-pay-counter-pro) with many more features!**
+**Also, we have a [PRO version](http://www.thecrowned.org/post-pay-counter-pro) with many more features!** (among which integration with Analytics, PayPal, Facebook, and more)
 
 [youtube https://www.youtube.com/watch?v=mSFjvR-2zCI]
 
@@ -44,7 +44,13 @@ It must become: *define( 'PPC_DEBUG_LOG', false );*
 
 == Changelog ==
 = 2.27 =
-* Fixed: Italian translation wouldn't show (again).
+* Tweak: changed localization slug (from *post-pay-counter* to *ppc*).
+* Tweak: using PHP function str_word_count instead of custom function (for word counting).
+* Tweak: various filters and actions changes.
+* Tweak: added localization to options page meta boxes titles and stats table column headings.
+* Tweak: partly unified images and comments counting routine (and moved to PPC_counting_stuff class).
+* Tweak: other minor performance improvements.
+* Fixed: images counting would count one more.
 
 = 2.26 =
 * Fixed: Italian translation wouldn't show.
