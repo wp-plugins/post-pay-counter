@@ -265,7 +265,7 @@ class PPC_install_functions {
 			//Add option if not available, update it otherwise
             if( get_option( $ppc_global_settings['option_name'] ) === false ) {
                 if( ! add_option( $ppc_global_settings['option_name'], $default_settings['general'], '', 'no' ) ) {
-					$error = new PPC_Error( 'ppc_add_option_general_error', __( 'Could not add general settings option.', 'post-pay-counter' ), array( 
+					$error = new PPC_Error( 'ppc_add_option_general_error', __( 'Could not add general settings option.', 'ppc' ), array( 
 						'option_name' => $ppc_global_settings['option_name'], 
 						'old_settings' => $general_settings,
 						'default_settings' => $default_settings['general'] 
@@ -274,7 +274,7 @@ class PPC_install_functions {
 				}
             } else {
                 if( ! update_option( $ppc_global_settings['option_name'], $default_settings['general'] ) ) {
-					$error = new PPC_Error( 'ppc_update_option_general_error', __( 'Could not update general settings option.', 'post-pay-counter' ), array( 
+					$error = new PPC_Error( 'ppc_update_option_general_error', __( 'Could not update general settings option.', 'ppc' ), array( 
 						'option_name' => $ppc_global_settings['option_name'], 
 						'old_settings' => $general_settings,
 						'default_settings' => $default_settings['general'] 

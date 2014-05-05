@@ -92,10 +92,9 @@ class PPC_save_options {
             if( preg_match_all( '/comments_([0-9]+)_zone_payment/', $option, $matches ) === 1 AND $value != 0 ) {
                 $new_settings['counting_comments_system_zonal_value'][$matches[1][0]]['payment'] = (float) str_replace( ',', '.', $value );
             }
-            
         }
         
-        $new_settings = apply_filters( 'ppc_save_counting_settings', $new_settings, $current_settings );
+        $new_settings = apply_filters( 'ppc_save_counting_settings', $new_settings, $settings );
         $new = array_merge( $current_settings, $new_settings );
         
         $update = self::update_settings( $settings['userid'], $new );
@@ -192,17 +191,17 @@ class PPC_save_options {
     
     static function update_settings( $userid, $settings ) {
         global $ppc_global_settings;
-        
+		
         if( $settings == PPC_general_functions::get_settings( $settings['userid'] ) ) return; //avoid updating with same data, which would result in an error
         
         if( is_numeric( $userid ) ) {
             $settings['userid'] = (int) $settings['userid'];
             if( ! $update = update_user_option( $userid, $ppc_global_settings['option_name'], $settings ) ) {
-                return new WP_Error( 'save_user_settings_error', __( 'Error: could not update settings.' , 'post-pay-counter') );
+                return new WP_Error( 'save_user_settings_error', __( 'Error: could not update settings.' , 'ppc') );
             }
         } else if( $userid == 'general' ) {
             if( ! $update = update_option( $ppc_global_settings['option_name'], $settings ) ) {
-                return new WP_Error( 'save_general_settings_error', __( 'Error: could not update settings.' , 'post-pay-counter') );
+                return new WP_Error( 'save_general_settings_error', __( 'Error: could not update settings.' , 'ppc') );
             }
             $ppc_global_settings['general_settings'] = $settings;
         }

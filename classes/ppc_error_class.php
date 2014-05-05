@@ -49,17 +49,17 @@ class PPC_Error {
         
         //If logging enabled, push error with others
         if( PPC_DEBUG_LOG AND $log ) {
-            $errors_already = get_option( $ppc_global_settings['option_errors'] );
+            $errors_already = get_option( $ppc_global_settings['option_errors'], array() );
             $errors = $errors_already;
             $errors[] = $error_details;
             
             if( ! $errors_already ) {
                 if( add_option( $ppc_global_settings['option_errors'], $errors, '', 'no' ) ) {
-                    $this->wp_error = new WP_Error( 'ppc_update_errors', 'Could not update errors option.' );
+                    $this->wp_error = new WP_Error( 'ppc_update_error', 'Could not update errors option.', 'ppc' );
                 }
             } else {
                 if( update_option( $ppc_global_settings['option_errors'], $errors ) ) {
-                    $this->wp_error = new WP_Error( 'ppc_update_errors', 'Could not update errors option.' );
+                    $this->wp_error = new WP_Error( 'ppc_update_error', 'Could not update errors option.', 'ppc' );
                 }
             }
         }

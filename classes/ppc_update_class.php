@@ -78,7 +78,7 @@ class PPC_update_class {
                 $general_settings['counting_comments_system_incremental_value'] = $general_settings['counting_comments_value'];
                 unset( $general_settings['counting_images_value'], $general_settings['counting_comments_value'] );
                 if( ! update_option( $ppc_global_settings['option_name'], $general_settings ) ) {
-                    return new WP_Error( 'ppc_update_general_settings_error', __( 'Error: could not update settings.' ) );
+                    return new WP_Error( 'ppc_update_general_settings_error', __( 'Error: could not update settings.', 'ppc' ) );
                 }
                 
                 $args = array(
@@ -95,7 +95,7 @@ class PPC_update_class {
                     update_option( $ppc_global_settings['option_name'], $user_settings );
         			
         			if( ! update_user_option( $user, $ppc_global_settings['option_name'], $user_settings ) ) {
-        				return new WP_Error( 'ppc_update_user_settings_error', __( 'Error: could not update settings.' ) );
+        				return new WP_Error( 'ppc_update_user_settings_error', __( 'Error: could not update settings.', 'ppc' ) );
         			}
         		}
                 

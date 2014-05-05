@@ -39,9 +39,9 @@
 .section td {
     width: 50%;
 }
-.checkable_input {
+/*.checkable_input {
 	width: 20px;
-}
+}*/
 .ppc_tooltip {
 	float: right;
 	width: 20px;

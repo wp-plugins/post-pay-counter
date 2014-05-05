@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Post Pay Counter\n"
-"POT-Creation-Date: 2014-04-19 18:36+0100\n"
-"PO-Revision-Date: 2014-04-26 16:08+0100\n"
+"POT-Creation-Date: 2014-04-27 09:35+0100\n"
+"PO-Revision-Date: 2014-04-27 09:36+0100\n"
 "Last-Translator: Stefano Ottolenghi <webmaster@thecrowned.org>\n"
 "Language-Team: Stefano Ottolenghi <webmaster@thecrowned.org>\n"
 "Language: it_IT\n"
@@ -12,7 +12,7 @@ msgstr ""
 "X-Generator: Poedit 1.6.4\n"
 "X-Poedit-Basepath: .\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Poedit-KeywordsList: __;_e\n"
+"X-Poedit-KeywordsList: __;_e;_x\n"
 "X-Poedit-SearchPath-0: .\n"
 
 #: classes/ppc_ajax_functions_class.php:22
@@ -48,43 +48,79 @@ msgstr "Errore: non è stato possibile pulire il log degli errori."
 msgid "Basic payment"
 msgstr "Pagamento di base"
 
-#: classes/ppc_counting_stuff_class.php:207
+#: classes/ppc_counting_stuff_class.php:206
 msgid "Words payment"
 msgstr "Pagamento per parole"
 
-#: classes/ppc_counting_stuff_class.php:211
+#: classes/ppc_counting_stuff_class.php:209
 msgid "Visits payment"
 msgstr "Pagamento per visite"
 
-#: classes/ppc_counting_stuff_class.php:215
+#: classes/ppc_counting_stuff_class.php:212
 msgid "Images payment"
 msgstr "Pagamento per immaigni"
 
-#: classes/ppc_counting_stuff_class.php:219
+#: classes/ppc_counting_stuff_class.php:215
 msgid "Comments payment"
 msgstr "Pagamento per commenti"
 
-#: classes/ppc_generate_stats_class.php:99
+#: classes/ppc_generate_stats_class.php:100
 msgid "Error: no posts were selected"
 msgstr "Errore: nessun post selezionato"
 
-#: classes/ppc_generate_stats_class.php:224
+#: classes/ppc_generate_stats_class.php:225
 msgid "ID"
 msgstr "ID"
 
-#: classes/ppc_generate_stats_class.php:271
+#: classes/ppc_generate_stats_class.php:226
+msgid "Title"
+msgstr "Titolo"
+
+#: classes/ppc_generate_stats_class.php:227
+msgid "Type"
+msgstr "Tipo"
+
+#: classes/ppc_generate_stats_class.php:228
+msgid "Status"
+msgstr "Stato"
+
+#: classes/ppc_generate_stats_class.php:229
+msgid "Pub. Date"
+msgstr "Data pubblicazione"
+
+#: classes/ppc_generate_stats_class.php:232
+msgid "Words"
+msgstr "Parole"
+
+#: classes/ppc_generate_stats_class.php:234
+msgid "Visits"
+msgstr "Visite"
+
+#: classes/ppc_generate_stats_class.php:236
+msgid "Comments"
+msgstr "Commenti"
+
+#: classes/ppc_generate_stats_class.php:238
+msgid "Imgs"
+msgstr "Immagini"
+
+#: classes/ppc_generate_stats_class.php:241
+msgid "Total Pay"
+msgstr "Pagamento totale"
+
+#: classes/ppc_generate_stats_class.php:272
 msgid "Author ID"
 msgstr "ID autore"
 
-#: classes/ppc_generate_stats_class.php:272
+#: classes/ppc_generate_stats_class.php:273
 msgid "Author Name"
 msgstr "Nome autore"
 
-#: classes/ppc_generate_stats_class.php:273
+#: classes/ppc_generate_stats_class.php:274
 msgid "Written posts"
 msgstr "Post scritti"
 
-#: classes/ppc_generate_stats_class.php:274
+#: classes/ppc_generate_stats_class.php:275
 #: classes/ppc_meta_boxes_class.php:288
 msgid "Total payment"
 msgstr "Pagamento totale"
@@ -94,7 +130,7 @@ msgstr "Pagamento totale"
 msgid "Showing stats from %1$s to %2$s"
 msgstr "Statistiche dal %1$s al %2$s"
 
-#: classes/ppc_html_functions_class.php:36 post-pay-counter.php:390
+#: classes/ppc_html_functions_class.php:36 post-pay-counter.php:394
 msgid "Back to general"
 msgstr "Indietro a generale"
 
@@ -106,31 +142,31 @@ msgstr "Aggiorna intervallo di tempo"
 msgid "Get current view permalink"
 msgstr "Ottieni permalink della vista corrente"
 
-#: classes/ppc_html_functions_class.php:148
+#: classes/ppc_html_functions_class.php:149
 msgid "Go to detailed view"
 msgstr "Vai alla visualizzazione dettagliata"
 
-#: classes/ppc_html_functions_class.php:184
+#: classes/ppc_html_functions_class.php:185
 msgid "Total displayed posts:"
 msgstr "Totale post mostrati:"
 
-#: classes/ppc_html_functions_class.php:186
+#: classes/ppc_html_functions_class.php:187
 msgid "Total displayed payment:"
 msgstr "Totale pagamento mostrato:"
 
-#: classes/ppc_html_functions_class.php:190
+#: classes/ppc_html_functions_class.php:191
 msgid "Total words count:"
 msgstr "Conteggio parole totale:"
 
-#: classes/ppc_html_functions_class.php:192
+#: classes/ppc_html_functions_class.php:193
 msgid "Total visits count:"
 msgstr "Conteggio visite totale:"
 
-#: classes/ppc_html_functions_class.php:196
+#: classes/ppc_html_functions_class.php:197
 msgid "Total images count:"
-msgstr "Conteggio visite totale:"
+msgstr "Conteggio immagini totale:"
 
-#: classes/ppc_html_functions_class.php:198
+#: classes/ppc_html_functions_class.php:199
 msgid "Total comments count:"
 msgstr "Conteggio commenti totale:"
 
@@ -226,8 +262,8 @@ msgstr ""
 "%2$s e facci sapere quali dovrebbero essere le nostre priorità!"
 
 #: classes/ppc_meta_boxes_class.php:38
-msgid "Post Pay Counter PRO - Features survey"
-msgstr "Post Pay Counter PRO - Sondaggio sulle funzionalità"
+msgid "Features survey"
+msgstr "Sondaggio delle funzionalità"
 
 #: classes/ppc_meta_boxes_class.php:51
 msgid ""
@@ -331,6 +367,10 @@ msgstr ""
 "modificare l'intervallo come vuoi di volta in volta."
 
 #: classes/ppc_meta_boxes_class.php:167
+msgid "Current week"
+msgstr "Settimana corrente"
+
+#: classes/ppc_meta_boxes_class.php:167
 msgid ""
 "Posts from the beginning of the week to the current day (week starts on "
 "Monday) will be displayed. You should select this if you usually pay your "
@@ -341,12 +381,20 @@ msgstr ""
 "redattori ogni settimana."
 
 #: classes/ppc_meta_boxes_class.php:168
+msgid "Current month"
+msgstr "Mese corrente"
+
+#: classes/ppc_meta_boxes_class.php:168
 msgid ""
 "Posts from the beginning of the month to the current day will be displayed. "
 "You should select this if you usually pay your writers monthly."
 msgstr ""
 "Post dall'inizio dell mese al giorno corrente saranno mostrati. Consigliato "
 "se normalmente paghi i tuoi redattori ogni mese."
+
+#: classes/ppc_meta_boxes_class.php:169
+msgid "This custom number of days"
+msgstr "Questo specifico numero di giorni"
 
 #: classes/ppc_meta_boxes_class.php:169
 msgid ""
@@ -588,6 +636,10 @@ msgid "Miscellanea counting settings"
 msgstr "Miscellanea impostazioni di conteggio"
 
 #: classes/ppc_meta_boxes_class.php:300
+msgid "Count pending revision posts"
+msgstr "Considera i post in attesa di revisione"
+
+#: classes/ppc_meta_boxes_class.php:300
 msgid ""
 "While published posts are automatically counted, you can decide to include "
 "pending revision ones or not."
@@ -596,12 +648,20 @@ msgstr ""
 "includere quelli in attesa di revisione oppure no."
 
 #: classes/ppc_meta_boxes_class.php:301
+msgid "Count future scheduled posts"
+msgstr "Considera i post pianificati per il futuro"
+
+#: classes/ppc_meta_boxes_class.php:301
 msgid ""
 "While published posts are automatically counted, you can decide to include "
 "future planned ones or not."
 msgstr ""
 "Mentre i post pubblicati sono automaticamente conteggiati, puoi decidere di "
 "includere quelli pianificati per il futuro oppure no."
+
+#: classes/ppc_meta_boxes_class.php:302
+msgid "Exclude quoted content from word counting"
+msgstr "Escludi contenuto citato dal conteggio delle parole"
 
 #: classes/ppc_meta_boxes_class.php:302
 #, php-format
@@ -856,11 +916,11 @@ msgstr "Valore del pagamento incrementale"
 msgid "Error: could not update settings."
 msgstr "Errore: non è stato possibile aggiornare le impostazioni."
 
-#: classes/ppc_system_info_class.php:35
+#: classes/ppc_system_info_class.php:34
 msgid "System Information"
 msgstr "Informazioni di sistema"
 
-#: classes/ppc_system_info_class.php:37
+#: classes/ppc_system_info_class.php:36
 msgid ""
 "To copy the system info, click below then press Ctrl + C (PC) or Cmd + C "
 "(Mac)."
@@ -868,9 +928,17 @@ msgstr ""
 "Per copiare le informazioni di sistema, clicca qui sotto e premi Ctrl + C "
 "(PC) o Cmd + C (Mac)."
 
-#: classes/ppc_system_info_class.php:124
+#: classes/ppc_system_info_class.php:123
 msgid "Download System Info File"
 msgstr "Scarica il file delle informazioni di sistema"
+
+#: post-pay-counter.php:119 post-pay-counter.php:384
+msgid "Options"
+msgstr "Opzioni"
+
+#: post-pay-counter.php:120
+msgid "System Info"
+msgstr "Informazioni di sistema"
 
 #: post-pay-counter.php:148
 #, php-format
@@ -889,6 +957,38 @@ msgstr "Vai alla pagina delle opzioni"
 #: post-pay-counter.php:148
 msgid "Go to changelog"
 msgstr "Vai alla lista dei cambiamenti"
+
+#: post-pay-counter.php:196
+msgid "Counting Settings"
+msgstr "Opzione di conteggio"
+
+#: post-pay-counter.php:197
+msgid "Permissions"
+msgstr "Permessi"
+
+#: post-pay-counter.php:198
+msgid "Support the author"
+msgstr "Supporta l'autore"
+
+#: post-pay-counter.php:199
+msgid "Everything you're missing by not being PRO"
+msgstr "Tutto quello che ti stai perdendo non essendo PRO"
+
+#: post-pay-counter.php:202
+msgid "Personalize Settings"
+msgstr "Personalizza impostazioni"
+
+#: post-pay-counter.php:203
+msgid "Miscellanea"
+msgstr "Varie"
+
+#: post-pay-counter.php:207
+msgid "Import/Export Settings"
+msgstr "Importa/Esporta impostazioni"
+
+#: post-pay-counter.php:208
+msgid "Error log"
+msgstr "Log errori"
 
 #: post-pay-counter.php:222
 msgid ""
@@ -922,19 +1022,15 @@ msgstr "Impostazioni"
 msgid "Donate"
 msgstr "Donazione"
 
-#: post-pay-counter.php:382
+#: post-pay-counter.php:383
 msgid "Installed version"
 msgstr "Versione installata"
 
-#: post-pay-counter.php:382
-msgid "Support"
-msgstr "Supporto"
-
 #: post-pay-counter.php:383
-msgid "Options"
-msgstr "Opzioni"
+msgid "Support"
+msgstr "Assistenza"
 
-#: post-pay-counter.php:385
+#: post-pay-counter.php:386
 msgid ""
 "From this page you can configure the Post Pay Counter plugin. You will find "
 "all the information you need inside each following box and, for every "
@@ -944,29 +1040,35 @@ msgstr ""
 "le informazioni di cui hai bisogno all'interno di ogni box e, per ogni "
 "funzione disponibile, cliccando sul punto informativo sulla destra di esse."
 
-#: post-pay-counter.php:390
+#: post-pay-counter.php:394
 msgid "Go back to general settings"
 msgstr "Torna alle impostazioni generali"
 
-#: post-pay-counter.php:391
+#: post-pay-counter.php:395
 msgid "Delete user's settings"
 msgstr "Rimuovi impostazioni utente"
 
-#: post-pay-counter.php:392
+#: post-pay-counter.php:396
 msgid "Currently editing user:"
 msgstr "Modificando l'utente:"
 
-#: post-pay-counter.php:455
-msgid "Post Pay Counter Stats"
-msgstr "Post Pay Counter Stats"
+#: post-pay-counter.php:469
+msgid "Stats"
+msgstr "Statistiche"
 
-#: post-pay-counter.php:461
+#: post-pay-counter.php:476
 msgid "You do not have sufficient permissions to access this page"
 msgstr "Non hai sufficienti permessi per accedere a questa pagina"
 
-#: post-pay-counter.php:481
+#: post-pay-counter.php:496
 msgid "General"
 msgstr "Generale"
+
+#~ msgid "Post Pay Counter PRO - Features survey"
+#~ msgstr "Post Pay Counter PRO - Sondaggio sulle funzionalità"
+
+#~ msgid "Post Pay Counter Stats"
+#~ msgstr "Post Pay Counter Stats"
 
 #~ msgid "Error: updating settings failed."
 #~ msgstr "Errore: fallito l'aggiornamento delle impostazioni."

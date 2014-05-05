@@ -27,20 +27,20 @@ class PPC_HTML_functions {
 
 		<div id="ppc_stats_header_datepicker">
 			<h3>
-        <?php echo sprintf( __( 'Showing stats from %1$s to %2$s' , 'post-pay-counter'), '<input type="text" name="tstart" id="post_pay_counter_time_start" class="mydatepicker" value="'.date( 'Y/m/d', $ppc_global_settings['stats_tstart'] ).'" accesskey="'.$ppc_global_settings['stats_tstart'].'" size="8" />', '<input type="text" name="tend" id="post_pay_counter_time_end" class="mydatepicker" value="'.date( 'Y/m/d', $ppc_global_settings['stats_tend'] ).'" accesskey="'.$ppc_global_settings['stats_tend'].'" size="8" />' ).' - "'.$current_page.'"'; ?>
+        <?php echo sprintf( __( 'Showing stats from %1$s to %2$s' , 'ppc'), '<input type="text" name="tstart" id="post_pay_counter_time_start" class="mydatepicker" value="'.date( 'Y/m/d', $ppc_global_settings['stats_tstart'] ).'" accesskey="'.$ppc_global_settings['stats_tstart'].'" size="8" />', '<input type="text" name="tend" id="post_pay_counter_time_end" class="mydatepicker" value="'.date( 'Y/m/d', $ppc_global_settings['stats_tend'] ).'" accesskey="'.$ppc_global_settings['stats_tend'].'" size="8" />' ).' - "'.$current_page.'"'; ?>
 			</h3>
 		</div>
 
 		<div id="ppc_stats_header_features">
 			<span id="ppc_stats_header_links">
-				<a href="<?php echo admin_url( $ppc_global_settings['stats_menu_link'].'&amp;tstart='.$ppc_global_settings['stats_tstart'].'&amp;tend='.$ppc_global_settings['stats_tend'] ); ?>" title="<?php _e( 'Back to general' , 'post-pay-counter'); ?>"><?php _e( 'Back to general' , 'post-pay-counter'); ?></a>
+				<a href="<?php echo admin_url( $ppc_global_settings['stats_menu_link'].'&amp;tstart='.$ppc_global_settings['stats_tstart'].'&amp;tend='.$ppc_global_settings['stats_tend'] ); ?>" title="<?php _e( 'Back to general' , 'ppc'); ?>"><?php _e( 'Back to general' , 'ppc'); ?></a>
         
         <?php do_action( 'ppc_stats_header_links', $page_permalink ); ?>
         
 			</span>
-			<input type="submit" class="button-secondary" name="post_pay_counter_submit" value="<?php echo __( 'Update time range' , 'post-pay-counter'); ?>" />
+			<input type="submit" class="button-secondary" name="post_pay_counter_submit" value="<?php echo __( 'Update time range' , 'ppc'); ?>" />
 			<br />
-			<a href="<?php echo $page_permalink; ?>" title="<?php _e( 'Get current view permalink' , 'post-pay-counter'); ?>"><?php _e( 'Get current view permalink' , 'post-pay-counter'); ?></a>
+			<a href="<?php echo $page_permalink; ?>" title="<?php _e( 'Get current view permalink' , 'ppc'); ?>"><?php _e( 'Get current view permalink' , 'ppc'); ?></a>
 		</div>
 
 	</div>
@@ -68,21 +68,22 @@ class PPC_HTML_functions {
         echo '<table class="widefat fixed" id="ppc_stats_table">';
         echo '<thead>';
         echo '<tr>';
+		
         foreach( $formatted_stats['cols'] as $col_id => $value ) { //cols work the same both for general and user
             echo '<th scope="col">'.$value.'</th>';
         }
         
-        if( is_array( $author ) ) {
+        if( is_array( $author ) )
             do_action( 'ppc_general_stats_html_cols_after_default' );
-        } else {
+        else
             do_action( 'ppc_author_stats_html_cols_after_default' );
-        }
         
         echo '</tr>';
         echo '</thead>';
         
         echo '<tfoot>';
         echo '<tr>';
+		
         foreach( $formatted_stats['cols'] as $col_id => $value ) {
             echo '<th scope="col">'.$value.'</th>';
         }
@@ -115,10 +116,10 @@ class PPC_HTML_functions {
                 echo '<tr'.$tr_opacity.'>';
                 
                 foreach( $post_stats as $field_name => $field_value ) {
-                    $post_permalink = get_permalink( $post->ID );
                     
-                    switch( $field_name ) {
+					switch( $field_name ) {
                         case 'post_title':
+							$post_permalink = get_permalink( $post->ID );
                             $field_value = '<a href="'.$post_permalink.'" title="'.$post->post_title.'">'.$field_value.'</a>';
                             break;
                         
@@ -145,7 +146,7 @@ class PPC_HTML_functions {
                     switch( $field_name ) {
                         case 'author_name':
                             if( $perm->can_see_others_detailed_stats() OR $author == $current_user->ID ) {
-                                $field_value = '<a href="'.PPC_general_functions::get_the_author_link( $author ).'" title="'.__( 'Go to detailed view' , 'post-pay-counter').'">'.$field_value.'</a>';
+                                $field_value = '<a href="'.PPC_general_functions::get_the_author_link( $author ).'" title="'.__( 'Go to detailed view' , 'ppc').'">'.$field_value.'</a>';
                             }
                             break;
                         
@@ -181,21 +182,21 @@ class PPC_HTML_functions {
 		
 <table class="widefat fixed">
 	<tr>
-		<td width="40%"><?php _e( 'Total displayed posts:', 'post-pay-counter' ); ?></td>
+		<td width="40%"><?php _e( 'Total displayed posts:', 'ppc' ); ?></td>
 		<td align="left" width="10%"><?php echo $overall_stats['posts']; ?></td>
-		<td width="35%"><?php _e( 'Total displayed payment:', 'post-pay-counter' ); ?></td>
+		<td width="35%"><?php _e( 'Total displayed payment:', 'ppc' ); ?></td>
 		<td align="left" width="15%"><?php echo $overall_stats['payment']; ?></td>
 	</tr>
 	<tr>
-		<td width="40%"><?php _e( 'Total words count:', 'post-pay-counter' ); ?></td>
+		<td width="40%"><?php _e( 'Total words count:', 'ppc' ); ?></td>
 		<td align="left" width="10%"><?php echo $overall_stats['count_words']; ?></td>
-		<td width="35%"><?php _e( 'Total visits count:', 'post-pay-counter' ); ?></td>
+		<td width="35%"><?php _e( 'Total visits count:', 'ppc' ); ?></td>
 		<td align="left" width="15%"><?php echo $overall_stats['count_visits']; ?></td>
 	</tr>
 	<tr>
-		<td width="40%"><?php _e( 'Total images count:', 'post-pay-counter' ); ?></td>
+		<td width="40%"><?php _e( 'Total images count:', 'ppc' ); ?></td>
 		<td align="left" width="10%"><?php echo $overall_stats['count_images']; ?></td>
-		<td width="35%"><?php _e( 'Total comments count:', 'post-pay-counter' ); ?></td>
+		<td width="35%"><?php _e( 'Total comments count:', 'ppc' ); ?></td>
 		<td align="left" width="15%"><?php echo $overall_stats['count_comments']; ?></td>
 	</tr>
 	
