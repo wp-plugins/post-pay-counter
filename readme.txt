@@ -2,7 +2,7 @@
 Contributors: Ste_95
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SM5Q9BVU4RT22
 Tags: counter, authors, payment, stats, multi author, post management, post
-Tested up to: 3.9
+Tested up to: 3.9.1
 Stable tag: 2.27
 Requires at least: 3.7
 
