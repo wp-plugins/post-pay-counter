@@ -2,9 +2,9 @@
 /*
 Plugin Name: Post Pay Counter
 Plugin URI: http://www.thecrowned.org/wordpress-plugins/post-pay-counter
-Description: Easily handle authors' pay on a multi-author blog by computing posts' remuneration basing on admin defined rules.
+Description: Easily handle authors' payments on a multi-author blog by computing posts' remuneration basing on admin defined rules.
 Author: Stefano Ottolenghi
-Version: 2.27
+Version: 2.28
 Author URI: http://www.thecrowned.org/
 */
 
@@ -50,7 +50,7 @@ class post_pay_counter {
         global $ppc_global_settings;
         
         $ppc_global_settings['current_version'] = get_option( 'ppc_current_version' );
-        $ppc_global_settings['newest_version'] = '2.27';
+        $ppc_global_settings['newest_version'] = '2.28';
         $ppc_global_settings['option_name'] = 'ppc_settings';
         $ppc_global_settings['option_errors'] = 'ppc_errors';
         $ppc_global_settings['folder_path'] = plugins_url( '/', __FILE__ );
@@ -436,7 +436,7 @@ class post_pay_counter {
     */
     
     function show_stats() {
-        global $wpdb, $current_user, $ppc_global_settings;
+        global $current_user, $ppc_global_settings;
         $general_settings = PPC_general_functions::get_settings( 'general' );
         $perm = new PPC_permissions();
         
@@ -448,8 +448,8 @@ class post_pay_counter {
         //Validate time range values (start and end), if set. They must be isset, numeric and positive. If something's wrong, start and end time are taken from the default publication time range
         if( ( isset( $get_and_post['tstart'] ) AND ( ! is_numeric( $get_and_post['tstart'] ) OR $get_and_post['tstart'] < 0 ) )
         OR ( isset( $get_and_post['tend'] ) AND ( ! is_numeric( $get_and_post['tend'] ) OR $get_and_post['tend'] < 0 ) ) ) {
-            $get_and_post['tstart'] = strtotime( $get_and_post['tstart'].' 00:00:00' );
-            $get_and_post['tend']   = strtotime( $get_and_post['tend'].' '.date( 'h:m:s' ) );
+            $get_and_post['tstart'] = strtotime( $get_and_post['tstart'].' 00:00:01' );
+            $get_and_post['tend']   = strtotime( $get_and_post['tend'].' 23:59:59' );
         } else if ( ! isset( $get_and_post['tstart'] ) OR ! isset( $get_and_post['tend'] ) ) {
             $get_and_post['tstart'] = $ppc_global_settings['stats_tstart'];
             $get_and_post['tend']   = $ppc_global_settings['stats_tend'];
@@ -457,6 +457,7 @@ class post_pay_counter {
         $ppc_global_settings['stats_tstart'] = apply_filters( 'ppc_stats_defined_time_start', $get_and_post['tstart'] );
         $ppc_global_settings['stats_tend'] = apply_filters( 'ppc_stats_defined_time_end', $get_and_post['tend'] );
         
+		//If an author is given, put that in an array
         if( isset( $get_and_post['author'] ) AND is_numeric( $get_and_post['author'] ) AND $userdata = get_userdata( $get_and_post['author'] ) )
             $author = array( $get_and_post['author'] );
         else
@@ -481,7 +482,7 @@ class post_pay_counter {
                 return;
             }
             
-            do_action( 'ppc_html_stats_author_before_stats_form' );
+            do_action( 'ppc_html_stats_author_before_stats_form', $stats );
             ?>
 			
 	<form action="#" method="post" id="ppc_stats" accesskey="<?php echo $author[0]; //accesskey holds author id ?>"> 
@@ -535,7 +536,7 @@ class post_pay_counter {
      * @since   2.0.8
      */
     
-    function pointer_enqueue_script_style() {
+    /*function pointer_enqueue_script_style() {
     	global $current_user;
         
         // Assume pointer shouldn't be shown
@@ -566,7 +567,7 @@ class post_pay_counter {
      * @since   2.0.8
      */
      
-    function pointer_print_scripts() {
+    /*function pointer_print_scripts() {
     	$pointer_content  = "<h3>Post Pay Counter PRO available</h3>";
     	$pointer_content .= "<p>Get the new PRO version and benefit from a whole new range of features! Go to the Options page for more information.</p>";
     	?>
@@ -592,9 +593,10 @@ class post_pay_counter {
     	//]]>
     	</script>
     
-    <?php }
+    <?php }*/
 }
 
+global $ppc_global_settings;
 $ppc_global_settings = array();
 new post_pay_counter();
 

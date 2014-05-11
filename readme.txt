@@ -3,7 +3,7 @@ Contributors: Ste_95
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SM5Q9BVU4RT22
 Tags: counter, authors, payment, stats, multi author, post management, post
 Tested up to: 3.9.1
-Stable tag: 2.27
+Stable tag: 2.28
 Requires at least: 3.7
 
 Easily handle authors' pay on a multi-author blog by computing posts' remuneration basing on admin defined rules.
@@ -15,12 +15,12 @@ The Post Pay Counter plugin allows you to easily calculate and handle authors' p
 
 * Pay per post, word, visit, image and comment. They are not mutually exclusive.
 * Pay with an incremental system (eg. each word is €0.01 => 100 words = €1) or with a zonal one (eg. from 200 to 300 words/visits it’s €2.00, up to 10 zones).
-* Old stats avaiability. View posts countings since the first written post, disregarding the plugin install date. A fancy date picker lets you shift between days and select the desired range.
+* Old stats availability. View posts countings since the first written post, disregarding the plugin install date. A fancy date picker lets you shift between days and select the desired range.
 * Personalize user's settings, so that special settings only apply to a particular user. Different settings can be made viewable in the stats or hidden depending on your needs.
 * Customizable permissions to prevent your users to see stats and use functions they are not supposed to.
 * And... works with custom post types, narrow your payments only to chosen user groups, and more.
 
-**Also, we have a [PRO version](http://www.thecrowned.org/post-pay-counter-pro) with many more features!** (among which integration with Analytics, PayPal, Facebook, and more)
+**Also, we have a [PRO version](http://www.thecrowned.org/post-pay-counter-pro) with many more features!** (among which integration with Analytics, PayPal, and more)
 
 [youtube https://www.youtube.com/watch?v=mSFjvR-2zCI]
 
@@ -43,6 +43,11 @@ From this: *define( 'PPC_DEBUG_LOG', true );*
 It must become: *define( 'PPC_DEBUG_LOG', false );*
 
 == Changelog ==
+= 2.28 =
+* Tweak: various performance enhancements (should speed especially large sites stats).
+* Fixed: stats display would experience a time delay when selecting a time range due to time zone and date generation problems. Now posts up to the last second of the requested end time are selected (actually, to the end of the day).
+* Tweak: in author detailed stats, if the viewer has the capability *edit_post*, the post link is to the post editing page (it is faster to fetch than the public permalink). If the user can't edit posts, they still see the public permalink.
+
 = 2.27 =
 * Tweak: changed localization slug (from *post-pay-counter* to *ppc*).
 * Tweak: using PHP function str_word_count instead of custom function (for word counting).

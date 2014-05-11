@@ -64,41 +64,54 @@ class PPC_HTML_functions {
     static function get_html_stats( $formatted_stats, $raw_stats, $author = NULL ) {
         global $current_user, $ppc_global_settings;
         $perm = new PPC_permissions();
-        
-        echo '<table class="widefat fixed" id="ppc_stats_table">';
-        echo '<thead>';
-        echo '<tr>';
+        ?>
 		
+<table class="widefat fixed" id="ppc_stats_table">
+	<thead>
+		<tr>
+		
+		<?php
         foreach( $formatted_stats['cols'] as $col_id => $value ) { //cols work the same both for general and user
-            echo '<th scope="col">'.$value.'</th>';
+            ?>
+			
+			<th scope="col"><?php echo $value; ?></th>
+			
+			<?php
         }
         
         if( is_array( $author ) )
             do_action( 'ppc_general_stats_html_cols_after_default' );
         else
             do_action( 'ppc_author_stats_html_cols_after_default' );
-        
-        echo '</tr>';
-        echo '</thead>';
-        
-        echo '<tfoot>';
-        echo '<tr>';
+		?>
 		
+		</tr>
+	</thead>
+        
+	<tfoot>
+        <tr>
+		
+		<?php
         foreach( $formatted_stats['cols'] as $col_id => $value ) {
-            echo '<th scope="col">'.$value.'</th>';
+            ?>
+			
+			<th scope="col"><?php echo $value; ?></th>
+			
+			<?php
         }
         
-        if( is_array( $author ) ) {
+        if( is_array( $author ) )
             do_action( 'ppc_author_stats_html_cols_after_default' );
-        } else {
+        else
             do_action( 'ppc_general_stats_html_cols_after_default' );
-        }
+        ?>
+		
+        </tr>
+	</tfoot>
         
-        echo '</tr>';
-        echo '</tfoot>';
-        
-        echo '<tbody>';
-        
+	<tbody>
+			
+		<?php
         if( is_array( $author ) ) {
             list( $author, $author_stats ) = each( $formatted_stats['stats'] );
             $user_settings = PPC_general_functions::get_settings( $author, true );
@@ -118,13 +131,17 @@ class PPC_HTML_functions {
                 foreach( $post_stats as $field_name => $field_value ) {
                     
 					switch( $field_name ) {
-                        case 'post_title':
-							$post_permalink = get_permalink( $post->ID );
-                            $field_value = '<a href="'.$post_permalink.'" title="'.$post->post_title.'">'.$field_value.'</a>';
+                        //Attach link to post title: if user can edit posts, attach edit link (faster), if not post permalink (slower)
+						case 'post_title':
+							$post_link = get_edit_post_link( $post->ID );
+							if( $post_link == '' )
+								$post_link = get_permalink( $post->ID );
+								
+                            $field_value = '<a href="'.$post_link.'" title="'.$post->post_title.'">'.$field_value.'</a>';
                             break;
                         
                         case 'post_total_payment':
-                            $field_value = '<abbr title="'.$post->ppc_misc['tooltip_normal_payment'].'" class="ppc_payment_column">'.$field_value.'</abbr>';
+                            $field_value = '<abbr title="'.$post->ppc_misc['tooltip_normal_payment'].'" class="ppc_payment_column">'.sprintf( '%.2f', $field_value ).'</abbr>';
                             break;
                     }
                     
@@ -151,7 +168,7 @@ class PPC_HTML_functions {
                             break;
                         
                         case 'author_total_payment':
-                            $field_value = '<abbr title="'.$raw_stats[$author]['total']['ppc_misc']['tooltip_normal_payment'].'" class="ppc_payment_column">'.$field_value.'</abbr>';
+                            $field_value = '<abbr title="'.$raw_stats[$author]['total']['ppc_misc']['tooltip_normal_payment'].'" class="ppc_payment_column">'.sprintf( '%.2f', $field_value ).'</abbr>';
                             break;
                     }
                     
@@ -163,9 +180,12 @@ class PPC_HTML_functions {
                 echo '</tr>';
             }
         }
-        
-        echo '</tbody>';
-        echo '</table>';
+        ?>
+		
+	</tbody>
+</table>
+		
+		<?php
     }
     
     /**
@@ -185,7 +205,7 @@ class PPC_HTML_functions {
 		<td width="40%"><?php _e( 'Total displayed posts:', 'ppc' ); ?></td>
 		<td align="left" width="10%"><?php echo $overall_stats['posts']; ?></td>
 		<td width="35%"><?php _e( 'Total displayed payment:', 'ppc' ); ?></td>
-		<td align="left" width="15%"><?php echo $overall_stats['payment']; ?></td>
+		<td align="left" width="15%"><?php echo sprintf( '%.2f', $overall_stats['payment'] ); ?></td>
 	</tr>
 	<tr>
 		<td width="40%"><?php _e( 'Total words count:', 'ppc' ); ?></td>
