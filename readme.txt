@@ -3,7 +3,7 @@ Contributors: Ste_95
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SM5Q9BVU4RT22
 Tags: counter, authors, payment, stats, multi author, post management, post
 Tested up to: 3.9.1
-Stable tag: 2.28
+Stable tag: 2.29
 Requires at least: 3.7
 
 Easily handle authors' pay on a multi-author blog by computing posts' remuneration basing on admin defined rules.
@@ -20,7 +20,7 @@ The Post Pay Counter plugin allows you to easily calculate and handle authors' p
 * Customizable permissions to prevent your users to see stats and use functions they are not supposed to.
 * And... works with custom post types, narrow your payments only to chosen user groups, and more.
 
-**Also, we have a [PRO version](http://www.thecrowned.org/post-pay-counter-pro) with many more features!** (among which integration with Analytics, PayPal, and more)
+**Also, we have a [PRO version](http://www.thecrowned.org/post-pay-counter-pro) with many more features!** (among which integration with Analytics, PayPal, and so much more)
 
 [youtube https://www.youtube.com/watch?v=mSFjvR-2zCI]
 
@@ -43,9 +43,15 @@ From this: *define( 'PPC_DEBUG_LOG', true );*
 It must become: *define( 'PPC_DEBUG_LOG', false );*
 
 == Changelog ==
+= 2.29 =
+* Fixed: word counting not working for non-latin charsets due to PHP bug. Restoring old counting method from v. 2.26.
+* Fixed: still some minor issues with time zone differences.
+* Fixed: username for currently editing personalized settings would not be displayed.
+* Fixed: when generating stats, user personalized settings for *allowed post statuses* would not be used; general settings would be used instead.
+
 = 2.28 =
-* Tweak: various performance enhancements (should speed especially large sites stats).
-* Fixed: stats display would experience a time delay when selecting a time range due to time zone and date generation problems. Now posts up to the last second of the requested end time are selected (actually, to the end of the day).
+* Tweak: various performance enhancements (should speed up especially large sites stats).
+* Fixed: stats display would experience a time delay when selecting a time range due to time zone and date generation problems. Now posts up to the last second of the requested end time are selected.
 * Tweak: in author detailed stats, if the viewer has the capability *edit_post*, the post link is to the post editing page (it is faster to fetch than the public permalink). If the user can't edit posts, they still see the public permalink.
 
 = 2.27 =

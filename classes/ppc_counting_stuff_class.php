@@ -6,7 +6,12 @@
  */
 
 class PPC_counting_stuff {
-    public static $settings;
+    
+	/**
+	 * Holds settings being used for current item (foreach). Allows not to pull settings every time.
+	 */
+	
+	public static $settings;
     
     /**
      * Switches through the possible counting systems and determines which one is active. 
@@ -206,7 +211,7 @@ class PPC_counting_stuff {
         if( self::$settings['counting_exclude_quotations'] )
             $post->post_content = preg_replace( '/<(blockquote|q)>.*<\/(blockquote|q)>/s', '', $post->post_content );
         
-        $post_words['real'] = (int) str_word_count( preg_replace( '/[.(),;:!?%#$¿"_+=\\/-]+/', '', preg_replace( '/\'&nbsp;|&#160;|\r|\n|\r\n|\s+/', ' ', strip_tags( $post->post_content ) ) ), 0, '\'' );
+		$post_words['real'] = (int) preg_match_all( '/\S+\s|\s\S+/', preg_replace( '/[.(),;:!?%#$¿"_+=\\/-]+/', '', preg_replace( '/\'&nbsp;|&#160;|\r|\n|\r\n|\s+/', ' ', strip_tags( $post->post_content ) ) ), $arr );
         
         if( self::$settings['counting_words_threshold_max'] > 0 AND $post_words['real'] > self::$settings['counting_words_threshold_max'] )
             $post_words['to_count'] = self::$settings['counting_words_threshold_max'];
@@ -332,19 +337,19 @@ class PPC_counting_stuff {
     static function build_payment_details_tooltip( $countings, $payment ) {
         $tooltip = '';
         
-        if( self::$settings['basic_payment'] )
+        if( isset( $countings['basic'] ) )
             $tooltip .= __( 'Basic payment' , 'ppc').': '.$countings['basic'].' => '.sprintf( '%.2f', $payment['basic'] ).'&#13;';
-        
-        if( self::$settings['counting_words'] )
+
+        if( isset( $countings['words'] ) )
             $tooltip .= __( 'Words payment' , 'ppc').': '.$countings['words'].' => '.sprintf( '%.2f', $payment['words'] ).'&#13;';
         
-        if( self::$settings['counting_visits'] )
+        if( isset( $countings['visits'] ) )
             $tooltip .= __( 'Visits payment' , 'ppc').': '.$countings['visits'].' => '.sprintf( '%.2f', $payment['visits'] ).'&#13;';
         
-        if( self::$settings['counting_images'] )
+        if( isset( $countings['images'] ) )
             $tooltip .=  __( 'Images payment' , 'ppc').': '.$countings['images'].' => '.sprintf( '%.2f', $payment['images'] ).'&#13;';
         
-        if( self::$settings['counting_comments'] )
+        if( isset( $countings['comments'] ) )
             $tooltip .= __( 'Comments payment' , 'ppc').': '.$countings['comments'].' => '.sprintf( '%.2f', $payment['comments'] ).'&#13;';
         
         return apply_filters( 'ppc_payment_details_tooltip', $tooltip, $countings, $payment );

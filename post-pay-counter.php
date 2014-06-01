@@ -4,7 +4,7 @@ Plugin Name: Post Pay Counter
 Plugin URI: http://www.thecrowned.org/wordpress-plugins/post-pay-counter
 Description: Easily handle authors' payments on a multi-author blog by computing posts' remuneration basing on admin defined rules.
 Author: Stefano Ottolenghi
-Version: 2.28
+Version: 2.29
 Author URI: http://www.thecrowned.org/
 */
 
@@ -50,7 +50,7 @@ class post_pay_counter {
         global $ppc_global_settings;
         
         $ppc_global_settings['current_version'] = get_option( 'ppc_current_version' );
-        $ppc_global_settings['newest_version'] = '2.28';
+        $ppc_global_settings['newest_version'] = '2.29';
         $ppc_global_settings['option_name'] = 'ppc_settings';
         $ppc_global_settings['option_errors'] = 'ppc_errors';
         $ppc_global_settings['folder_path'] = plugins_url( '/', __FILE__ );
@@ -59,7 +59,7 @@ class post_pay_counter {
         $ppc_global_settings['cap_manage_options'] = 'post_pay_counter_manage_options';
         $ppc_global_settings['cap_access_stats'] = 'post_pay_counter_access_stats';
         $ppc_global_settings['temp'] = array( 'settings' => array() );
-        $ppc_global_settings['general_settings'] = PPC_general_functions::get_settings( 'general' );
+        //$ppc_global_settings['general_settings'] = PPC_general_functions::get_settings( 'general' );
         
         //Add left menu entries for both stats and options pages
         add_action( 'admin_menu', array( $this, 'post_pay_counter_admin_menus' ) );
@@ -168,7 +168,7 @@ class post_pay_counter {
         ) );
         
         if( count( $first_available_post ) == 0 )
-            $first_available_post = time();
+            $first_available_post = current_time( 'timestamp' );
         else
             $first_available_post = strtotime( $first_available_post[0]->post_date );
         
@@ -178,7 +178,7 @@ class post_pay_counter {
         wp_enqueue_script( 'ppc_stats_effects', $ppc_global_settings['folder_path'].'js/ppc_stats_effects.js', array( 'jquery' ) );
         wp_localize_script( 'ppc_stats_effects', 'ppc_stats_effects_vars', array(
             'datepicker_mindate' => date( 'y/m/d', $first_available_post ),
-            'datepicker_maxdate' => date( 'y/m/d' )
+            'datepicker_maxdate' => date( 'y/m/d', current_time( 'timestamp' ) )
         ) );
     } 
     
@@ -261,7 +261,8 @@ class post_pay_counter {
                     echo '<strong>'.__( 'The requested user does not exist.' , 'ppc').'</strong>';
                     return;
                 }
-                $settings = PPC_general_functions::get_settings( (int) $_GET['userid'] );
+				
+                $settings = PPC_general_functions::get_settings( (int) $_GET['userid'], true );
                 
                 //User who never had personalized settings is being set
                 if( $settings['userid'] == 'general' ) {
@@ -393,7 +394,7 @@ class post_pay_counter {
 	<p style="text-transform: uppercase; font-size: x-small; margin-bottom: -3px; text-align: center;">
 		<a href="<?php echo $ppc_global_settings['options_menu_link']; ?>" title="<?php _e( 'Go back to general settings' , 'ppc'); ?>" style="float: left; color: black; "><?php _e( 'Back to general' , 'ppc'); ?></a>
 		<a href="#" id="vaporize_user_settings" accesskey="<?php echo self::$options_page_settings['userid']; ?>" title="<?php _e( 'Delete user\'s settings' , 'ppc'); ?>" style="float: right; color: red; "><?php _e( 'Delete user\'s settings' , 'ppc'); ?>'</a>
-		<?php _e( 'Currently editing user:' , 'ppc').' "'.$userdata->display_name.'"'; ?>
+		<?php echo __( 'Currently editing user:' , 'ppc').' "'.$userdata->display_name.'"'; ?>
 	</p>
 			
 			<?php
@@ -449,7 +450,7 @@ class post_pay_counter {
         if( ( isset( $get_and_post['tstart'] ) AND ( ! is_numeric( $get_and_post['tstart'] ) OR $get_and_post['tstart'] < 0 ) )
         OR ( isset( $get_and_post['tend'] ) AND ( ! is_numeric( $get_and_post['tend'] ) OR $get_and_post['tend'] < 0 ) ) ) {
             $get_and_post['tstart'] = strtotime( $get_and_post['tstart'].' 00:00:01' );
-            $get_and_post['tend']   = strtotime( $get_and_post['tend'].' 23:59:59' );
+            $get_and_post['tend']   = ( strtotime( $get_and_post['tend'].' 23:59:59' )+2 ); //seems to fix UTC-time zones delays
         } else if ( ! isset( $get_and_post['tstart'] ) OR ! isset( $get_and_post['tend'] ) ) {
             $get_and_post['tstart'] = $ppc_global_settings['stats_tstart'];
             $get_and_post['tend']   = $ppc_global_settings['stats_tend'];

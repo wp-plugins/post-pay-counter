@@ -121,9 +121,8 @@ class PPC_HTML_functions {
                 
                 $tr_opacity = '';
                 if( $user_settings['counting_payment_only_when_total_threshold'] ) {
-                    if( $post->ppc_misc['exceed_threshold'] == false ) {
+                    if( $post->ppc_misc['exceed_threshold'] == false )
                         $tr_opacity = ' style="opacity: 0.40;"';
-                    }
                 }
                 
                 echo '<tr'.$tr_opacity.'>';
@@ -162,9 +161,9 @@ class PPC_HTML_functions {
                     //Cases in which other stuff needs to be added to the output
                     switch( $field_name ) {
                         case 'author_name':
-                            if( $perm->can_see_others_detailed_stats() OR $author == $current_user->ID ) {
+                            if( $perm->can_see_others_detailed_stats() OR $author == $current_user->ID )
                                 $field_value = '<a href="'.PPC_general_functions::get_the_author_link( $author ).'" title="'.__( 'Go to detailed view' , 'ppc').'">'.$field_value.'</a>';
-                            }
+                            
                             break;
                         
                         case 'author_total_payment':

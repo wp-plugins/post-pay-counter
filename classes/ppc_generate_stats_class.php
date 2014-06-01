@@ -59,7 +59,10 @@ class PPC_generate_stats {
     static function get_requested_posts( $time_start, $time_end, $author = NULL ) {
         global $current_user;
         
-        $settings = PPC_general_functions::get_settings( $current_user->ID );
+		if( is_array( $author ) )
+			$settings = PPC_general_functions::get_settings( current( $author ), true );
+		else
+			$settings = PPC_general_functions::get_settings( 'general' );
 		
         $args = array(
             'post_type' => $settings['counting_allowed_post_types'],
@@ -230,7 +233,9 @@ class PPC_generate_stats {
             $formatted_stats['cols']['post_status'] = _x( 'Status', '(Stats page) Post status' , 'ppc');
             $formatted_stats['cols']['post_publication_date'] = _x( 'Pub. Date', '(Stats page) Post publication date' , 'ppc');
             
-            if( isset( $post_stats->ppc_count['normal_count']['real']['words'] ) )
+            //if( isset( $post_stats->ppc_count['normal_count']['real']['basic'] ) )
+                //$formatted_stats['cols']['post_basic_count'] = _x( 'Basic', '(Stats page) Post basic number' , 'ppc');
+			if( isset( $post_stats->ppc_count['normal_count']['real']['words'] ) )
                 $formatted_stats['cols']['post_words_count'] = _x( 'Words', '(Stats page) Post words number' , 'ppc');
             if( isset( $post_stats->ppc_count['normal_count']['real']['visits'] ) )
                 $formatted_stats['cols']['post_visits_count'] = _x( 'Visits', '(Stats page) Post visits number' , 'ppc');
@@ -254,7 +259,9 @@ class PPC_generate_stats {
                 $formatted_stats['stats'][$author_id][$post->ID]['post_status'] = $post->post_status;
                 $formatted_stats['stats'][$author_id][$post->ID]['post_publication_date'] = $post_date[0];
                 
-                if( isset( $post->ppc_count['normal_count']['real']['words'] ) )
+                //if( isset( $post->ppc_count['normal_count']['real']['basic'] ) )
+                    //$formatted_stats['stats'][$author_id][$post->ID]['post_basic_count'] = $post->ppc_count['normal_count']['real']['basic'];
+				if( isset( $post->ppc_count['normal_count']['real']['words'] ) )
                     $formatted_stats['stats'][$author_id][$post->ID]['post_words_count'] = $post->ppc_count['normal_count']['real']['words'];
                 if( isset( $post->ppc_count['normal_count']['real']['visits'] ) )
                     $formatted_stats['stats'][$author_id][$post->ID]['post_visits_count'] = $post->ppc_count['normal_count']['real']['visits'];

@@ -48,8 +48,9 @@ class PPC_general_functions {
                         $general_settings = array_merge( $general_settings, get_option( $single ) );
                     }*/
 				
-				//Fetch them from database if first request
+				//Fetch them from database if first request and cache them
 				$return = get_option( $ppc_global_settings['option_name'] );
+				$ppc_global_settings['general_settings'] = $return;
 				
                 //}
             }
@@ -60,9 +61,8 @@ class PPC_general_functions {
             $perm = new PPC_permissions();
 			
 			//If user shouldn't see other users personalized settings, set the userid to their own
-            if( $check_current_user_cap_special == TRUE AND ( ! $perm->can_see_countings_special_settings() AND $current_user->ID != $userid ) ) {
+            if( $check_current_user_cap_special == TRUE AND ( ! $perm->can_see_countings_special_settings() AND $current_user->ID != $userid ) )
                 $userid = $current_user->ID;
-            }
 			
 			//Retrieve cached settings if available or from database if not
             if( isset( $ppc_global_settings['temp']['settings'][$userid] ) AND is_array( $ppc_global_settings['temp']['settings'][$userid] ) ) {
@@ -207,7 +207,7 @@ class PPC_general_functions {
         else if( $settings['default_stats_time_range_custom'] == 1 )
             $ppc_global_settings['stats_tstart'] = strtotime( '00:00:00' ) - ( $settings['default_stats_time_range_custom_value']*24*60*60 );
         
-        $ppc_global_settings['stats_tend'] = time();
+        $ppc_global_settings['stats_tend'] = ( strtotime( '23:59:59' )+2 ); //seems to fix UTC-time zones delays
     }
 }
 ?>
