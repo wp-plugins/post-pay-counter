@@ -9,7 +9,7 @@ Requires at least: 3.7
 Easily handle authors' pay on a multi-author blog by computing posts' remuneration basing on admin defined rules with.
 
 == Description ==
-The Post Pay Counter plugin allows you to easily calculate and handle authors' pay on a multi-author blog by computing posts' remuneration basing on admin defined rules. The administrator can specify criteria upon which payments should be computed and the stats will immediately be viewable. Both a general view with all users and a specific one for a author are possible. It can easily help you implement a revenue sharing model for your business.
+The Post Pay Counter plugin allows you to easily calculate and handle authors' pay on a multi-author blog by computing posts' remuneration basing on admin defined rules. The administrator can specify criteria upon which payments should be computed and the stats will immediately be viewable. Both a general view with all users and a specific one for a author are possible. It can easily help you implement a revenue sharing/paid to write model for your business.
 
 **IMPORTANT NOTICE: Version 2.0 or later needs to be reinstalled, if you had a previous version. Also, the following features are currently missing**: plugin's visits counting method, post payment bonus, trial settings, full multisite integration, word count in post list. Some of them will be added soon. If you need one specifically, let me know in order to make up a priority list.
 
