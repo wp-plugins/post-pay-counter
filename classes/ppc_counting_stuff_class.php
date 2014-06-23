@@ -211,7 +211,7 @@ class PPC_counting_stuff {
         if( self::$settings['counting_exclude_quotations'] )
             $post->post_content = preg_replace( '/<(blockquote|q)>.*<\/(blockquote|q)>/s', '', $post->post_content );
         
-		$post_words['real'] = (int) preg_match_all( '/\S+\s|\s\S+/', preg_replace( '/[.(),;:!?%#$¿"_+=\\/-]+/', '', preg_replace( '/\'&nbsp;|&#160;|\r|\n|\r\n|\s+/', ' ', strip_tags( $post->post_content ) ) ), $arr );
+		$post_words['real'] = (int) preg_match_all( '/\S+\s|\s\S+/', apply_filters( 'ppc_clean_post_content_word_count', preg_replace( '/[.(),;:!?%#$¿"_+=\\/-]+/', '', preg_replace( '/\'&nbsp;|&#160;|\r|\n|\r\n|\s+/', ' ', strip_tags( $post->post_content ) ) ) ), $arr );
         
         if( self::$settings['counting_words_threshold_max'] > 0 AND $post_words['real'] > self::$settings['counting_words_threshold_max'] )
             $post_words['to_count'] = self::$settings['counting_words_threshold_max'];
@@ -270,8 +270,6 @@ class PPC_counting_stuff {
                 $ppc_misc['exceed_threshold'] = true;
             }
         }
-        
-        $ppc_misc['tooltip_normal_payment'] = self::build_payment_details_tooltip( $post_countings, $ppc_payment['normal_payment'] );
         
         return apply_filters( 'ppc_get_post_payment', array( 'ppc_payment' => $ppc_payment, 'ppc_misc' => $ppc_misc ) );
     }
