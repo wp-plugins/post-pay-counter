@@ -25,6 +25,8 @@ The Post Pay Counter plugin allows you to easily calculate and handle authors' p
 
 [youtube https://www.youtube.com/watch?v=mSFjvR-2zCI]
 
+Contribute on [GitHub](https://github.com/TheCrowned/Post-Pay-Counter).
+
 == Installation ==
 1. Upload the directory of the Post Pay Counter in your wp-content/plugins directory; note that you need the whole folder, not only the single files.
 2. Activate the plugin through the "Activate" button in the "Plugins" page of your WordPress.
