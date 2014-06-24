@@ -3,7 +3,7 @@ Contributors: Ste_95
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SM5Q9BVU4RT22
 Tags: counter, authors, payment, revenue sharing, stats, multi author, post management, post
 Tested up to: 3.9.1
-Stable tag: 2.3
+Stable tag: 2.30
 Requires at least: 3.7
 
 Easily handle authors' pay on a multi-author blog by computing posts' remuneration basing on admin defined rules with.
@@ -46,7 +46,7 @@ From this: *define( 'PPC_DEBUG_LOG', true );*
 It must become: *define( 'PPC_DEBUG_LOG', false );*
 
 == Changelog ==
-= 2.3 =
+= 2.30 =
 * Fixed: some translastion would not show up (mainly stats cols header).
 * Tweak: minor performance enhancements due to tooltips for posts only being generated for detailed stats.
 * New: German translation (Julian Beck).
