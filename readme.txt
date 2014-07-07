@@ -3,7 +3,7 @@ Contributors: Ste_95
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SM5Q9BVU4RT22
 Tags: counter, authors, payment, revenue sharing, stats, multi author, post management, post
 Tested up to: 3.9.1
-Stable tag: 2.31
+Stable tag: 2.3
 Requires at least: 3.7
 
 Easily handle authors' pay on a multi-author blog by computing posts' remuneration basing on admin defined rules with.
@@ -25,8 +25,6 @@ The Post Pay Counter plugin allows you to easily calculate and handle authors' p
 
 [youtube https://www.youtube.com/watch?v=mSFjvR-2zCI]
 
-Contribute on [GitHub](https://github.com/TheCrowned/Post-Pay-Counter).
-
 == Installation ==
 1. Upload the directory of the Post Pay Counter in your wp-content/plugins directory; note that you need the whole folder, not only the single files.
 2. Activate the plugin through the "Activate" button in the "Plugins" page of your WordPress.
@@ -46,10 +44,12 @@ From this: *define( 'PPC_DEBUG_LOG', true );*
 It must become: *define( 'PPC_DEBUG_LOG', false );*
 
 == Changelog ==
-= 2.31 =
-* Fixed: German and portoguese translation had not been committed, sorry.
+= 2.3.1 =
+* New: possible to include private posts in stats.
+* Tweak: improved update method.
+* Tweak: updated German translation.
 
-= 2.30 =
+= 2.3 =
 * Fixed: some translastion would not show up (mainly stats cols header).
 * Tweak: minor performance enhancements due to tooltips for posts only being generated for detailed stats.
 * New: German translation (Julian Beck).
