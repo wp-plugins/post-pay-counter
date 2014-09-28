@@ -121,8 +121,7 @@ class PPC_counting_stuff {
     }
     
 	/**
-     * Determines the number counting numbers (i.e. real & to_count) for a given counting type.
-     * 
+     * Determines to_count number for a given counting type and post.
      * Keeps track of thresholds. 'to_count' holds the to be paid value (thresholded) while 'real' the real value.
      *
      * @access  public
@@ -208,8 +207,11 @@ class PPC_counting_stuff {
             'to_count' => 0 
         );
         
+		//Strip tags & content with class="ppc_exclude_words" (doesn't handle nested tags, ie <div class="ppc_exclude_posts">some content <div class="nested">nested content</div> this will already be counted</div>
+		$post->post_content = preg_replace( '/<([^>]*) [^>]*class=("|\')ppc_exclude_words("|\')[^>]*>(.*?)<\/\1>/s', '', $post->post_content );
+		
         if( self::$settings['counting_exclude_quotations'] )
-            $post->post_content = preg_replace( '/<(blockquote|q)>.*<\/(blockquote|q)>/s', '', $post->post_content );
+            $post->post_content = preg_replace( '/<(blockquote|q)>(.*?)<\/(blockquote|q)>/s', '', $post->post_content );
         
 		$post_words['real'] = (int) preg_match_all( '/\S+\s|\s\S+/', apply_filters( 'ppc_clean_post_content_word_count', preg_replace( '/[.(),;:!?%#$¿"_+=\\/-]+/', '', preg_replace( '/\'&nbsp;|&#160;|\r|\n|\r\n|\s+/', ' ', strip_tags( $post->post_content ) ) ) ), $arr );
         

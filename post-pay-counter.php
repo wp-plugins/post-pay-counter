@@ -4,7 +4,7 @@ Plugin Name: Post Pay Counter
 Plugin URI: http://www.thecrowned.org/wordpress-plugins/post-pay-counter
 Description: Easily handle authors' payments on a multi-author blog by computing posts' remuneration basing on admin defined rules.
 Author: Stefano Ottolenghi
-Version: 2.34
+Version: 2.35
 Author URI: http://www.thecrowned.org/
 */
 
@@ -51,7 +51,7 @@ class post_pay_counter {
         global $ppc_global_settings;
         
         $ppc_global_settings['current_version'] = get_option( 'ppc_current_version' );
-        $ppc_global_settings['newest_version'] = '2.34';
+        $ppc_global_settings['newest_version'] = '2.35';
         $ppc_global_settings['option_name'] = 'ppc_settings';
         $ppc_global_settings['option_errors'] = 'ppc_errors';
 		$ppc_global_settings['transient_error_deletion'] = 'ppc_error_daily_deletion';
@@ -59,6 +59,7 @@ class post_pay_counter {
 		$ppc_global_settings['transient_update_redirect'] = '_ppc_update_redirect';
         $ppc_global_settings['folder_path'] = plugins_url( '/', __FILE__ );
 		$ppc_global_settings['dir_path'] = plugin_dir_path( __FILE__ );
+		$ppc_global_settings['current_page'] = '';
         $ppc_global_settings['options_menu_link'] = 'admin.php?page=ppc-options';
         $ppc_global_settings['stats_menu_link'] = 'admin.php?page=ppc-stats';
         $ppc_global_settings['cap_manage_options'] = 'post_pay_counter_manage_options';
@@ -172,23 +173,27 @@ class post_pay_counter {
     function on_load_stats_page() {
         global $ppc_global_settings;
         
-        $first_available_post = get_posts( array( 
-            'numberposts' => 1, 
+		$general_settings = PPC_general_functions::get_settings( 'general' );
+		
+        $args = array(
+            'post_type' => $general_settings['counting_allowed_post_types'],
+			'posts_per_page' => 1,
             'orderby' => 'post_date',
             'order' => 'ASC'
-        ) );
-        
-        if( count( $first_available_post ) == 0 )
-            $first_available_post = current_time( 'timestamp' );
+        );
+        $first_available_post = new WP_Query( $args );
+
+        if( $first_available_post->found_posts == 0 )
+            $first_available_post_time = current_time( 'timestamp' );
         else
-            $first_available_post = strtotime( $first_available_post[0]->post_date );
+            $first_available_post_time = strtotime( $first_available_post->posts[0]->post_date );
         
         wp_enqueue_script( 'jquery-ui-datepicker', $ppc_global_settings['folder_path'].'js/jquery.ui.datepicker.min.js', array( 'jquery', 'jquery-ui-core' ) );
         wp_enqueue_style( 'jquery.ui.theme', $ppc_global_settings['folder_path'].'style/ui-lightness/jquery-ui-1.8.15.custom.css' );
         wp_enqueue_style( 'ppc_stats_style', $ppc_global_settings['folder_path'].'style/ppc_stats_style.css' );
         wp_enqueue_script( 'ppc_stats_effects', $ppc_global_settings['folder_path'].'js/ppc_stats_effects.js', array( 'jquery' ) );
         wp_localize_script( 'ppc_stats_effects', 'ppc_stats_effects_vars', array(
-            'datepicker_mindate' => date( 'y/m/d', $first_available_post ),
+            'datepicker_mindate' => date( 'y/m/d', $first_available_post_time ),
             'datepicker_maxdate' => date( 'y/m/d', current_time( 'timestamp' ) )
         ) );
     } 
@@ -470,10 +475,13 @@ class post_pay_counter {
         $ppc_global_settings['stats_tend'] = apply_filters( 'ppc_stats_defined_time_end', $get_and_post['tend'] );
         
 		//If an author is given, put that in an array
-        if( isset( $get_and_post['author'] ) AND is_numeric( $get_and_post['author'] ) AND $userdata = get_userdata( $get_and_post['author'] ) )
-            $author = array( $get_and_post['author'] );
-        else
-            $author = NULL;  
+        if( isset( $get_and_post['author'] ) AND is_numeric( $get_and_post['author'] ) AND $userdata = get_userdata( $get_and_post['author'] ) ) {
+            $ppc_global_settings['current_page'] = 'stats_detailed';
+			$author = array( $get_and_post['author'] );
+        } else {
+            $ppc_global_settings['current_page'] = 'stats_general';
+			$author = NULL;
+		}
         
         do_action( 'ppc_before_stats_html', $author );
         ?>

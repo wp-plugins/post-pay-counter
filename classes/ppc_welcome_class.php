@@ -149,7 +149,7 @@ class PPC_welcome {
 					<img src="<?php echo $ppc_global_settings['folder_path'].'style/images/screenshots/misc_settings.png'; ?>" class="ppc-welcome-screenshots"/>
 
 					<h4><?php _e( 'Prevent users envy', 'ppc' );?></h4>
-					<p><?php _e( 'Want users to be able to see only their own stats and not other users\' ones. Yes you can! There\'s a whole set of permission settings to define what users should and shouldn\'t see.', 'ppc' );?></p>
+					<p><?php _e( 'Want users to be able to see only their own stats and not other users\' ones? Yes you can! There\'s a whole set of permission settings to define what users should and shouldn\'t see.', 'ppc' );?></p>
                     
                     <h4><?php _e( 'Personalize settings by user', 'ppc' );?></h4>
 					<p><?php _e( 'Some users may deserve more or less than others: they can have custom settings for what concerns payments and permissions.', 'ppc' );?></p>

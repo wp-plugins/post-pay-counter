@@ -3,13 +3,15 @@ Contributors: Ste_95
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SM5Q9BVU4RT22
 Tags: counter, authors, payment, revenue sharing, stats, multi author, post management, post
 Tested up to: 4.0
-Stable tag: 2.34
+Stable tag: 2.35
 Requires at least: 3.7
 
 Easily handle authors' pay on a multi-author blog by computing posts' remuneration basing on admin defined rules with.
 
 == Description ==
 The Post Pay Counter plugin allows you to easily calculate and handle authors' pay on a multi-author blog by computing posts' remuneration basing on admin defined rules. The administrator can specify criteria upon which payments should be computed and the stats will immediately be viewable. Both a general view with all users and a specific one for a author are possible. It can easily help you implement a revenue sharing/paid to write model for your business.
+
+**IMPORTANT NOTICE: Version 2.0 or later needs to be reinstalled, if you had a previous version. Also, the following features are currently missing**: plugin's visits counting method, post payment bonus, trial settings, full multisite integration, word count in post list. Some of them will be added soon. If you need one specifically, let me know in order to make up a priority list.
 
 * Pay per post, word, visit, image and comment. They are not mutually exclusive.
 * Pay with an incremental system (eg. each word is €0.01 => 100 words = €1) or with a zonal one (eg. from 200 to 300 words/visits it’s €2.00, up to 10 zones).
@@ -59,13 +61,23 @@ It must become: *define( 'PPC_DEBUG_LOG', false );*
 If you want to translate it in your own language and get a discount on the PRO version, [contact us](http://www.thecrowned.org/contact-me)!
 
 == Changelog ==
+= 2.35 =
+* New: words included in any HTML tag with class *ppc_exclude_words* is automatically excluded from word counting. Doesn't handle nested tags, i.e. <div class="ppc_exclude_posts">some content <div class="nested">nested content</div> this will already be counted</div>.
+* Fixed: blockquotes exluding from words counting would not work correctly with more than one blockquote (would not count even words in the middle of blockquotes).
+* Fixed: furthest reaching stats display starting date would not keep in account selected custom post types, would only get first *post*.
+* Tweak: new js function ppc_zones_manager for options zones adding/removal (saves lines of code).
+* Tweak: $ppc_global_settings['current_page'] holds current page name.
+* Tweak: PPC_Error objects pass debug $data to WP_Error.
+* Tweak: updated italian and german (Thanks Julian!) translations.
+* Tweak: moved screenshots to /assets folder = smaller zip file!
+
 = 2.34 =
 * New: Welcome and Changelog pages.
 * New: possible to disable overall stats display - performance matters!
 
 = 2.33 =
 * New: plugin logged errors are automatically deleted after a month - the deletion happens once a day.
-* Fixed: *Strict Standards: Non-static method* errors in Options page.
+* Fixed: *ppc_options_fields_class* methods now declared *static*, avoiding PHP Strict notices of non-static methods being called statically blah blah blah.
 * Fixed: start time stats limit in datepicker would only consider posts instead of selected post types.
 
 = 2.32 =

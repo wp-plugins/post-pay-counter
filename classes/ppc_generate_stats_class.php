@@ -194,15 +194,13 @@ class PPC_generate_stats {
                     $stats['total']['ppc_payment']['normal_payment']['total'] = $stats['total']['ppc_misc']['posts'] * $user_settings['counting_payment_total_threshold'];
             }
             
-            //Get tooltip
-            //if( isset( $stats['total']['normal_payment'] ) ) { //prevents notice when all counting types are disabled and post stats are requested            
-                $stats['total']['ppc_misc']['tooltip_normal_payment'] = PPC_counting_stuff::build_payment_details_tooltip( $stats['total']['ppc_count']['normal_count']['to_count'], $stats['total']['ppc_payment']['normal_payment'] );
-            //}
-                        
-            $stats = apply_filters( 'ppc_sort_stats_by_author_foreach_author', $stats, $author, $user_settings );
-            
-            //unset( $stats );
+			                        
+            $stats = apply_filters( 'ppc_sort_stats_by_author_foreach_author', $stats, $author );
         }
+		
+		//Build payment tooltip
+		foreach( $sorted_array as $author => &$stats )
+			$stats['total']['ppc_misc']['tooltip_normal_payment'] = PPC_counting_stuff::build_payment_details_tooltip( $stats['total']['ppc_count']['normal_count']['to_count'], $stats['total']['ppc_payment']['normal_payment'] );
         
         return apply_filters( 'ppc_generated_raw_stats', $sorted_array );
     }
