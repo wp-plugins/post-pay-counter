@@ -35,7 +35,7 @@ The Post Pay Counter plugin allows you to easily calculate and handle authors' p
 = 1. You said I could pay per visit. How do I do that? =
 The plugin does not keep track of visits, it can only keep it in mind when computing the payment. You either need to have a plugin who keeps track of visits, and put the post_meta name of the field in which it stores the visits (must be a number), or get the PRO version of Post Pay Counter and use your Google Analytics account to get visits data.
 
-= 2. I try to personalize settings per user, but when I reload the options seem not to get saved =
+= 2. I try to personalize settings per user, but when I reload the options they seem not to get saved =
 Make sure you have the permission *Let users know if other users have personalized settings*. 
 
 = 3. I installed the plugin but it does not show up in the menu. Also, if I go to the settings page, it says I am not authorized =
