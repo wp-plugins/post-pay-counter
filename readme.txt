@@ -21,7 +21,7 @@ The Post Pay Counter plugin allows you to easily calculate and handle authors' p
 * Customizable permissions to prevent your users to see stats and use functions they are not supposed to.
 * And... works with custom post types, narrow your payments only to chosen user groups, and more.
 
-**Also, we have a [PRO version](http://www.thecrowned.org/post-pay-counter-pro) with many more features!** (among which integration with Analytics, PayPal, and so much more)
+**Also, we have a [PRO version](http://www.thecrowned.org/post-pay-counter-pro?utm_source=wprep&utm_medium=link&utm_campaign=ppcp) with many more features!** (among which integration with Analytics, PayPal, and so much more)
 
 [youtube https://www.youtube.com/watch?v=mSFjvR-2zCI]
 
@@ -32,16 +32,13 @@ The Post Pay Counter plugin allows you to easily calculate and handle authors' p
 5. That's it, you are done! You can now check the stats page to browse all the countings.
 
 == Frequently Asked Questions ==
-= 1. You said I could pay per visit. How do I do that? =
+= You said I could pay per visit. How do I do that? =
 The plugin does not keep track of visits, it can only keep it in mind when computing the payment. You either need to have a plugin who keeps track of visits, and put the post_meta name of the field in which it stores the visits (must be a number), or get the PRO version of Post Pay Counter and use your Google Analytics account to get visits data.
 
-= 2. I try to personalize settings per user, but when I reload the options they seem not to get saved =
-Make sure you have the permission *Let users know if other users have personalized settings*. 
-
-= 3. I installed the plugin but it does not show up in the menu. Also, if I go to the settings page, it says I am not authorized =
+= I installed the plugin but it does not show up in the menu. Also, if I go to the settings page, it says I am not authorized =
 That is probably due to a permissions manager plugin you have on your blog. Check that capabilities *post_pay_counter_access_stats* and *post_pay_counter_manage_options* are correctly assigned and working.
 
-= 4. I don't want errors to be logged =
+= I don't want errors to be logged =
 Set to *false* the constant *PPC_DEBUG_LOG* in *post-pay-counter.php*, it is located at line 44.
 From this: *define( 'PPC_DEBUG_LOG', true );*
 It must become: *define( 'PPC_DEBUG_LOG', false );*
