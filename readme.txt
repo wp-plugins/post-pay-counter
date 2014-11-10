@@ -74,7 +74,7 @@ If you want to translate it in your own language and get a discount on the PRO v
 * New: addons page (new addons coming!)
 
 = 2.35 =
-* New: words included in any HTML tag with class *ppc_exclude_words* is automatically excluded from word counting. Doesn't handle nested tags, i.e. <div class="ppc_exclude_posts">some content <div class="nested">nested content</div> this will already be counted</div>.
+* New: words included in any HTML tag with class *ppc_exclude_words* is automatically excluded from word counting. Doesn't handle nested tags, i.e. < div class="ppc_exclude_posts">some content < div class="nested">nested content</ div> this will already be counted</ div>.
 * Fixed: blockquotes exluding from words counting would not work correctly with more than one blockquote (would not count even words in the middle of blockquotes).
 * Fixed: furthest reaching stats display starting date would not keep in account selected custom post types, would only get first *post*.
 * Tweak: new js function ppc_zones_manager for options zones adding/removal (saves lines of code).
