@@ -9,6 +9,25 @@ require_once( 'ppc_permissions_class.php' );
 
 class PPC_HTML_functions {
     
+	/**
+	 * Displays header logo and caption
+	 *
+	 * @access	public
+	 * @since	2.36
+	 */
+	
+	static function display_header_logo() {
+		global $ppc_global_settings;
+		?>
+		
+		<div id="ppc_logo">
+			<img src="<?php echo $ppc_global_settings['folder_path'].'style/images/pengu-ins.png'; ?>" />
+			<div id="ppc_logo_caption"><?php printf( __( 'A %1$spengu-ins%2$s production', 'ppc' ), '<a href="http://www.thecrowned.org/pengu-ins?utm_source=users_site&utm_medium=header_logo&utm_campaign=pengu-ins" title="Pengu-ins" target="_blank">', '</a>' ); ?></div>
+		</div>
+		
+		<?php
+	}
+	
     /**
      * Shows header part for the stats page, including the form to adjust the time window
      *
@@ -140,8 +159,8 @@ class PPC_HTML_functions {
                             break;
                         
                         case 'post_total_payment':
-                            $tooltip = PPC_counting_stuff::build_payment_details_tooltip( $post->ppc_count['normal_count']['to_count'], $post->ppc_payment['normal_payment'] );
-                            $field_value = '<abbr title="'.$tooltip.'" class="ppc_payment_column">'.sprintf( '%.2f', $field_value ).'</abbr>';
+                            $tooltip = PPC_counting_stuff::build_payment_details_tooltip( $post->ppc_count['normal_count'], $post->ppc_payment['normal_payment'] );
+                            $field_value = '<abbr title="'.$tooltip.'" class="ppc_payment_column">'.$field_value.'</abbr>';
                             break;
                     }
                     
@@ -168,7 +187,7 @@ class PPC_HTML_functions {
                             break;
                         
                         case 'author_total_payment':
-                            $field_value = '<abbr title="'.$raw_stats[$author]['total']['ppc_misc']['tooltip_normal_payment'].'" class="ppc_payment_column">'.sprintf( '%.2f', $field_value ).'</abbr>';
+                            $field_value = '<abbr title="'.$raw_stats[$author]['total']['ppc_misc']['tooltip_normal_payment'].'" class="ppc_payment_column">'.$field_value.'</abbr>';
                             break;
                     }
                     

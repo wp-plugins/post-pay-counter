@@ -4,7 +4,7 @@ Plugin Name: Post Pay Counter
 Plugin URI: http://www.thecrowned.org/wordpress-plugins/post-pay-counter
 Description: Easily handle authors' payments on a multi-author blog by computing posts' remuneration basing on admin defined rules.
 Author: Stefano Ottolenghi
-Version: 2.35
+Version: 2.40
 Author URI: http://www.thecrowned.org/
 */
 
@@ -40,6 +40,8 @@ require_once( 'classes/ppc_meta_boxes_class.php' );
 require_once( 'classes/ppc_system_info_class.php' );
 require_once( 'classes/ppc_error_class.php' );
 require_once( 'classes/ppc_welcome_class.php' );
+require_once( 'classes/ppc_addons_class.php' );
+require_once( 'classes/ppc_counting_types_class.php' );
 
 define( 'PPC_DEBUG_SHOW', false );
 define( 'PPC_DEBUG_LOG', true );
@@ -51,7 +53,7 @@ class post_pay_counter {
         global $ppc_global_settings;
         
         $ppc_global_settings['current_version'] = get_option( 'ppc_current_version' );
-        $ppc_global_settings['newest_version'] = '2.35';
+        $ppc_global_settings['newest_version'] = '2.40';
         $ppc_global_settings['option_name'] = 'ppc_settings';
         $ppc_global_settings['option_errors'] = 'ppc_errors';
 		$ppc_global_settings['transient_error_deletion'] = 'ppc_error_daily_deletion';
@@ -65,7 +67,6 @@ class post_pay_counter {
         $ppc_global_settings['cap_manage_options'] = 'post_pay_counter_manage_options';
         $ppc_global_settings['cap_access_stats'] = 'post_pay_counter_access_stats';
         $ppc_global_settings['temp'] = array( 'settings' => array() );
-        //$ppc_global_settings['general_settings'] = PPC_general_functions::get_settings( 'general' );
         
         //Add left menu entries for both stats and options pages
         add_action( 'admin_menu', array( $this, 'post_pay_counter_admin_menus' ) );
@@ -81,18 +82,21 @@ class post_pay_counter {
 		add_action( 'plugins_loaded', array( $this, 'maybe_update' ) );
 		
         //On load plugin pages
-        add_action( 'load-post-pay-counter_page_ppc-options', array( $this, 'on_load_options_page_get_settings' ), 1 );
-        add_action( 'load-post-pay-counter_page_ppc-options', array( $this, 'on_load_options_page_enqueue' ), 2 );
         add_action( 'load-toplevel_page_ppc-stats', array( $this, 'on_load_stats_page' ) );
+		add_action( 'load-post-pay-counter_page_ppc-options', array( $this, 'on_load_options_page_get_settings' ), 1 );
+        add_action( 'load-post-pay-counter_page_ppc-options', array( $this, 'on_load_options_page_enqueue' ), 2 );
+		add_action( 'load-post-pay-counter_page_ppc-addons', array( 'PPC_addons', 'on_load_addons_page_enqueue' ) );
         //add_action( 'load-toplevel_page_post_pay_counter_show_network_stats', array( &$this, 'on_load_stats_page' ) );
         
         //Localization
         add_action( 'plugins_loaded', array( $this, 'load_localization' ) );
         
-		//Welcome screen
+		//About screen
 		add_action( 'admin_menu', array( 'PPC_welcome', 'add_pages' ) );
 		add_action( 'admin_head', array( 'PPC_welcome', 'admin_head' ) );
         add_action( 'admin_init', array( 'PPC_welcome', 'welcome' ) );
+		add_action( 'load-dashboard_page_ppc-about', array( 'PPC_welcome', 'custom_css' ) );
+		add_action( 'load-dashboard_page_ppc-changelog', array( 'PPC_welcome', 'custom_css' ) );
 		
         //Custom links besides the usual "Edit" and "Deactivate"
         add_filter( 'plugin_action_links', array( $this, 'ppc_settings_meta_link' ), 10, 2 );
@@ -129,6 +133,7 @@ class post_pay_counter {
         add_submenu_page( 'ppc-stats', 'Post Pay Counter Stats', __( 'Stats', 'ppc' ), $ppc_global_settings['cap_access_stats'], 'ppc-stats', array( $this, 'show_stats' ) );
         $ppc_global_settings['options_menu_slug'] = add_submenu_page( 'ppc-stats', 'Post Pay Counter Options', __( 'Options', 'ppc' ), $ppc_global_settings['cap_manage_options'], 'ppc-options', array( $this, 'show_options' ) );
         add_submenu_page( 'ppc-stats', 'Post Pay Counter System Info', __( 'System Info', 'ppc' ), $ppc_global_settings['cap_manage_options'], 'ppc-system-info', array( 'PPC_system_info', 'system_info' ) );
+		add_submenu_page( 'ppc-stats', 'Post Pay Counter Addons', __( 'Addons', 'ppc' ), $ppc_global_settings['cap_manage_options'], 'ppc-addons', array( 'PPC_addons', 'addons_page' ) );
     }
     
     //Adds first level side menu (network admin)
@@ -175,6 +180,10 @@ class post_pay_counter {
         
 		$general_settings = PPC_general_functions::get_settings( 'general' );
 		
+		//Initiliaze counting types
+		$ppc_global_settings['counting_types_object'] = new PPC_counting_types();
+		$ppc_global_settings['counting_types_object']->register_built_in_counting_types();
+		
         $args = array(
             'post_type' => $general_settings['counting_allowed_post_types'],
 			'posts_per_page' => 1,
@@ -190,7 +199,8 @@ class post_pay_counter {
         
         wp_enqueue_script( 'jquery-ui-datepicker', $ppc_global_settings['folder_path'].'js/jquery.ui.datepicker.min.js', array( 'jquery', 'jquery-ui-core' ) );
         wp_enqueue_style( 'jquery.ui.theme', $ppc_global_settings['folder_path'].'style/ui-lightness/jquery-ui-1.8.15.custom.css' );
-        wp_enqueue_style( 'ppc_stats_style', $ppc_global_settings['folder_path'].'style/ppc_stats_style.css' );
+        wp_enqueue_style( 'ppc_header_style', $ppc_global_settings['folder_path'].'style/ppc_header_style.css', array( 'wp-admin' ) );
+		wp_enqueue_style( 'ppc_stats_style', $ppc_global_settings['folder_path'].'style/ppc_stats_style.css' );
         wp_enqueue_script( 'ppc_stats_effects', $ppc_global_settings['folder_path'].'js/ppc_stats_effects.js', array( 'jquery' ) );
         wp_localize_script( 'ppc_stats_effects', 'ppc_stats_effects_vars', array(
             'datepicker_mindate' => date( 'y/m/d', $first_available_post_time ),
@@ -224,7 +234,8 @@ class post_pay_counter {
         add_meta_box( 'ppc_error_log', __( 'Error log', 'ppc' ), array( 'PPC_meta_boxes', 'meta_box_error_log' ), $ppc_global_settings['options_menu_slug'], 'side', 'default', self::$options_page_settings );
         
         wp_enqueue_style( 'jquery.tooltip.theme', $ppc_global_settings['folder_path'].'style/tipTip.css' );
-        wp_enqueue_style( 'ppc_options_style', $ppc_global_settings['folder_path'].'style/ppc_options_style.css', array( 'wp-admin' ) );
+        wp_enqueue_style( 'ppc_header_style', $ppc_global_settings['folder_path'].'style/ppc_header_style.css', array( 'wp-admin' ) );
+		wp_enqueue_style( 'ppc_options_style', $ppc_global_settings['folder_path'].'style/ppc_options_style.css', array( 'wp-admin' ) );
         wp_enqueue_script( 'jquery-tooltip-plugin', $ppc_global_settings['folder_path'].'js/jquery.tiptip.min.js', array( 'jquery' ) );
         wp_enqueue_script( 'ppc_options_ajax_stuff', $ppc_global_settings['folder_path'].'js/ppc_options_ajax_stuff.js', array( 'jquery' ) );
         wp_localize_script( 'ppc_options_ajax_stuff', 'ppc_options_ajax_stuff_vars', array(
@@ -347,7 +358,7 @@ class post_pay_counter {
     function ppc_donate_meta_link( $links, $file ) {
        if( $file == plugin_basename( __FILE__ ) ) {
             $links[] = '<a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SM5Q9BVU4RT22" title="'.__( 'Donate', 'ppc' ).'">'.__( 'Donate', 'ppc' ).'</a>';
-			$links[] = '<a href="www.thecrowned.org/post-pay-counter-pro" title="'.__( 'Go PRO', 'ppc' ).'">'.__( 'Go PRO', 'ppc' ).'</a>';
+			$links[] = '<a href="http://www.thecrowned.org/post-pay-counter-pro?utm_source=users_site&utm_medium=plugins_list&utm_campaign=ppcp" title="'.__( 'Go PRO', 'ppc' ).'">'.__( 'Go PRO', 'ppc' ).'</a>';
        }
      
         return $links;
@@ -397,11 +408,20 @@ class post_pay_counter {
         ?>
 		
 <div class="wrap">
-	<div style="float: right; color: #777; margin-top: 15px;"><?php echo apply_filters( 'ppc_options_installed_version', __( 'Installed version' , 'ppc').': '.$ppc_global_settings['current_version'].' - <a href="http://www.thecrowned.org/forums/forum/post-pay-counter" title="'.__( 'Support', 'ppc' ).'" target="_blank">'.__( 'Support', 'ppc' ).'</a>' ); ?></div>
-	<h2>Post Pay Counter - <?php _e( 'Options', 'ppc' ); ?></h2>
-	<div class="clear"></div>
-	<p><?php _e( 'From this page you can configure the Post Pay Counter plugin. You will find all the information you need inside each following box and, for every available function, clicking on the info icon on the right of them.', 'ppc' ); ?></p>
-        
+	
+	<?php PPC_HTML_functions::display_header_logo(); ?>
+	
+	<div id="ppc_header">
+		<div id="ppc_header_links">
+		<?php echo apply_filters( 'ppc_options_installed_version', __( 'Installed version' , 'ppc' ).': '.$ppc_global_settings['current_version'].' - <a href="http://www.thecrowned.org/forums/forum/post-pay-counter" title="'.__( 'Support', 'ppc' ).'" target="_blank">'.__( 'Support', 'ppc' ).'</a>' ); ?>
+		</div>
+		<div id="ppc_header_text">
+			<h2>Post Pay Counter - <?php _e( 'Options', 'ppc' ); ?></h2>
+			<p><?php _e( 'The Post Pay Counter plugin is ready to make handling authors\' payments much, much easier, starting from... now! From this page you can set the plugin up, customizing each possible feature to best suit your needs. Options are divided into groups, and for each of the following boxes you will find details of all the features of the plugin and, for most of them, additional details and examples are available by clicking on the info icon on the right of them.', 'ppc' ); ?></p>
+			<p><?php printf( __( 'Don\'t forget to take our %1$sfeatures survey%2$s to let us know what functions you\'d like to see in future releases of the plugin! Also, if you like this plugin, you may be interested in trying the shiny %3$sPRO version%2$s, containing a whole lot of useful features!', 'ppc' ), '<a href="http://www.thecrowned.org/post-pay-counter-pro-features-survey" title="'.__( 'Features survey', 'ppc' ).'" target="_blank">', '</a>', '<a href="http://www.thecrowned.org/post-pay-counter-pro?utm_source=users_site&utm_medium=options_description&utm_campaign=ppcp" title="Post Pay Counter PRO" target="_blank">' ); ?></p>
+		</div>
+	</div>
+	
 		<?php
         if( is_numeric( self::$options_page_settings['userid'] ) ) {
             $userdata = get_userdata( self::$options_page_settings['userid'] );
@@ -487,6 +507,7 @@ class post_pay_counter {
         ?>
 		
 <div class="wrap">
+	<?php PPC_HTML_functions::display_header_logo(); ?>
 	<h2>Post Pay Counter - <?php _e( 'Stats', 'ppc' ); ?></h2>
         
 		<?php

@@ -50,7 +50,7 @@ class PPC_meta_boxes {
         
         echo '<p>'.__( 'If you like the Post Pay Counter, there are a couple of crucial things you can do to support its development' , 'ppc').':</p>';
         echo '<ul style="margin: 0 0 15px 2em; padding: 0">';
-        echo '<li style="list-style-image: url(\''.$ppc_global_settings['folder_path'].'style/images/pro.png\');"><a target="_blank" href="http://www.thecrowned.org/post-pay-counter-pro" title="'.__( 'Go PRO' , 'ppc').'"><strong>'.__( 'Go PRO' , 'ppc').'</strong></a>. '.__( 'Try the PRO version: more functions, more stuff!' , 'ppc').'</li>';
+        echo '<li style="list-style-image: url(\''.$ppc_global_settings['folder_path'].'style/images/pro.png\');"><a target="_blank" href="http://www.thecrowned.org/post-pay-counter-pro?utm_source=users_site&utm_medium=options_support_author&utm_campaign=ppcp" title="'.__( 'Go PRO' , 'ppc').'"><strong>'.__( 'Go PRO' , 'ppc').'</strong></a>. '.__( 'Try the PRO version: more functions, more stuff!' , 'ppc').'</li>';
         echo '<li style="list-style-image: url(\''.$ppc_global_settings['folder_path'].'style/images/paypal.png\');"><a target="_blank" href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SM5Q9BVU4RT22" title="'.__( 'Donate money' , 'ppc').'"><strong>'.__( 'Donate money' , 'ppc').'</strong></a>. '.__( 'Plugins do not write themselves: they need time and effort, and I give all of that free of charge. Donations of every amount are absolutely welcome.' , 'ppc').'</li>';
         echo '<li style="list-style-image: url(\''.$ppc_global_settings['folder_path'].'style/images/amazon.png\');">'.sprintf( __( 'Give me something from my %1$sAmazon Wishlist%2$s.' , 'ppc'), '<a target="_blank" href="http://www.amazon.it/registry/wishlist/1JWAS1MWTLROQ" title="Amazon Wishlist">', '</a>' ).'</li>';
         echo '<li style="list-style-image: url(\''.$ppc_global_settings['folder_path'].'style/images/star.png\');">'.sprintf( __( 'Rate it in the %1$sWordpress Directory%3$s and share the %2$sofficial page%3$s.' , 'ppc'), '<a target="_blank" href="http://wordpress.org/extend/plugins/post-pay-counter/" title="Wordpress directory">', '<a target="_blank" href="http://www.thecrowned.org/wordpress-plugins/post-pay-counter" title="Official plugin page">', '</a>' ).'</li>';
@@ -402,7 +402,7 @@ class PPC_meta_boxes {
      * @param   array plugin settings
     */
     
-    function meta_box_personalize_settings( $post, $current_settings ) {
+    static function meta_box_personalize_settings( $post, $current_settings ) {
         global $wpdb, $ppc_global_settings, $wp_roles;
         $current_settings = $current_settings['args'];
         
@@ -485,7 +485,7 @@ class PPC_meta_boxes {
      * @param   array plugin settings
     */
     
-    function meta_box_error_log( $post, $current_settings ) {
+    static function meta_box_error_log( $post, $current_settings ) {
         global $ppc_global_settings;
         $current_settings = $current_settings['args'];
         

@@ -1,8 +1,9 @@
 <?php
 
 /**
- * @author Stefano Ottolenghi
- * @copyright 2013
+ * @author 		Stefano Ottolenghi
+ * @copyright 	2013
+ * @package		PPC
  */
 
 class PPC_counting_stuff {
@@ -12,6 +13,12 @@ class PPC_counting_stuff {
 	 */
 	
 	public static $settings;
+	
+	/**
+	 * Holds user ID whose posts are currently being processed.
+	 */
+	
+	public static $being_processed_author;
     
     /**
      * Switches through the possible counting systems and determines which one is active. 
@@ -54,14 +61,16 @@ class PPC_counting_stuff {
     */
     
     static function data2cash( $data, $author = NULL ) {
+        global $ppc_global_settings;
+        
         $processed_data = array();
         
         foreach( $data as $single ) {
             self::$settings = PPC_general_functions::get_settings( $single->post_author, TRUE );
-            
+            self::$being_processed_author = $single->post_author;
+			
             $single->ppc_count = self::get_post_countings( $single );
-            
-            $post_payment = self::get_post_payment( $single->ppc_count['normal_count']['to_count'] );
+            $post_payment = self::get_post_payment( $single->ppc_count['normal_count'], $single->ID );
             $single->ppc_payment = $post_payment['ppc_payment'];
             $single->ppc_misc = $post_payment['ppc_misc'];
             
@@ -81,40 +90,17 @@ class PPC_counting_stuff {
     */
     
     static function get_post_countings( $post ) {
+        global $ppc_global_settings;
+        
         $ppc_count = array(
-            'normal_count' => array(
-                'real' => array(),
-                'to_count' => array()
-            )
+            'normal_count' => array()
         );
         
-        if( self::$settings['basic_payment'] ) {
-            $ppc_count['normal_count']['real']['basic'] = 1;
-            $ppc_count['normal_count']['to_count']['basic'] = 1;
-        }
-        
-        if( self::$settings['counting_words'] ) {
-            $words = self::count_post_words( $post );
-            $ppc_count['normal_count']['real']['words'] = $words['real'];
-            $ppc_count['normal_count']['to_count']['words'] = $words['to_count'];
-        }
-        
-        if( self::$settings['counting_visits'] ) {
-            $visits = self::get_post_visits( $post );
-            $ppc_count['normal_count']['real']['visits'] = $visits['real'];
-            $ppc_count['normal_count']['to_count']['visits'] = $visits['to_count'];
-        }
-        
-        if( self::$settings['counting_images'] ) {
-            $images = self::get_post_counting( $post, self::count_post_images( $post ), self::$settings['counting_images_threshold_min'], self::$settings['counting_images_threshold_max'], 'images' );
-            $ppc_count['normal_count']['real']['images'] = $images['real'];
-            $ppc_count['normal_count']['to_count']['images'] = $images['to_count'];
-        }
-        
-        if( self::$settings['counting_comments'] ) {
-            $comments = self::get_post_counting( $post, $post->comment_count, self::$settings['counting_comments_threshold_min'], self::$settings['counting_comments_threshold_max'], 'comments' );
-            $ppc_count['normal_count']['real']['comments'] = $comments['real'];
-            $ppc_count['normal_count']['to_count']['comments'] = $comments['to_count'];
+        foreach( $ppc_global_settings['counting_types_object']->get_active_counting_types( 'post', $post->post_author ) as $id => $single_counting ) {
+            if( ! isset( $single_counting['payment_only'] ) OR $single_counting['payment_only'] == false ) {
+				$counting_type_count = call_user_func( $single_counting['count_callback'], $post );
+				$ppc_count['normal_count'][$id] = $counting_type_count;
+			}
         }
         
         return apply_filters( 'ppc_get_post_countings', $ppc_count, $post );
@@ -187,7 +173,24 @@ class PPC_counting_stuff {
                 ++$post_images;
         }
         
+        $post_images = self::get_post_counting( $post, $post_images, self::$settings['counting_images_threshold_min'], self::$settings['counting_images_threshold_max'], 'images' );
+        
         return apply_filters( 'ppc_counted_post_images', $post_images, $post->ID );
+    }
+    
+    /**
+     * Determines the number of comments for a given post.
+	 *
+     * @access  public
+     * @since   2.40
+     * @param   object the WP post object
+     * @return  int comments number
+     */
+    
+    static function count_post_comments( $post ) {
+        $post_comments = self::get_post_counting( $post, $post->comment_count, self::$settings['counting_comments_threshold_min'], self::$settings['counting_comments_threshold_max'], 'comments' );
+        
+        return apply_filters( 'ppc_counted_post_comments', $post_comments, $post->ID );
     }
 	
 	/**
@@ -213,7 +216,7 @@ class PPC_counting_stuff {
         if( self::$settings['counting_exclude_quotations'] )
             $post->post_content = preg_replace( '/<(blockquote|q)>(.*?)<\/(blockquote|q)>/s', '', $post->post_content );
         
-		$post_words['real'] = (int) preg_match_all( '/\S+\s|\s\S+/', apply_filters( 'ppc_clean_post_content_word_count', preg_replace( '/[.(),;:!?%#$¿"_+=\\/-]+/', '', preg_replace( '/\'&nbsp;|&#160;|\r|\n|\r\n|\s+/', ' ', strip_tags( $post->post_content ) ) ) ), $arr );
+		$post_words['real'] = (int) preg_match_all( '/\S+\s|\s\S+/', apply_filters( 'ppc_clean_post_content_word_count', preg_replace( '/[.(),;:!?%#$¿"_+=\\/-]+/', '', preg_replace( '/\'|&nbsp;|&#160;|\r|\n|\r\n|\s+/', ' ', strip_tags( $post->post_content ) ) ) ), $counted_words_array );
         
         if( self::$settings['counting_words_threshold_max'] > 0 AND $post_words['real'] > self::$settings['counting_words_threshold_max'] )
             $post_words['to_count'] = self::$settings['counting_words_threshold_max'];
@@ -234,7 +237,7 @@ class PPC_counting_stuff {
      * @return  array the words data
     */
     
-    static function get_post_visits( $post ) {
+    static function count_post_visits( $post ) {
         $post_visits = array( 
             'real' => 0, 
             'to_count' => 0 
@@ -251,6 +254,19 @@ class PPC_counting_stuff {
         
         return apply_filters( 'ppc_counted_post_visits', $post_visits );
     }
+    
+    /**
+     * Outputs 1 as count, acts as dummy counter.
+	 *
+     * @access  public
+     * @since   2.40
+     * @param   object the WP post object
+     * @return  array ones data
+     */
+    
+    static function dummy_counter( $post ) {
+        return apply_filters( 'ppc_dummy_counter', array( 'to_count' => 1, 'real' => 1 ), $post->ID );
+    }
 	
     /**
      * Computes payment data for the given post. Checks payment threshold.
@@ -258,13 +274,26 @@ class PPC_counting_stuff {
      * @access  public
      * @since   2.0
      * @param   $post_countings array the post countings
+	 * @param	$post_id int post id
      * @return  array the payment data  
     */
     
-    static function get_post_payment( $post_countings ) {
-        $ppc_misc = array();
+    static function get_post_payment( $post_countings, $post_id ) {
+        global $ppc_global_settings;
+		
+		$ppc_misc = array();
         $ppc_payment['normal_payment'] = self::get_countings_payment( $post_countings );
         
+		$counting_types = $ppc_global_settings['counting_types_object']->get_active_counting_types( 'post', self::$being_processed_author );
+        foreach( $counting_types as $id => $value ) { 
+            if( isset( $value['payment_only'] ) AND $value['payment_only'] == true ) {  
+                $counting_type_payment = call_user_func( $value['payment_callback'], $value, $post_id );
+                $ppc_payment['normal_payment'][$id] = $counting_type_payment;
+            }
+        }
+		
+		$ppc_payment['normal_payment']['total'] = array_sum( $ppc_payment['normal_payment'] );
+		
         $ppc_misc['exceed_threshold'] = false;
         if( self::$settings['counting_payment_total_threshold'] != 0 ) {
             if( $ppc_payment['normal_payment']['total'] > self::$settings['counting_payment_total_threshold'] ) {
@@ -282,44 +311,23 @@ class PPC_counting_stuff {
      * @access  public
      * @since   2.0
      * @param   $countings array the countings to be paid
-     * @return  array the payment data  
+     * @return  array the payment data
     */
     
     static function get_countings_payment( $countings ) {
+        global $ppc_global_settings;
+        
         $ppc_payment = array();
         
-        //Basic payment
-        if( self::$settings['basic_payment'] ) {
-            $basic_pay = self::basic_payment( $countings['basic'] );
-            $ppc_payment['basic'] = $basic_pay;
-        }
-        
-        //Words payment
-        if( self::$settings['counting_words'] ) {
-            $words_pay = self::words_payment( $countings['words'] );
-            $ppc_payment['words'] = $words_pay;
-        }
-        
-        //Visits payment
-        if( self::$settings['counting_visits'] ) {
-            $visits_pay = self::visits_payment( $countings['visits'] );
-            $ppc_payment['visits'] = $visits_pay;
-        }
-        
-        //Images payment
-        if( self::$settings['counting_images'] ) {
-            $images_pay = self::images_payment( $countings['images'] );
-            $ppc_payment['images'] = $images_pay;
-        }
-        
-        //Comments payment
-        if( self::$settings['counting_comments'] ) {
-            $comments_pay = self::comments_payment( $countings['comments'] );
-            $ppc_payment['comments'] = $comments_pay;
+		$counting_types = $ppc_global_settings['counting_types_object']->get_active_counting_types( 'post', self::$being_processed_author );
+        foreach( $countings as $id => $value ) {
+            if( isset( $counting_types[$id] ) ) { 
+                $counting_type_payment = call_user_func( $counting_types[$id]['payment_callback'], $value );
+                $ppc_payment[$id] = $counting_type_payment;
+            }
         }
         
 		$ppc_payment = apply_filters( 'ppc_get_countings_payment', $ppc_payment, $countings );
-        $ppc_payment['total'] = array_sum( $ppc_payment );
         
         return $ppc_payment;
     }
@@ -335,23 +343,20 @@ class PPC_counting_stuff {
     */
     
     static function build_payment_details_tooltip( $countings, $payment ) {
+        global $ppc_global_settings;
+        
         $tooltip = '';
         
-        if( isset( $countings['basic'] ) )
-            $tooltip .= __( 'Basic payment' , 'ppc').': '.$countings['basic'].' => '.sprintf( '%.2f', $payment['basic'] ).'&#13;';
-
-        if( isset( $countings['words'] ) )
-            $tooltip .= __( 'Words payment' , 'ppc').': '.$countings['words'].' => '.sprintf( '%.2f', $payment['words'] ).'&#13;';
-        
-        if( isset( $countings['visits'] ) )
-            $tooltip .= __( 'Visits payment' , 'ppc').': '.$countings['visits'].' => '.sprintf( '%.2f', $payment['visits'] ).'&#13;';
-        
-        if( isset( $countings['images'] ) )
-            $tooltip .=  __( 'Images payment' , 'ppc').': '.$countings['images'].' => '.sprintf( '%.2f', $payment['images'] ).'&#13;';
-        
-        if( isset( $countings['comments'] ) )
-            $tooltip .= __( 'Comments payment' , 'ppc').': '.$countings['comments'].' => '.sprintf( '%.2f', $payment['comments'] ).'&#13;';
-        
+		$counting_types = $ppc_global_settings['counting_types_object']->get_active_counting_types( 'post', self::$being_processed_author );
+        foreach( $payment as $id => $value ) { 
+            if( isset( $counting_types[$id] ) ) {
+				if( ! isset( $counting_types[$id]['payment_only'] ) OR $counting_types[$id]['payment_only'] == false )
+					$tooltip .= $counting_types[$id]['label'].': '.$countings[$id]['to_count'].' => '.PPC_general_functions::format_payment( sprintf( '%.2f', $value ) ).'&#13;';
+				else
+					$tooltip .= $counting_types[$id]['label'].': '.PPC_general_functions::format_payment( sprintf( '%.2f', $payment[$id] ) ).'&#13;';
+			}
+        }
+		
         return apply_filters( 'ppc_payment_details_tooltip', $tooltip, $countings, $payment );
     }
     
@@ -365,7 +370,8 @@ class PPC_counting_stuff {
     */
     
     static function basic_payment( $basic ) {
-        return apply_filters( 'ppc_basic_payment_value', $basic_payment = self::$settings['basic_payment_value']*$basic );
+        $basic_payment = self::$settings['basic_payment_value']*$basic['to_count'];
+		return apply_filters( 'ppc_basic_payment_value', $basic_payment );
     }
     
     /**
@@ -379,7 +385,7 @@ class PPC_counting_stuff {
     
     static function words_payment( $post_words ) {
         $words_counting_system_data = self::get_current_counting_system( 'words' );
-        return apply_filters( 'ppc_words_payment_value', self::$words_counting_system_data['counting_system']( $post_words, $words_counting_system_data['counting_system_value'] ) );
+        return apply_filters( 'ppc_words_payment_value', self::$words_counting_system_data['counting_system']( $post_words['to_count'], $words_counting_system_data['counting_system_value'] ) );
     }
     
     /**
@@ -387,13 +393,13 @@ class PPC_counting_stuff {
      *
      * @access  public
      * @since   2.0
-     * @param   $post_words int post visits count
+     * @param   $post_visits int post visits count
      * @return  array the payment data  
     */
     
     static function visits_payment( $post_visits ) {
         $visits_counting_system_data = self::get_current_counting_system( 'visits' );
-        return apply_filters( 'ppc_visits_payment_value', self::$visits_counting_system_data['counting_system']( $post_visits, $visits_counting_system_data['counting_system_value'] ) );
+        return apply_filters( 'ppc_visits_payment_value', self::$visits_counting_system_data['counting_system']( $post_visits['to_count'], $visits_counting_system_data['counting_system_value'] ) );
     }
     
     /**
@@ -407,7 +413,7 @@ class PPC_counting_stuff {
     
     static function images_payment( $post_images ) {
         $images_counting_system_data = self::get_current_counting_system( 'images' );
-        return apply_filters( 'ppc_images_payment_value', self::$images_counting_system_data['counting_system']( $post_images, $images_counting_system_data['counting_system_value'] ) );
+        return apply_filters( 'ppc_images_payment_value', self::$images_counting_system_data['counting_system']( $post_images['to_count'], $images_counting_system_data['counting_system_value'] ) );
     }
     
     /**
@@ -421,7 +427,7 @@ class PPC_counting_stuff {
     
     static function comments_payment( $post_comments ) {
         $comments_counting_system_data = self::get_current_counting_system( 'comments' );
-        return apply_filters( 'ppc_comments_payment_value', self::$comments_counting_system_data['counting_system']( $post_comments, $comments_counting_system_data['counting_system_value'] ) );
+        return apply_filters( 'ppc_comments_payment_value', self::$comments_counting_system_data['counting_system']( $post_comments['to_count'], $comments_counting_system_data['counting_system_value'] ) );
     }
     
     /**

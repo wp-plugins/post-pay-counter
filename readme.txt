@@ -3,7 +3,7 @@ Contributors: Ste_95
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SM5Q9BVU4RT22
 Tags: counter, authors, payment, revenue sharing, stats, multi author, post management, post
 Tested up to: 4.0
-Stable tag: 2.35
+Stable tag: 2.40
 Requires at least: 3.7
 
 Easily handle authors' pay on a multi-author blog by computing posts' remuneration basing on admin defined rules with.
@@ -22,6 +22,7 @@ The Post Pay Counter plugin allows you to easily calculate and handle authors' p
 * And... works with custom post types, narrow your payments only to chosen user groups, and more.
 
 **Also, we have a [PRO version](http://www.thecrowned.org/post-pay-counter-pro?utm_source=wprep&utm_medium=link&utm_campaign=ppcp) with many more features!** (among which integration with Analytics, PayPal, and so much more)
+Browse [all extensions](http://www.thecrowned.org/post-pay-counter-extensions?utm_source=wprep&utm_medium=description&utm_campaign=ppc_addons)
 
 [youtube https://www.youtube.com/watch?v=mSFjvR-2zCI]
 
@@ -37,6 +38,11 @@ The plugin does not keep track of visits, it can only keep it in mind when compu
 
 = I installed the plugin but it does not show up in the menu. Also, if I go to the settings page, it says I am not authorized =
 That is probably due to a permissions manager plugin you have on your blog. Check that capabilities *post_pay_counter_access_stats* and *post_pay_counter_manage_options* are correctly assigned and working.
+
+= Can I pay for BBPress contents? =
+It is indeed possible to pay for BBPress topics and replies with Post Pay Counter.
+
+In *Post Pay Counter > Options > Miscellanea > Allowed post types*, make sure you have *Topic* and *Reply* ticked, and those types of contents will be included in countings.
 
 = I don't want errors to be logged =
 Set to *false* the constant *PPC_DEBUG_LOG* in *post-pay-counter.php*, it is located at line 44.
@@ -61,6 +67,14 @@ It must become: *define( 'PPC_DEBUG_LOG', false );*
 If you want to translate it in your own language and get a discount on the PRO version, [contact us](http://www.thecrowned.org/contact-me)!
 
 == Changelog ==
+= 2.40 =
+**Warning to PRO users**: this will break the PRO, wait until PRO version 1.5 will ship to your site and update that first.
+
+* New: centralized control of counting types - makes code easier, hopefully faster, and simple to hook for who wants to integrate with the plugin.
+* Tweak: welcome page css not being loaded on all wp-admin pages.
+* New: Pengu-ins logo added on plugin pages.
+* New: addons page (new addons coming!)
+
 = 2.35 =
 * New: words included in any HTML tag with class *ppc_exclude_words* is automatically excluded from word counting. Doesn't handle nested tags, i.e. <div class="ppc_exclude_posts">some content <div class="nested">nested content</div> this will already be counted</div>.
 * Fixed: blockquotes exluding from words counting would not work correctly with more than one blockquote (would not count even words in the middle of blockquotes).
