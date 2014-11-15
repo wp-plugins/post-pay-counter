@@ -69,10 +69,14 @@ class PPC_counting_stuff {
             self::$settings = PPC_general_functions::get_settings( $single->post_author, TRUE );
             self::$being_processed_author = $single->post_author;
 			
-            $single->ppc_count = self::get_post_countings( $single );
-            $post_payment = self::get_post_payment( $single->ppc_count['normal_count'], $single->ID );
-            $single->ppc_payment = $post_payment['ppc_payment'];
-            $single->ppc_misc = $post_payment['ppc_misc'];
+            $post_countings = self::get_post_countings( $single );
+            $post_payment = self::get_post_payment( $post_countings['normal_count'], $single->ID );
+            
+			if( count( $post_countings['normal_count'] ) == 0 AND count( $post_payment['ppc_payment']['normal_payment'] ) ) continue;
+			
+			$single->ppc_count = $post_countings;
+			$single->ppc_payment = $post_payment['ppc_payment'];
+            $single->ppc_misc = apply_filters( 'ppc_stats_post_misc', $post_payment['ppc_misc'], $single->ID );
             
             $processed_data[$single->ID] = apply_filters( 'ppc_post_counting_payment_data', $single, $author );
         }

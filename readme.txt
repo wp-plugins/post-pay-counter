@@ -3,7 +3,7 @@ Contributors: Ste_95
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SM5Q9BVU4RT22
 Tags: counter, authors, payment, revenue sharing, stats, multi author, post management, post
 Tested up to: 4.0
-Stable tag: 2.40
+Stable tag: 2.41
 Requires at least: 3.7
 
 Easily handle authors' pay on a multi-author blog by computing posts' remuneration basing on admin defined rules with.
@@ -65,9 +65,10 @@ It must become: *define( 'PPC_DEBUG_LOG', false );*
 If you want to translate it in your own language and get a discount on the PRO version, [contact us](http://www.thecrowned.org/contact-me)!
 
 == Changelog ==
-= 2.40 =
-**Warning to PRO users**: this will break the PRO, wait until PRO version 1.5 will ship to your site and update that first.
+= 2.41 =
+* Fixed: overall stats not displaying data.
 
+= 2.40 =
 * New: centralized control of counting types - makes code easier, hopefully faster, and simple to hook for who wants to integrate with the plugin.
 * Tweak: welcome page css not being loaded on all wp-admin pages.
 * New: Pengu-ins logo added on plugin pages.

@@ -21,10 +21,10 @@ class PPC_generate_stats {
      */
     
     static function produce_stats( $time_start, $time_end, $author = NULL ) {
-        global $current_user;
+        global $current_user, $ppc_global_settings;
         
         $perm = new PPC_permissions();
-        
+		
         //If general stats & CU can't see others' general, behave as if detailed for him
         if( ! is_array( $author ) AND ! $perm->can_see_others_general_stats() )
             $requested_posts = PPC_generate_stats::get_requested_posts( $time_start, $time_end, array( $current_user->ID ) );
@@ -102,6 +102,8 @@ class PPC_generate_stats {
         remove_filter( 'posts_join', array( 'PPC_generate_stats', 'grp_filter_user_roles' ) );
         
 		do_action( 'ppc_got_requested_posts', $requested_posts );
+		
+		//var_dump($requested_posts);
 		
         if( $requested_posts->found_posts == 0 ) {
             $error = new PPC_Error( 'empty_selection', __( 'Error: no posts were selected' , 'ppc'), $args, false );
@@ -198,8 +200,10 @@ class PPC_generate_stats {
         }
 		
 		//Build payment tooltip
-		foreach( $sorted_array as $author => &$stats )
+		foreach( $sorted_array as $author => &$stats ) {
 			$stats['total']['ppc_misc']['tooltip_normal_payment'] = PPC_counting_stuff::build_payment_details_tooltip( $stats['total']['ppc_count']['normal_count'], $stats['total']['ppc_payment']['normal_payment'] );
+			$stats['total']['ppc_misc'] = apply_filters( 'ppc_stats_author_misc', $stats['total']['ppc_misc'], $author, $stats );
+		}
         
         return apply_filters( 'ppc_generated_raw_stats', $sorted_array );
     }
@@ -367,20 +371,20 @@ class PPC_generate_stats {
 			$overall_stats['payment'] += $single['total']['ppc_payment']['normal_payment']['total'];
 			
 			//Words total count
-			if( isset( $single['total']['ppc_count']['normal_count']['to_count']['words'] ) )
-				$overall_stats['count_words'] += $single['total']['ppc_count']['normal_count']['to_count']['words'];
+			if( isset( $single['total']['ppc_count']['normal_count']['words'] ) )
+				$overall_stats['count_words'] += $single['total']['ppc_count']['normal_count']['words']['to_count'];
 			
 			//Visits total count
-			if( isset( $single['total']['ppc_count']['normal_count']['to_count']['visits'] ) )
-				$overall_stats['count_visits'] += $single['total']['ppc_count']['normal_count']['to_count']['visits'];
+			if( isset( $single['total']['ppc_count']['normal_count']['visits'] ) )
+				$overall_stats['count_visits'] += $single['total']['ppc_count']['normal_count']['visits']['to_count'];
 			
 			//Images total count
-			if( isset( $single['total']['ppc_count']['normal_count']['to_count']['images'] ) )
-				$overall_stats['count_images'] += $single['total']['ppc_count']['normal_count']['to_count']['images'];
+			if( isset( $single['total']['ppc_count']['normal_count']['images'] ) )
+				$overall_stats['count_images'] += $single['total']['ppc_count']['normal_count']['images']['to_count'];
 			
 			//Comments total count
-			if( isset( $single['total']['ppc_count']['normal_count']['to_count']['comments'] ) )
-				$overall_stats['count_comments'] += $single['total']['ppc_count']['normal_count']['to_count']['comments'];
+			if( isset( $single['total']['ppc_count']['normal_count']['comments'] ) )
+				$overall_stats['count_comments'] += $single['total']['ppc_count']['normal_count']['comments']['to_count'];
         }
         
         return apply_filters( 'ppc_overall_stats', $overall_stats, $stats );

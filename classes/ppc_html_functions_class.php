@@ -224,7 +224,7 @@ class PPC_HTML_functions {
 		<td width="40%"><?php _e( 'Total displayed posts:', 'ppc' ); ?></td>
 		<td align="left" width="10%"><?php echo $overall_stats['posts']; ?></td>
 		<td width="35%"><?php _e( 'Total displayed payment:', 'ppc' ); ?></td>
-		<td align="left" width="15%"><?php echo sprintf( '%.2f', $overall_stats['payment'] ); ?></td>
+		<td align="left" width="15%"><?php echo PPC_general_functions::format_payment( sprintf( '%.2f', $overall_stats['payment'] ) ); ?></td>
 	</tr>
 	<tr>
 		<td width="40%"><?php _e( 'Total words count:', 'ppc' ); ?></td>
