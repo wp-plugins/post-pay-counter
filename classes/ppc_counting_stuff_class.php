@@ -352,14 +352,16 @@ class PPC_counting_stuff {
         $tooltip = '';
         
 		$counting_types = $ppc_global_settings['counting_types_object']->get_active_counting_types( 'post', self::$being_processed_author );
-        foreach( $payment as $id => $value ) { 
-            if( isset( $counting_types[$id] ) ) {
-				if( ! isset( $counting_types[$id]['payment_only'] ) OR $counting_types[$id]['payment_only'] == false )
-					$tooltip .= $counting_types[$id]['label'].': '.$countings[$id]['to_count'].' => '.PPC_general_functions::format_payment( sprintf( '%.2f', $value ) ).'&#13;';
-				else
-					$tooltip .= $counting_types[$id]['label'].': '.PPC_general_functions::format_payment( sprintf( '%.2f', $payment[$id] ) ).'&#13;';
+        if( ! empty( $payment ) ) {
+			foreach( $payment as $id => $value ) { 
+				if( isset( $counting_types[$id] ) ) {
+					if( ! isset( $counting_types[$id]['payment_only'] ) OR $counting_types[$id]['payment_only'] == false )
+						$tooltip .= $counting_types[$id]['label'].': '.$countings[$id]['to_count'].' => '.PPC_general_functions::format_payment( sprintf( '%.2f', $value ) ).'&#13;';
+					else
+						$tooltip .= $counting_types[$id]['label'].': '.PPC_general_functions::format_payment( sprintf( '%.2f', $payment[$id] ) ).'&#13;';
+				}
 			}
-        }
+		}
 		
         return apply_filters( 'ppc_payment_details_tooltip', $tooltip, $countings, $payment );
     }

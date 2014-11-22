@@ -36,6 +36,11 @@ class PPC_generate_stats {
         $cashed_requested_posts = PPC_counting_stuff::data2cash( $requested_posts, $author );
         if( is_wp_error( $cashed_requested_posts ) ) return $cashed_requested_posts;
         
+		if( empty( $cashed_requested_posts ) ) {
+            $error = new PPC_Error( 'cnt2cash_empty', __( 'Error: no posts were selected' , 'ppc'), array(), false );
+            return $error->return_error();
+        }
+		
         $grouped_by_author_stats = PPC_generate_stats::group_stats_by_author( $cashed_requested_posts );
         if( is_wp_error( $grouped_by_author_stats ) ) return $grouped_by_author_stats;
         
@@ -230,6 +235,9 @@ class PPC_generate_stats {
         
         if( is_array( $author ) ) {
             list( $author_id, $author_stats ) = each( $data ); 
+			
+			//if( empty( $author_stats ) ) return;
+			
             $post_stats = current( $author_stats ); //get first post object from stats to determine which countings should be shown
 			$counting_types = $ppc_global_settings['counting_types_object']->get_active_counting_types( 'post', $author_id );
 			
