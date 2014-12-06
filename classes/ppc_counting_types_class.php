@@ -54,7 +54,7 @@ class PPC_counting_types {
      *              count_callback - (optional) method to count "how many of the counting_type there are (eg. how many words, visits...)". 
      *                               Needs to return an array in the form array( 'to_count' => int, 'real' => int ).
      *                               Can (should) be a class method, in which case an array is needed (eg array( 'classname', 'static_method' ) or array( $object, 'method' ) ).
-     *                               Will receive the $post WP_Post_Object as parameter.
+     *                               Will receive the $post WP_Post_Object as parameter if apply_to = post, will receive author stats and author id if apply_to = author.
      *                               If no count_callback is given, a dummy method will assign 1 as value of the count.
      *              display - (optional) what you want to be displayed in the stats, possible values are 'count', 'payment', 'both', 'none'. Default to 'both'. 
      *              payment_callback - method to compute payment of the counted "how many". Will receive the counting output array as parameter.

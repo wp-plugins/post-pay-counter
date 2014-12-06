@@ -226,21 +226,33 @@ class PPC_HTML_functions {
 		<td width="35%"><?php _e( 'Total displayed payment:', 'ppc' ); ?></td>
 		<td align="left" width="15%"><?php echo PPC_general_functions::format_payment( sprintf( '%.2f', $overall_stats['payment'] ) ); ?></td>
 	</tr>
-	<tr>
-		<td width="40%"><?php _e( 'Total words count:', 'ppc' ); ?></td>
-		<td align="left" width="10%"><?php echo $overall_stats['count_words']; ?></td>
-		<td width="35%"><?php _e( 'Total visits count:', 'ppc' ); ?></td>
-		<td align="left" width="15%"><?php echo $overall_stats['count_visits']; ?></td>
-	</tr>
-	<tr>
-		<td width="40%"><?php _e( 'Total images count:', 'ppc' ); ?></td>
-		<td align="left" width="10%"><?php echo $overall_stats['count_images']; ?></td>
-		<td width="35%"><?php _e( 'Total comments count:', 'ppc' ); ?></td>
-		<td align="left" width="15%"><?php echo $overall_stats['count_comments']; ?></td>
-	</tr>
 	
 		<?php
 		do_action( 'ppc_html_overall_stats', $overall_stats );
+		?>
+	
+	<tr><td colspan="4"></td></tr>
+	<tr><td colspan="4" style="text-align: center; font-size: smaller;"><strong><?php echo strtoupper( __( 'counts', 'ppc' ) ); ?></strong></td></tr>
+	
+		<?php
+		$n = 0;
+		foreach( $overall_stats['count'] as $single => $data ) {
+			if( $n % 2 == 0 )
+				echo '<tr>';
+				
+		?>
+		
+		<td width="40%"><?php printf( __( 'Total %s count:', 'ppc' ), $single ); ?></td>
+		<td align="left" width="10%"><?php echo $data ?></td>
+	
+		<?php 
+			if( $n % 2 == 1 )
+				echo '</tr>';
+			
+			++$n;
+		}
+	
+		do_action( 'ppc_html_overall_stats_counts', $overall_stats );
 		?>
 	
 </table>

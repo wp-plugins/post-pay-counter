@@ -72,7 +72,7 @@ class PPC_counting_stuff {
             $post_countings = self::get_post_countings( $single );
             $post_payment = self::get_post_payment( $post_countings['normal_count'], $single->ID );
             
-			if( count( $post_countings['normal_count'] ) == 0 AND count( $post_payment['ppc_payment']['normal_payment'] ) ) continue;
+			if( count( $post_countings['normal_count'] ) == 0 AND count( $post_payment['ppc_payment']['normal_payment'] ) == 0 ) continue;
 			
 			$single->ppc_count = $post_countings;
 			$single->ppc_payment = $post_payment['ppc_payment'];
@@ -116,7 +116,6 @@ class PPC_counting_stuff {
      *
      * @access  public
      * @since   2.27
-     * @param   $post object the WP post object
 	 * @param	$real_counting int the real (without thresholds) counting number for the given counting type
 	 * @param	$threshold_min int lower threshold value
 	 * @param	$threshold_max int upper threshold value
@@ -124,7 +123,7 @@ class PPC_counting_stuff {
      * @return  array the counting data (real + to_count)
      */
     
-    static function get_post_counting( $post, $real_counting, $threshold_min, $threshold_max, $what ) {
+    static function get_post_counting( $real_counting, $threshold_min, $threshold_max, $what ) {
         $post_counting = array( 
             'real' => (int) $real_counting,
             'to_count' => 0 
@@ -177,7 +176,7 @@ class PPC_counting_stuff {
                 ++$post_images;
         }
         
-        $post_images = self::get_post_counting( $post, $post_images, self::$settings['counting_images_threshold_min'], self::$settings['counting_images_threshold_max'], 'images' );
+        $post_images = self::get_post_counting( $post_images, self::$settings['counting_images_threshold_min'], self::$settings['counting_images_threshold_max'], 'images' );
         
         return apply_filters( 'ppc_counted_post_images', $post_images, $post->ID );
     }
@@ -192,7 +191,7 @@ class PPC_counting_stuff {
      */
     
     static function count_post_comments( $post ) {
-        $post_comments = self::get_post_counting( $post, $post->comment_count, self::$settings['counting_comments_threshold_min'], self::$settings['counting_comments_threshold_max'], 'comments' );
+        $post_comments = self::get_post_counting( $post->comment_count, self::$settings['counting_comments_threshold_min'], self::$settings['counting_comments_threshold_max'], 'comments' );
         
         return apply_filters( 'ppc_counted_post_comments', $post_comments, $post->ID );
     }
@@ -323,7 +322,10 @@ class PPC_counting_stuff {
         
         $ppc_payment = array();
         
-		$counting_types = $ppc_global_settings['counting_types_object']->get_active_counting_types( 'post', self::$being_processed_author );
+		$post_counting_types = $ppc_global_settings['counting_types_object']->get_active_counting_types( 'post', self::$being_processed_author );
+		$author_counting_types = $ppc_global_settings['counting_types_object']->get_active_counting_types( 'author', self::$being_processed_author );
+		$counting_types = array_merge( $post_counting_types, $author_counting_types );
+		
         foreach( $countings as $id => $value ) {
             if( isset( $counting_types[$id] ) ) { 
                 $counting_type_payment = call_user_func( $counting_types[$id]['payment_callback'], $value );
@@ -351,7 +353,10 @@ class PPC_counting_stuff {
         
         $tooltip = '';
         
-		$counting_types = $ppc_global_settings['counting_types_object']->get_active_counting_types( 'post', self::$being_processed_author );
+		$post_counting_types = $ppc_global_settings['counting_types_object']->get_active_counting_types( 'post', self::$being_processed_author );
+		$author_counting_types = $ppc_global_settings['counting_types_object']->get_active_counting_types( 'author', self::$being_processed_author );
+		$counting_types = array_merge( $post_counting_types, $author_counting_types);
+		
         if( ! empty( $payment ) ) {
 			foreach( $payment as $id => $value ) { 
 				if( isset( $counting_types[$id] ) ) {

@@ -4,7 +4,7 @@ Plugin Name: Post Pay Counter
 Plugin URI: http://www.thecrowned.org/wordpress-plugins/post-pay-counter
 Description: Easily handle authors' payments on a multi-author blog by computing posts' remuneration basing on admin defined rules.
 Author: Stefano Ottolenghi
-Version: 2.42
+Version: 2.43
 Author URI: http://www.thecrowned.org/
 */
 
@@ -53,7 +53,7 @@ class post_pay_counter {
         global $ppc_global_settings;
         
         $ppc_global_settings['current_version'] = get_option( 'ppc_current_version' );
-        $ppc_global_settings['newest_version'] = '2.42';
+        $ppc_global_settings['newest_version'] = '2.43';
         $ppc_global_settings['option_name'] = 'ppc_settings';
         $ppc_global_settings['option_errors'] = 'ppc_errors';
 		$ppc_global_settings['transient_error_deletion'] = 'ppc_error_daily_deletion';
@@ -236,6 +236,7 @@ class post_pay_counter {
         wp_enqueue_style( 'jquery.tooltip.theme', $ppc_global_settings['folder_path'].'style/tipTip.css' );
         wp_enqueue_style( 'ppc_header_style', $ppc_global_settings['folder_path'].'style/ppc_header_style.css', array( 'wp-admin' ) );
 		wp_enqueue_style( 'ppc_options_style', $ppc_global_settings['folder_path'].'style/ppc_options_style.css', array( 'wp-admin' ) );
+		wp_enqueue_style( 'ppc_options_style_old', $ppc_global_settings['folder_path'].'style/ppc_options_style_old.css', array( 'wp-admin' ) );
         wp_enqueue_script( 'jquery-tooltip-plugin', $ppc_global_settings['folder_path'].'js/jquery.tiptip.min.js', array( 'jquery' ) );
         wp_enqueue_script( 'ppc_options_ajax_stuff', $ppc_global_settings['folder_path'].'js/ppc_options_ajax_stuff.js', array( 'jquery' ) );
         wp_localize_script( 'ppc_options_ajax_stuff', 'ppc_options_ajax_stuff_vars', array(
@@ -412,10 +413,10 @@ class post_pay_counter {
 	<?php PPC_HTML_functions::display_header_logo(); ?>
 	
 	<div id="ppc_header">
-		<div id="ppc_header_links">
-		<?php echo apply_filters( 'ppc_options_installed_version', __( 'Installed version' , 'ppc' ).': '.$ppc_global_settings['current_version'].' - <a href="http://www.thecrowned.org/forums/forum/post-pay-counter" title="'.__( 'Support', 'ppc' ).'" target="_blank">'.__( 'Support', 'ppc' ).'</a>' ); ?>
-		</div>
 		<div id="ppc_header_text">
+			<div id="ppc_header_links">
+			<?php echo apply_filters( 'ppc_options_installed_version', __( 'Installed version' , 'ppc' ).': '.$ppc_global_settings['current_version'].' - <a href="http://www.thecrowned.org/forums/forum/post-pay-counter" title="'.__( 'Support', 'ppc' ).'" target="_blank">'.__( 'Support', 'ppc' ).'</a> - <a href="http://www.thecrowned.org/post-pay-counter-cat" title="'.__( 'Tutorials', 'ppc' ).'" target="_blank">'.__( 'Tutorials', 'ppc' ).'</a>' ); ?>
+			</div>
 			<h2>Post Pay Counter - <?php _e( 'Options', 'ppc' ); ?></h2>
 			<p><?php _e( 'The Post Pay Counter plugin is ready to make handling authors\' payments much, much easier, starting from... now! From this page you can set the plugin up, customizing each possible feature to best suit your needs. Options are divided into groups, and for each of the following boxes you will find details of all the features of the plugin and, for most of them, additional details and examples are available by clicking on the info icon on the right of them.', 'ppc' ); ?></p>
 			<p><?php printf( __( 'Don\'t forget to take our %1$sfeatures survey%2$s to let us know what functions you\'d like to see in future releases of the plugin! Also, if you like this plugin, you may be interested in trying the shiny %3$sPRO version%2$s, containing a whole lot of useful features!', 'ppc' ), '<a href="http://www.thecrowned.org/post-pay-counter-pro-features-survey" title="'.__( 'Features survey', 'ppc' ).'" target="_blank">', '</a>', '<a href="http://www.thecrowned.org/post-pay-counter-pro?utm_source=users_site&utm_medium=options_description&utm_campaign=ppcp" title="Post Pay Counter PRO" target="_blank">' ); ?></p>

@@ -3,7 +3,7 @@ Contributors: Ste_95
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SM5Q9BVU4RT22
 Tags: counter, authors, payment, revenue sharing, stats, multi author, post management, post
 Tested up to: 4.0
-Stable tag: 2.42
+Stable tag: 2.43
 Requires at least: 3.7
 
 Easily handle authors' pay on a multi-author blog by computing posts' remuneration basing on admin defined rules with.
@@ -65,6 +65,15 @@ It must become: *define( 'PPC_DEBUG_LOG', false );*
 If you want to translate it in your own language and get a discount on the PRO version, [contact us](http://www.thecrowned.org/contact-me)!
 
 == Changelog ==
+= 2.43 =
+* Fixed: if a maximum payment threshold was set with payment only when the threshold was reached, and no posts across all authors reached the threhsold, some warnings would be shown with no explanation of the problem.
+* Fixed: PRO version payment bonus not showing in the stats (although was counted for payment).
+* Fixed: options page style showing messed up on some sites.
+* Tweak: dinamically generating overall stats (if some payment types are disabled, they are not displayed).
+* Tweak: stats generation is a bit less memory demanding.
+* Fixed: warning again for users with no counting types enabled.
+* Tweak: updated italian translation.
+
 = 2.42 =
 * Fixed: warnings in shortcoded (PRO) and maybe admin stats if current user didn't have any counting types enabled.
 
