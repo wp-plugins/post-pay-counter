@@ -91,7 +91,7 @@ class PPC_counting_types {
         //Counting types are stored in the global var 
         if( $parameters['apply_to'] == 'both' ) {
             $this->counting_types['post'][$parameters['id']] = apply_filters( 'ppc_define_counting_type', $counting_type_arr );
-            //$this->counting_types['author'][$parameters['id']] = apply_filters( 'ppc_define_counting_type', $counting_type_arr );
+            $this->counting_types['author'][$parameters['id']] = apply_filters( 'ppc_define_counting_type', $counting_type_arr );
         } else {
             $this->counting_types[$parameters['apply_to']][$parameters['id']] = apply_filters( 'ppc_define_counting_type', $counting_type_arr );
         }

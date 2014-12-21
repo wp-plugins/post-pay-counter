@@ -2,7 +2,7 @@
 	float: right; 
 	width: 11%;
 	margin-top: 23px;
-	margin-right: -135px; 
+	margin-right: -10%; 
 	margin-bottom: 3px; 
 	text-align: center;
 }
@@ -19,8 +19,8 @@
 	color: inherit;
 }
 #ppc_header {
-	float:left; 
-	width:86%;
+	float: left; 
+	width: 85%;
 	margin-bottom: 5px;
 }
 #ppc_header_links {

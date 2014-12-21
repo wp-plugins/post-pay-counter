@@ -4,7 +4,7 @@ Plugin Name: Post Pay Counter
 Plugin URI: http://www.thecrowned.org/wordpress-plugins/post-pay-counter
 Description: Easily handle authors' payments on a multi-author blog by computing posts' remuneration basing on admin defined rules.
 Author: Stefano Ottolenghi
-Version: 2.43
+Version: 2.44
 Author URI: http://www.thecrowned.org/
 */
 
@@ -53,7 +53,7 @@ class post_pay_counter {
         global $ppc_global_settings;
         
         $ppc_global_settings['current_version'] = get_option( 'ppc_current_version' );
-        $ppc_global_settings['newest_version'] = '2.43';
+        $ppc_global_settings['newest_version'] = '2.44';
         $ppc_global_settings['option_name'] = 'ppc_settings';
         $ppc_global_settings['option_errors'] = 'ppc_errors';
 		$ppc_global_settings['transient_error_deletion'] = 'ppc_error_daily_deletion';
@@ -197,14 +197,14 @@ class post_pay_counter {
         else
             $first_available_post_time = strtotime( $first_available_post->posts[0]->post_date );
         
-        wp_enqueue_script( 'jquery-ui-datepicker', $ppc_global_settings['folder_path'].'js/jquery.ui.datepicker.min.js', array( 'jquery', 'jquery-ui-core' ) );
+        wp_enqueue_script( 'jquery-ui-datepicker' );
         wp_enqueue_style( 'jquery.ui.theme', $ppc_global_settings['folder_path'].'style/ui-lightness/jquery-ui-1.8.15.custom.css' );
         wp_enqueue_style( 'ppc_header_style', $ppc_global_settings['folder_path'].'style/ppc_header_style.css', array( 'wp-admin' ) );
 		wp_enqueue_style( 'ppc_stats_style', $ppc_global_settings['folder_path'].'style/ppc_stats_style.css' );
         wp_enqueue_script( 'ppc_stats_effects', $ppc_global_settings['folder_path'].'js/ppc_stats_effects.js', array( 'jquery' ) );
         wp_localize_script( 'ppc_stats_effects', 'ppc_stats_effects_vars', array(
-            'datepicker_mindate' => date( 'y/m/d', $first_available_post_time ),
-            'datepicker_maxdate' => date( 'y/m/d', current_time( 'timestamp' ) )
+            'datepicker_mindate' => date( 'Y-m-d', $first_available_post_time ),
+            'datepicker_maxdate' => date( 'Y-m-d', current_time( 'timestamp' ) )
         ) );
     } 
     
@@ -227,7 +227,6 @@ class post_pay_counter {
         if( ! isset( $_GET['userid'] ) OR ( isset( $_GET['userid'] ) AND ! is_numeric( $_GET['userid'] ) ) ) {
             add_meta_box( 'ppc_personalize_settings', __( 'Personalize Settings', 'ppc' ), array( 'PPC_meta_boxes', 'meta_box_personalize_settings' ), $ppc_global_settings['options_menu_slug'], 'side', 'default', self::$options_page_settings );
             add_meta_box( 'ppc_misc_settings', __( 'Miscellanea', 'ppc' ), array( 'PPC_meta_boxes', 'meta_box_misc_settings' ), $ppc_global_settings['options_menu_slug'], 'normal', 'default', self::$options_page_settings );
-            //add_meta_box( 'ppc_trial_settings', 'Trial Settings', array( $this, 'meta_box_trial_settings' ), $ppc_global_settings['options_menu_slug'], 'normal', 'default', self::$options_page_settings );
         }
         
         add_meta_box( 'ppc_import_export_settings', __( 'Import/Export Settings', 'ppc' ), array( 'PPC_meta_boxes', 'meta_box_import_export_settings' ), $ppc_global_settings['options_menu_slug'], 'side', 'default', self::$options_page_settings );
@@ -275,47 +274,39 @@ class post_pay_counter {
     */
    
     function on_load_options_page_get_settings() {
-        //Trial settings
-        /*if( isset( $_GET['userid'] ) AND $_GET['userid'] == 'trial' ) {
-            self::$options_page_settings = PPC_general_functions::get_settings( 'trial' ); 
-        
-        //NOT trial
-        } else {*/
-            
-            //Numeric userid
-            if( isset( $_GET['userid'] ) AND is_numeric( $_GET['userid'] ) ) {
-                
-                if( ! get_userdata( (int) $_GET['userid'] ) ) {
-                    echo '<strong>'.__( 'The requested user does not exist.' , 'ppc').'</strong>';
-                    return;
-                }
-				
-                $settings = PPC_general_functions::get_settings( (int) $_GET['userid'], true );
-                
-                //User who never had personalized settings is being set
-                if( $settings['userid'] == 'general' ) {
-                    $settings['userid'] = (int) $_GET['userid'];
-                    unset( $settings['multisite_settings_rule'] );
-                    unset( $settings['can_see_options_user_roles'] );
-                    unset( $settings['can_see_stats_user_roles'] );
-                    unset( $settings['counting_allowed_user_roles'] );
-                    unset( $settings['counting_allowed_post_types'] );
-                    unset( $settings['default_stats_time_range_month'] );
-                    unset( $settings['default_stats_time_range_week'] );
-                    unset( $settings['default_stats_time_range_custom'] );
-                    unset( $settings['default_stats_time_range_custom_value'] );
-                }
-                
-                $settings = apply_filters( 'ppc_unset_only_general_settings_personalize_user', $settings );
-            
-            //General
-            } else {
-                $settings = PPC_general_functions::get_settings( 'general' );
-            }
-            
-            $settings = apply_filters( 'ppc_selected_options_settings', $settings );
-            self::$options_page_settings = $settings;
-        //}
+		//Numeric userid
+		if( isset( $_GET['userid'] ) AND is_numeric( $_GET['userid'] ) ) {
+			
+			if( ! get_userdata( (int) $_GET['userid'] ) ) {
+				echo '<strong>'.__( 'The requested user does not exist.' , 'ppc').'</strong>';
+				return;
+			}
+			
+			$settings = PPC_general_functions::get_settings( (int) $_GET['userid'], true );
+			
+			//User who never had personalized settings is being set
+			if( $settings['userid'] == 'general' ) {
+				$settings['userid'] = (int) $_GET['userid'];
+				unset( $settings['multisite_settings_rule'] );
+				unset( $settings['can_see_options_user_roles'] );
+				unset( $settings['can_see_stats_user_roles'] );
+				unset( $settings['counting_allowed_user_roles'] );
+				unset( $settings['counting_allowed_post_types'] );
+				unset( $settings['default_stats_time_range_month'] );
+				unset( $settings['default_stats_time_range_week'] );
+				unset( $settings['default_stats_time_range_custom'] );
+				unset( $settings['default_stats_time_range_custom_value'] );
+			}
+			
+			$settings = apply_filters( 'ppc_unset_only_general_settings_personalize_user', $settings );
+		
+		//General
+		} else {
+			$settings = PPC_general_functions::get_settings( 'general' );
+		}
+		
+		$settings = apply_filters( 'ppc_selected_options_settings', $settings );
+		self::$options_page_settings = $settings;
     }
     
     /**
