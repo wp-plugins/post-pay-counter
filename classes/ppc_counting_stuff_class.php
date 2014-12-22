@@ -170,13 +170,13 @@ class PPC_counting_stuff {
     static function count_post_images( $post ) {
         $post_images = (int) preg_match_all( '/<img[^>]*>/', $post->post_content, $array );
         
-		//Maybe include features image in counting
+		//Maybe include featured image in counting
         if( self::$settings['counting_images_include_featured'] ) {
             if( has_post_thumbnail( $post->ID ) )
                 ++$post_images;
         }
         
-        $post_images = self::get_post_counting( $post_images, self::$settings['counting_images_threshold_min'], self::$settings['counting_images_threshold_max'], 'images' );
+        $post_images = self::get_post_counting( (int) $post_images, self::$settings['counting_images_threshold_min'], self::$settings['counting_images_threshold_max'], 'images' );
         
         return apply_filters( 'ppc_counted_post_images', $post_images, $post->ID );
     }
@@ -191,7 +191,7 @@ class PPC_counting_stuff {
      */
     
     static function count_post_comments( $post ) {
-        $post_comments = self::get_post_counting( $post->comment_count, self::$settings['counting_comments_threshold_min'], self::$settings['counting_comments_threshold_max'], 'comments' );
+        $post_comments = self::get_post_counting( (int) $post->comment_count, self::$settings['counting_comments_threshold_min'], self::$settings['counting_comments_threshold_max'], 'comments' );
         
         return apply_filters( 'ppc_counted_post_comments', $post_comments, $post->ID );
     }
@@ -327,7 +327,9 @@ class PPC_counting_stuff {
 		$counting_types = array_merge( $post_counting_types, $author_counting_types );
 		
         foreach( $countings as $id => $value ) {
-            if( isset( $counting_types[$id] ) ) { 
+            if( isset( $counting_types[$id] ) ) {
+				if( isset( $counting_types[$id]['payment_only'] ) AND $counting_types[$id]['payment_only'] == true ) continue;
+				
                 $counting_type_payment = call_user_func( $counting_types[$id]['payment_callback'], $value );
                 $ppc_payment[$id] = $counting_type_payment;
             }

@@ -177,21 +177,28 @@ class PPC_HTML_functions {
             foreach( $formatted_stats['stats'] as $author => $author_stats ) {
                 echo '<tr>';
                 
-                foreach( $author_stats as $field_name => $field_value ) {
-                    //Cases in which other stuff needs to be added to the output
-                    switch( $field_name ) {
-                        case 'author_name':
-                            if( $perm->can_see_others_detailed_stats() OR $author == $current_user->ID )
-                                $field_value = '<a href="'.PPC_general_functions::get_the_author_link( $author ).'" title="'.__( 'Go to detailed view' , 'ppc').'">'.$field_value.'</a>';
-                            
-                            break;
-                        
-                        case 'author_total_payment':
-                            $field_value = '<abbr title="'.$raw_stats[$author]['total']['ppc_misc']['tooltip_normal_payment'].'" class="ppc_payment_column">'.$field_value.'</abbr>';
-                            break;
-                    }
-                    
-                    echo '<td class="'.$field_name.'">'.apply_filters( 'ppc_general_stats_html_each_field_value', $field_value, $field_name, $raw_stats[$author] ).'</td>';
+				foreach( $formatted_stats['cols'] as $field_name => $label ) {
+					if( isset( $author_stats[$field_name] ) ) {
+						$field_value = $author_stats[$field_name];
+						
+						//Cases in which other stuff needs to be added to the output
+						switch( $field_name ) {
+							case 'author_name':
+								if( $perm->can_see_others_detailed_stats() OR $author == $current_user->ID )
+									$field_value = '<a href="'.PPC_general_functions::get_the_author_link( $author ).'" title="'.__( 'Go to detailed view' , 'ppc').'">'.$field_value.'</a>';
+								
+								break;
+							
+							case 'author_total_payment':
+								$field_value = '<abbr title="'.$raw_stats[$author]['total']['ppc_misc']['tooltip_normal_payment'].'" class="ppc_payment_column">'.$field_value.'</abbr>';
+								break;
+						}
+						
+						echo '<td class="'.$field_name.'">'.apply_filters( 'ppc_general_stats_html_each_field_value', $field_value, $field_name, $raw_stats[$author] ).'</td>';
+					
+					} else {
+						echo '<td class="'.$field_name.'">'.apply_filters( 'ppc_general_stats_html_each_field_empty_value', 0, $field_name, $raw_stats[$author] ).'</td>';
+					}
                 }
                 
                 do_action( 'ppc_general_stats_html_after_each_default', $author, $formatted_stats, $raw_stats );
