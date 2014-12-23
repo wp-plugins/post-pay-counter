@@ -17,6 +17,7 @@ The Post Pay Counter plugin allows you to easily calculate and handle authors' p
 * Old stats availability. View posts countings since the first written post, disregarding the plugin install date. A fancy date picker lets you shift between days and select the desired range.
 * Personalize user's settings, so that special settings only apply to a particular user. Different settings can be made viewable in the stats or hidden depending on your needs.
 * Customizable permissions to prevent your users to see stats and use functions they are not supposed to.
+* Extend with your own custom implementation through hooks, filters and special API features.
 * And... works with custom post types, narrow your payments only to chosen user groups, and more.
 
 **Also, we have a [PRO version](http://www.thecrowned.org/post-pay-counter-pro?utm_source=wprep&utm_medium=link&utm_campaign=ppcp) with many more features!** (among which integration with Analytics, PayPal, and so much more)
