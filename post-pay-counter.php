@@ -4,7 +4,7 @@ Plugin Name: Post Pay Counter
 Plugin URI: http://www.thecrowned.org/wordpress-plugins/post-pay-counter
 Description: Easily handle authors' payments on a multi-author blog by computing posts' remuneration basing on admin defined rules.
 Author: Stefano Ottolenghi
-Version: 2.45
+Version: 2.46
 Author URI: http://www.thecrowned.org/
 */
 
@@ -41,6 +41,7 @@ require_once( 'classes/ppc_system_info_class.php' );
 require_once( 'classes/ppc_error_class.php' );
 require_once( 'classes/ppc_welcome_class.php' );
 require_once( 'classes/ppc_addons_class.php' );
+require_once( 'classes/ppc_notifications_class.php' );
 require_once( 'classes/ppc_counting_types_class.php' );
 
 define( 'PPC_DEBUG_SHOW', false );
@@ -53,7 +54,7 @@ class post_pay_counter {
         global $ppc_global_settings;
         
         $ppc_global_settings['current_version'] = get_option( 'ppc_current_version' );
-        $ppc_global_settings['newest_version'] = '2.45';
+        $ppc_global_settings['newest_version'] = '2.46';
         $ppc_global_settings['option_name'] = 'ppc_settings';
         $ppc_global_settings['option_errors'] = 'ppc_errors';
 		$ppc_global_settings['transient_error_deletion'] = 'ppc_error_daily_deletion';
@@ -102,8 +103,8 @@ class post_pay_counter {
         add_filter( 'plugin_action_links', array( $this, 'ppc_settings_meta_link' ), 10, 2 );
         add_filter( 'plugin_row_meta', array( $this, 'ppc_donate_meta_link' ), 10, 2 );
         
-        //Notifications through WP pointers
-        //add_action( 'admin_enqueue_scripts', array( $this, 'pointer_enqueue_script_style' ) );
+        //Notifications
+        add_action( 'init', array( $this, 'load_notifications' ) );
         
         //Hook to show the posts' word count as a column in the posts list
         //add_filter( 'manage_posts_columns', array( $this, 'post_pay_counter_column_word_count' ) );
@@ -117,6 +118,7 @@ class post_pay_counter {
         add_action( 'wp_ajax_ppc_vaporize_user_settings', array( 'PPC_ajax_functions', 'vaporize_user_settings' ) );
         add_action( 'wp_ajax_ppc_import_settings', array( 'PPC_ajax_functions', 'import_settings' ) );
         add_action( 'wp_ajax_ppc_clear_error_log', array( 'PPC_ajax_functions', 'clear_error_log' ) );
+		add_action( 'wp_ajax_ppc_dismiss_notification', array( 'PPC_ajax_functions', 'dismiss_notification' ) );
     }
     
     /**
@@ -309,6 +311,52 @@ class post_pay_counter {
 		self::$options_page_settings = $settings;
     }
     
+	/**
+     * Adds a simple WordPress notice to plugin's page
+     * 
+     * @access  public
+     * @since   2.46
+     */
+    
+    function load_notifications() {
+    	global $current_page;
+        
+        if( ! current_user_can( 'manage_options' ) ) return;
+        
+        //Get notifications to be displayed
+		$notifications = PPC_notifications::notifications_get_list();
+		
+		if( empty( $notifications ) ) return;
+		
+    	//Get array list of dismissed notifications for current user and convert it to array
+    	$dismissed_notifications = get_option( 'ppc_dismissed_notifications', array() );
+    
+		foreach( $notifications as $single ) {
+			//Check if notification is not among dismissed ones
+			if( in_array( $single['id'], $dismissed_notifications ) )
+				continue;
+    		
+			//Check where notification should be shown
+			switch( $single['display'] ) {
+				case 'stats':
+					if( strpos( 'ppc-stats', $current_page ) === 0 )
+						continue;
+				
+				case 'options':
+					if( strpos( 'ppc-options', $current_page ) === 0 )
+						continue;
+				
+				case 'plugin':
+					if( strpos( 'ppc-', $current_page ) === 0 )
+						continue;
+			}
+			
+    		//Load notification
+    		$notification = new PPC_notifications( $single );
+			add_action( 'admin_notices', array( $notification, 'display_notification' ) );
+    	}
+    }
+	
     /**
      * Loads localization files
      *
@@ -563,76 +611,9 @@ class post_pay_counter {
 	
 	<?php
     }
-    
-    /**
-     * Adds a simple WordPress pointer to plugin's menu
-     * 
-     * @access  public
-     * @since   2.0.8
-     */
-    
-    /*function pointer_enqueue_script_style() {
-    	global $current_user;
-        
-        // Assume pointer shouldn't be shown
-    	$enqueue_pointer_script_style = false;
-    
-    	// Get array list of dismissed pointers for current user and convert it to array
-    	$dismissed_pointers = explode( ',', get_user_meta( $current_user->ID, 'dismissed_wp_pointers', true ) );
-    
-    	// Check if our pointer is not among dismissed ones
-    	if( ! in_array( 'ppc_pro_available_208', $dismissed_pointers ) ) {
-    		$enqueue_pointer_script_style = true;
-    		
-    		// Add footer scripts using callback function
-    		add_action( 'admin_print_footer_scripts', array( &$this, 'pointer_print_scripts' ) );
-    	}
-    
-    	// Enqueue pointer CSS and JS files, if needed
-    	if( $enqueue_pointer_script_style ) {
-    		wp_enqueue_style( 'wp-pointer' );
-    		wp_enqueue_script( 'wp-pointer' );
-    	}
-    }
-
-    /**
-     * Adds a simple WordPress pointer to plugin's menu
-     * 
-     * @access  public
-     * @since   2.0.8
-     */
-     
-    /*function pointer_print_scripts() {
-    	$pointer_content  = "<h3>Post Pay Counter PRO available</h3>";
-    	$pointer_content .= "<p>Get the new PRO version and benefit from a whole new range of features! Go to the Options page for more information.</p>";
-    	?>
-    	
-    	<script type="text/javascript">
-    	//<![CDATA[
-    	jQuery(document).ready( function($) {
-    		$('#toplevel_page_post_pay_counter_show_stats').pointer({
-    			content:		'<?php echo $pointer_content; ?>',
-    			position:		{
-    								edge:	'left', // arrow direction
-    								align:	'center' // vertical alignment
-    							},
-    			pointerWidth:	300,
-    			close:			function() {
-    								$.post( ajaxurl, {
-    										pointer: 'ppc_pro_available_208', // pointer ID
-    										action: 'dismiss-wp-pointer'
-    								});
-    							}
-    		}).pointer('open');
-    	});
-    	//]]>
-    	</script>
-    
-    <?php }*/
 }
 
 global $ppc_global_settings;
 $ppc_global_settings = array();
 new post_pay_counter();
-
 ?>

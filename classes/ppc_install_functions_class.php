@@ -131,6 +131,7 @@ class PPC_install_functions {
                 'counting_images_threshold_min' => 2,
                 'counting_images_threshold_max' => 10,
                 'counting_images_include_featured' => 1,
+				'counting_images_include_galleries' => 1,
                 'counting_comments' => 1,
                 'counting_comments_system_zonal' => 0,
                 'counting_comments_system_zonal_value' => array(
@@ -239,6 +240,7 @@ class PPC_install_functions {
                 'counting_images_value' => 0.2,
                 'counting_images_threshold_max' => 10,
                 'counting_images_include_featured' => 1,
+				'counting_images_include_galleries' => 1,
                 'counting_comments' => 1,
                 'counting_comments_system_zonal' => 0,
                 'counting_comments_system_zonal_value' => array(

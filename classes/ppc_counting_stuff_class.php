@@ -168,7 +168,17 @@ class PPC_counting_stuff {
      */
     
     static function count_post_images( $post ) {
-        $post_images = (int) preg_match_all( '/<img[^>]*>/', $post->post_content, $array );
+        //Maybe include gallery images
+		if( self::$settings['counting_images_include_galleries'] ) {
+			$gallery_images = get_post_galleries( $post, true );
+			
+			if( ! empty( $gallery_images ) ) {
+				foreach( $gallery_images as $single )
+					$post->post_content .= $single;
+			}
+		}
+		
+		$post_images = (int) preg_match_all( '/<img[^>]*>/', $post->post_content, $array );
         
 		//Maybe include featured image in counting
         if( self::$settings['counting_images_include_featured'] ) {

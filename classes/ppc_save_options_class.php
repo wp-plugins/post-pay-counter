@@ -33,6 +33,7 @@ class PPC_save_options {
         $new_settings['counting_visits']  = @PPC_options_fields::get_checkbox_value( $settings['counting_visits'] );
         $new_settings['counting_images'] = @PPC_options_fields::get_checkbox_value( $settings['counting_images'] );
         $new_settings['counting_images_include_featured'] = @PPC_options_fields::get_checkbox_value( $settings['counting_images_include_featured'] );
+		$new_settings['counting_images_include_galleries'] = @PPC_options_fields::get_checkbox_value( $settings['counting_images_include_galleries'] );
         $new_settings['counting_comments'] = @PPC_options_fields::get_checkbox_value( $settings['counting_comments'] );
         $new_settings['counting_payment_only_when_total_threshold'] = @PPC_options_fields::get_checkbox_value( $settings['counting_payment_only_when_total_threshold'] );
         $new_settings['counting_exclude_quotations'] = @PPC_options_fields::get_checkbox_value( $settings['counting_exclude_quotations'] );

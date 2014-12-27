@@ -92,9 +92,8 @@ class PPC_meta_boxes {
         foreach ( $all_post_types as $single ) {
             $checked = '';
             
-            if( in_array( $single, $allowed_post_types ) ) {
+            if( in_array( $single, $allowed_post_types ) )
                 $checked = 'checked="checked"';
-            }
                 
             echo '<input type="checkbox" name="post_type_'.$single.'" id="post_type_'.$single.'" value="'.$single.'" '.$checked.' />';
             echo '<label for="post_type_'.$single.'">'.ucfirst( $single ).'</label>';
@@ -226,7 +225,7 @@ class PPC_meta_boxes {
         
         //Words payment
         echo '<div class="ppc_section">';
-        echo '<div class="ppc_title">'.__( 'Payment on word counting' , 'ppc').'</div>';
+        echo '<div class="ppc_title">'.__( 'Words Payment' , 'ppc').'</div>';
         echo '<div class="main">';
         echo PPC_HTML_functions::echo_p_field( __( 'Words contribute to payment computation' , 'ppc'), $current_settings['counting_words'], 'checkbox', 'counting_words', __( 'You may define a post value basing on the number of words that make it up as well. The longer a post is, the more time is supposed to have taken the author to write it, the more it should be paid. You will be able to choose how much each word is worth.' , 'ppc'), NULL, 'counting_words' );
         echo '</div>';
@@ -241,7 +240,7 @@ class PPC_meta_boxes {
         
         //Visits payment
         echo '<div class="ppc_section">';
-        echo '<div class="ppc_title">'.__( 'Payment on visit counting' , 'ppc').'</div>';
+        echo '<div class="ppc_title">'.__( 'Visits Payment' , 'ppc').'</div>';
         echo '<div class="main">';
         echo PPC_HTML_functions::echo_p_field( __( 'Visits contribute to payment computation' , 'ppc'), $current_settings['counting_visits'], 'checkbox', 'counting_visits', __( 'You may define a post value basing on the number of visits that it registers as well. The more people see a post, the more interesting the post is supposed to be, the more it should be paid. You will be able to choose how much each visit is worth.' , 'ppc'), NULL, 'counting_visits' );
         echo '</div>';
@@ -262,7 +261,7 @@ class PPC_meta_boxes {
         
         //Images payment
         echo '<div class="ppc_section">';
-        echo '<div class="ppc_title">'.__( 'Payment on images counting' , 'ppc').'</div>';
+        echo '<div class="ppc_title">'.__( 'Images Payment' , 'ppc').'</div>';
         echo '<div class="main">';
         echo PPC_HTML_functions::echo_p_field( __( 'Images contribute to payment computation' , 'ppc'), $current_settings['counting_images'], 'checkbox', 'counting_images', sprintf( __( 'You may define a post value basing on the number of images it contains. Maybe more images make a post cleaerer to the readers, and should thus be paid something more. You will be able to choose: when you want the image counting to come in, meaning how many images are free of charge and after which one they should be paid; how much each image is worth; how many images at maximum should be paid (0 = no maximum, infinite). E.g. we have a post with 5 images, and the fields below are set like this: %s. The image payment would be 1.0 bacause image #3 and image #4 are counted.' , 'ppc'), '<em>2; 0.5; 4</em>' ), NULL, 'counting_images' );
         echo '</div>';
@@ -273,13 +272,14 @@ class PPC_meta_boxes {
         echo PPC_HTML_functions::echo_text_field( 'counting_images_threshold_min', $current_settings['counting_images_threshold_min'], __( 'Start paying per image after image #' , 'ppc') );
         echo PPC_HTML_functions::echo_text_field( 'counting_images_threshold_max', $current_settings['counting_images_threshold_max'], __( 'Stop paying per image after image #' , 'ppc') );
         echo PPC_HTML_functions::echo_p_field( 'Include featured image in counting', $current_settings['counting_images_include_featured'], 'checkbox', 'counting_images_include_featured', __( 'Determines whether the featured image will be included in image counting.' , 'ppc') );
+		echo PPC_HTML_functions::echo_p_field( 'Include gallery images in counting', $current_settings['counting_images_include_galleries'], 'checkbox', 'counting_images_include_galleries', __( 'Determines whether images in galleries should be included in image counting (may slow down stats page loading due to additional post content parsing).' , 'ppc') );
         echo '</div>';
         echo '</div>';
         do_action( 'ppc_counting_settings_after_images_payment', $current_settings );
         
         //Comments payment
         echo '<div class="ppc_section">';
-        echo '<div class="ppc_title">'.__( 'Payment on comments counting' , 'ppc').'</div>';
+        echo '<div class="ppc_title">'.__( 'Comments Payment' , 'ppc').'</div>';
         echo '<div class="main">';
         echo PPC_HTML_functions::echo_p_field( __( 'Comments contribute to payment computation' , 'ppc'), $current_settings['counting_comments'], 'checkbox', 'counting_comments', sprintf( __( 'You may define a post value basing on the number of comments it receives. You will be able to choose: when you want the comment counting to come in, meaning how many comments are free of charge and after which one they should be paid; how much each comment is worth; how many comments at maximum should be paid (0 = no maximum, infinite). E.g. we have a post with 30 comments, and the fields below are set like this: %s. The comment payment would be 2.5 bacause comments from #11 included to #25 included are counted.' , 'ppc'), '<em>10; 0.1; 25</em>' ), NULL, 'counting_comments' );
         echo '</div>';
@@ -423,11 +423,10 @@ class PPC_meta_boxes {
             
             $n = 0; 
             foreach( $already_personalized->results as $single ) {
-                if( $n % 2 == 0 ) {
+                if( $n % 2 == 0 )
                     echo '<span style="float: left; width: 50%;">';
-                } else {
+                else
                     echo '<span style="float: right; width: 50%;">';
-                }
                 
                 echo '<a href="'.admin_url( $ppc_global_settings['options_menu_link'].'&amp;userid='.$single->ID ).'" title="'.__( 'View and edit special settings for user' , 'ppc').' \''.htmlspecialchars( $single->display_name ).'\'">'.$single->display_name.'</a>
                 </span>';
@@ -450,11 +449,10 @@ class PPC_meta_boxes {
         
         $n = 0;
         foreach( $wp_roles->role_names as $role => $role_name ) {
-            if( $n % 2 == 0 ) {
+            if( $n % 2 == 0 )
                 echo '<span style="float: left; width: 50%;">';
-            } else {
+            else
                 echo '<span style="float: right; width: 50%;">';
-            }
 			
             echo '<a href="" title="'.$role_name.'" id="'.$role.'" class="ppc_personalize_roles">'.$role_name.'</a>';
             echo '</span>';

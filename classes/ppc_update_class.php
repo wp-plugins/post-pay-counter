@@ -69,10 +69,16 @@ class PPC_update_class {
             ),
             
             'user' => array(
+				'counting_images_include_galleries' => 0
             )
         );
         
         foreach( $new_settings['general'] as $setting => $value ) {
+            if( ! isset( $general_settings[$setting] ) )
+                $general_settings[$setting] = $value;
+        }
+		
+		foreach( $new_settings['user'] as $setting => $value ) {
             if( ! isset( $general_settings[$setting] ) )
                 $general_settings[$setting] = $value;
         }
