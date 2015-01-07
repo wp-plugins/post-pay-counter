@@ -3,10 +3,10 @@ Contributors: Ste_95
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SM5Q9BVU4RT22
 Tags: counter, authors, payment, revenue sharing, stats, multi author, post management, post
 Tested up to: 4.1
-Stable tag: 2.46
+Stable tag: 2.47
 Requires at least: 3.7
 
-Easily handle authors' pay on a multi-author blog by computing posts' remuneration basing on admin defined rules with.
+Easily handle authors' payments on a multi-author blog by computing posts' remuneration basing on admin defined rules.
 
 == Description ==
 The Post Pay Counter plugin allows you to easily calculate and handle authors' pay on a multi-author blog by computing posts' remuneration basing on admin defined rules. The administrator can specify criteria upon which payments should be computed and the stats will immediately be viewable. Both a general view with all users and a specific one for a author are possible. It can easily help you implement a revenue sharing/paid to write model for your business.
@@ -58,7 +58,7 @@ It must become: *define( 'PPC_DEBUG_LOG', false );*
 == Languages ==
 = Available languages =
 * English
-* German (Julian Beck)
+* German ([Julian Beck](http://inside11.de/))
 * Italian (Stefano Ottolenghi)
 * Portoguese (Marco Dantas)
 
@@ -66,6 +66,11 @@ It must become: *define( 'PPC_DEBUG_LOG', false );*
 If you want to translate it in your own language and get a discount on the PRO version, [contact us](http://www.thecrowned.org/contact-me)!
 
 == Changelog ==
+= 2.47 =
+* Fixed: word count would sometimes miss a word (the last one).
+* Fixed: notifications would be displayed on all admin pages although they were not supposed to.
+* Tweak: updated Italian and German translations (thanks [Julian](http://inside11.de/)).
+
 = 2.46 =
 * Feature: now possible to include gallery images in images counting (disabled by default, go to Counting settings > Images payment to enable it).
 * Feature: introducing plugin notifications system.

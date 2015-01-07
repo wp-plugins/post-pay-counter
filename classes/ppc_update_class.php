@@ -151,6 +151,12 @@ class PPC_update_class {
         //PRO gets deactivated as soon as PPC is deactivated - if it was active before, reactivate if now
         if( get_option( 'ppcp_active' ) == 1 )
             activate_plugin( 'post-pay-counter-pro/post-pay-counter-pro.php' );
+		
+		if( get_option( 'ppcp_pb_active' ) == 1 )
+            activate_plugin( 'ppcp-publisher-bonus/ppcp-publisher-bonus.php' );
+		
+		if( get_option( 'ppcp_sw_active' ) == 1 )
+            activate_plugin( 'ppcp-stopwords/ppcp-stopwords.php' );
     }
 }
 
