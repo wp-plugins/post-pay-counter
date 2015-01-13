@@ -257,12 +257,12 @@ class PPC_counting_stuff {
             'to_count' => 0 
         );
         
-		if( self::$settings['counting_visits_postmeta'] ) {
-			$visits_postmeta = apply_filters( 'ppc_counting_visits_postmeta', self::$settings['counting_visits_postmeta_value'] );
-			$post_visits['real'] = (int) get_post_meta( $post->ID, $visits_postmeta, TRUE );
-		} else if( self::$settings['counting_visits_callback'] ) {
+		if( self::$settings['counting_visits_callback'] ) {
 			$visits_callback = apply_filters( 'ppc_counting_visits_callback', PPC_counting_types::get_visits_callback_function() );
 			$post_visits['real'] = (int) call_user_func( $visits_callback, $post );
+		} else {
+			$visits_postmeta = apply_filters( 'ppc_counting_visits_postmeta', self::$settings['counting_visits_postmeta_value'] );
+			$post_visits['real'] = (int) get_post_meta( $post->ID, $visits_postmeta, TRUE );
 		}
         
         if( self::$settings['counting_visits_threshold_max'] > 0 AND $post_visits['real'] > self::$settings['counting_visits_threshold_max'] )
