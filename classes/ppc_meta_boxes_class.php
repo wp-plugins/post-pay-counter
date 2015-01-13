@@ -246,9 +246,13 @@ class PPC_meta_boxes {
         echo '</div>';
         echo '<div class="ppc_content" id="ppc_counting_visits_content">';
         echo '<div class="ppc_title">'.__( 'Counting method' , 'ppc').'</div>';
-        echo PPC_HTML_functions::echo_p_field( __( 'I have my own visit counter' , 'ppc'), $current_settings['counting_visits_postmeta'], 'radio', 'counting_visits_method', sprintf( __( 'If you already have some plugin counting visits, and you know the %1$spostmeta%2$s name it stores them into, you can use those data to compute payments. Activate this setting and put the postmeta in the field below.' , 'ppc'), '<em>', '</em>' ), 'counting_visits_postmeta', 'counting_visits_postmeta' );
+        echo PPC_HTML_functions::echo_p_field( __( 'I have my own visit counter (postmeta)' , 'ppc'), $current_settings['counting_visits_postmeta'], 'radio', 'counting_visits_method', sprintf( __( 'If you already have some plugin counting visits, and you know the %1$spostmeta%2$s name it stores them into, you can use those data to compute payments. Activate this setting and put the postmeta in the field below.' , 'ppc'), '<em>', '</em>' ), 'counting_visits_postmeta', 'counting_visits_postmeta' );
         echo '<div id="counting_visits_postmeta_content" class="field_value">';
-        echo PPC_HTML_functions::echo_text_field( 'counting_visits_postmeta_value', $current_settings['counting_visits_postmeta_value'], __( 'The postmeta holding the visits' , 'ppc') );
+        echo PPC_HTML_functions::echo_text_field( 'counting_visits_postmeta_value', $current_settings['counting_visits_postmeta_value'], __( 'The postmeta holding the visits' , 'ppc'), 22 );
+        echo '</div>';
+		echo PPC_HTML_functions::echo_p_field( __( 'I have my own visit counter (callback)' , 'ppc'), $current_settings['counting_visits_callback'], 'radio', 'counting_visits_method', sprintf( __( 'If you already have some plugin counting visits, and it provides a PHP %1$scallback%2$s which accepts as input the $post WP object and outputs an integer number of visits, you can use those data to compute payments. If the callback is a class method, specify it in the form of %1$sclassname, methodname%2$s. This is NOT user-personalizable.' , 'ppc'), '<em>', '</em>' ), 'counting_visits_callback', 'counting_visits_callback' );
+        echo '<div id="counting_visits_callback_content" class="field_value">';
+        echo PPC_HTML_functions::echo_text_field( 'counting_visits_callback_value', $current_settings['counting_visits_callback_value'], __( 'Callback name' , 'ppc'), 22, 'classname, methodname' );
         echo '</div>';
         do_action( 'ppc_counting_settings_after_visits_counting_method', $current_settings );
         echo '<div class="ppc_title">'.__( 'Counting system' , 'ppc').'</div>';

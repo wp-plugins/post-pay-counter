@@ -65,11 +65,13 @@ class PPC_update_class {
         
         $new_settings = array(  
             'general' => array(
-				'display_overall_stats' => 1
+				'display_overall_stats' => 1,
+				'counting_visits_callbak_value' => ''
             ),
             
             'user' => array(
-				'counting_images_include_galleries' => 0
+				'counting_images_include_galleries' => 0,
+				'counting_visits_callback' => 0
             )
         );
         

@@ -35,6 +35,8 @@
 }
 .ppc_section input[type="text"] {
     float: right;
+	background-color: #eee;
+	margin-right: 2em;
 }
 .ppc_section td {
     width: 50%;

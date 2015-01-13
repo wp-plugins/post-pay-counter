@@ -3,7 +3,7 @@ Contributors: Ste_95
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SM5Q9BVU4RT22
 Tags: counter, authors, payment, revenue sharing, stats, multi author, post management, post
 Tested up to: 4.1
-Stable tag: 2.47
+Stable tag: 2.48
 Requires at least: 3.7
 
 Easily handle authors' payments on a multi-author blog by computing posts' remuneration basing on admin defined rules.
@@ -33,7 +33,7 @@ Browse [all extensions](http://www.thecrowned.org/post-pay-counter-extensions?ut
 
 == Frequently Asked Questions ==
 = You said I could pay per visit. How do I do that? =
-The plugin does not keep track of visits, it can only keep it in mind when computing the payment. You either need to have a plugin who keeps track of visits, and put the post_meta name of the field in which it stores the visits (must be a number), or get the PRO version of Post Pay Counter and use your Google Analytics account to get visits data.
+There's an [apt tutorial here](http://www.thecrowned.org/pay-writers-per-visit-wordpress). However, note that Post Pay Counter does not keep track of visits, it can only keep it in mind when computing the payment. You either need to have a plugin who keeps track of visits, and put the post_meta name of the field in which it stores the visits (must be a number), or get the PRO version of Post Pay Counter and use your Google Analytics account to get visits data.
 
 = I installed the plugin but it does not show up in the menu. Also, if I go to the settings page, it says I am not authorized =
 That is probably due to a permissions manager plugin you have on your blog. Check that capabilities *post_pay_counter_access_stats* and *post_pay_counter_manage_options* are correctly assigned and working.
@@ -66,6 +66,11 @@ It must become: *define( 'PPC_DEBUG_LOG', false );*
 If you want to translate it in your own language and get a discount on the PRO version, [contact us](http://www.thecrowned.org/contact-me)!
 
 == Changelog ==
+= 2.48 =
+* Feature: possible to specify a callback function for visits counting, instead of a postmeta (grants compatibility with Post Views Counter and [more custom counting plugins](http://www.thecrowned.org/pay-writers-per-visit-wordpress)).
+* Fixed: word counting problems for non-latin characters.
+* Fixed: (this time for real) notifications would be displayed on all admin pages although they were not supposed to.
+
 = 2.47 =
 * Fixed: word count would sometimes miss a word (the last one).
 * Fixed: notifications would be displayed on all admin pages although they were not supposed to.

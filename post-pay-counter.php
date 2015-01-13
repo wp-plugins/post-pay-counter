@@ -4,7 +4,7 @@ Plugin Name: Post Pay Counter
 Plugin URI: http://www.thecrowned.org/wordpress-plugins/post-pay-counter
 Description: Easily handle authors' payments on a multi-author blog by computing posts' remuneration basing on admin defined rules.
 Author: Stefano Ottolenghi
-Version: 2.47
+Version: 2.48
 Author URI: http://www.thecrowned.org/
 */
 
@@ -54,7 +54,7 @@ class post_pay_counter {
         global $ppc_global_settings;
         
         $ppc_global_settings['current_version'] = get_option( 'ppc_current_version' );
-        $ppc_global_settings['newest_version'] = '2.47';
+        $ppc_global_settings['newest_version'] = '2.48';
         $ppc_global_settings['option_name'] = 'ppc_settings';
         $ppc_global_settings['option_errors'] = 'ppc_errors';
 		$ppc_global_settings['transient_error_deletion'] = 'ppc_error_daily_deletion';
@@ -103,9 +103,12 @@ class post_pay_counter {
         add_filter( 'plugin_action_links', array( $this, 'ppc_settings_meta_link' ), 10, 2 );
         add_filter( 'plugin_row_meta', array( $this, 'ppc_donate_meta_link' ), 10, 2 );
         
+		//Counting types
+		//add_filter( 'ppc_active_user_counting_types', array( 'PPC_counting_types', 'counting_type_visits_callback' ), 10, 2 );
+		
         //Notifications
         add_action( 'init', array( $this, 'load_notifications' ) );
-        
+		
         //Hook to show the posts' word count as a column in the posts list
         //add_filter( 'manage_posts_columns', array( $this, 'post_pay_counter_column_word_count' ) );
         //add_action( 'manage_posts_custom_column', array( $this, 'post_pay_counter_column_word_count_populate' ) );
@@ -292,6 +295,7 @@ class post_pay_counter {
 				unset( $settings['multisite_settings_rule'] );
 				unset( $settings['can_see_options_user_roles'] );
 				unset( $settings['can_see_stats_user_roles'] );
+				unset( $settings['counting_visits_callback_value'] );
 				unset( $settings['counting_allowed_user_roles'] );
 				unset( $settings['counting_allowed_post_types'] );
 				unset( $settings['default_stats_time_range_month'] );
@@ -319,9 +323,7 @@ class post_pay_counter {
      */
     
     function load_notifications() {
-    	global $current_page;
-        
-        if( ! current_user_can( 'manage_options' ) ) return;
+    	if( ! current_user_can( 'manage_options' ) ) return;
         
         //Get notifications to be displayed
 		$notifications = PPC_notifications::notifications_get_list();
@@ -339,15 +341,15 @@ class post_pay_counter {
 			//Check where notification should be shown
 			switch( $single['display'] ) {
 				case 'stats':
-					if( strpos( 'ppc-stats', $current_page ) === 0 )
+					if( strpos( $_SERVER['QUERY_STRING'], 'ppc-stats' ) === false )
 						continue;
 				
 				case 'options':
-					if( strpos( 'ppc-options', $current_page ) === 0 )
+					if( strpos( $_SERVER['QUERY_STRING'], 'ppc-options' ) === false )
 						continue;
 				
 				case 'plugin':
-					if( strpos( 'ppc-', $current_page ) === 0 )
+					if( strpos( $_SERVER['QUERY_STRING'], 'ppc-' ) === false )
 						continue;
 			}
 			
@@ -399,6 +401,7 @@ class post_pay_counter {
        if( $file == plugin_basename( __FILE__ ) ) {
             $links[] = '<a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SM5Q9BVU4RT22" title="'.__( 'Donate', 'ppc' ).'">'.__( 'Donate', 'ppc' ).'</a>';
 			$links[] = '<a href="http://www.thecrowned.org/post-pay-counter-pro?utm_source=users_site&utm_medium=plugins_list&utm_campaign=ppcp" title="'.__( 'Go PRO', 'ppc' ).'">'.__( 'Go PRO', 'ppc' ).'</a>';
+			$links[] = '<a href="http://www.thecrowned.org/post-pay-counter-extensions?utm_source=users_site&utm_medium=plugins_list&utm_campaign=ppc_addons" title="'.__( 'Addons', 'ppc' ).'">'.__( 'Addons', 'ppc' ).'</a>';
        }
      
         return $links;

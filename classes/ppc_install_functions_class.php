@@ -100,6 +100,8 @@ class PPC_install_functions {
                 'counting_visits' => 0,
                 'counting_visits_postmeta' => 1,
                 'counting_visits_postmeta_value' => '',
+				'counting_visits_callback' => 0,
+				'counting_visits_callback_value' => '',
                 'counting_visits_system_zonal' => 0,
                 'counting_visits_system_zonal_value' => array(
                     0 => array( 
@@ -208,6 +210,7 @@ class PPC_install_functions {
                 'counting_visits' => 0,
                 'counting_visits_postmeta' => 1,
                 'counting_visits_postmeta_value' => '',
+				'counting_visits_callback' => 0,
                 'counting_visits_system_zonal' => 0,
                 'counting_visits_system_zonal_value' => array(
                     0 => array( 

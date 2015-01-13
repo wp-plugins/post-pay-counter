@@ -230,7 +230,7 @@ class PPC_counting_stuff {
             $post->post_content = preg_replace( '/<(blockquote|q)>(.*?)<\/(blockquote|q)>/s', '', $post->post_content );
         
 		$purged_content = apply_filters( 'ppc_clean_post_content_word_count', preg_replace( '/[.(),;:!?%#$¿"_+=\\/-]+/', '', trim( preg_replace( '/\'|&nbsp;|&#160;|\r|\n|\r\n|\s+/', ' ', strip_tags( $post->post_content ) ) ) ) ); //need to trim to remove final new lines
-		$post_words['real'] = count( explode( ' ', $purged_content ) );
+		$post_words['real'] = count( preg_split( '/\S\s+/', $purged_content, -1, PREG_SPLIT_NO_EMPTY ) );
 		
         if( self::$settings['counting_words_threshold_max'] > 0 AND $post_words['real'] > self::$settings['counting_words_threshold_max'] )
             $post_words['to_count'] = self::$settings['counting_words_threshold_max'];
@@ -257,9 +257,13 @@ class PPC_counting_stuff {
             'to_count' => 0 
         );
         
-        $visits_postmeta = apply_filters( 'ppc_counting_visits_postmeta', self::$settings['counting_visits_postmeta_value'] );
-        
-        $post_visits['real'] = (int) get_post_meta( $post->ID, $visits_postmeta, TRUE );
+		if( self::$settings['counting_visits_postmeta'] ) {
+			$visits_postmeta = apply_filters( 'ppc_counting_visits_postmeta', self::$settings['counting_visits_postmeta_value'] );
+			$post_visits['real'] = (int) get_post_meta( $post->ID, $visits_postmeta, TRUE );
+		} else if( self::$settings['counting_visits_callback'] ) {
+			$visits_callback = apply_filters( 'ppc_counting_visits_callback', PPC_counting_types::get_visits_callback_function() );
+			$post_visits['real'] = (int) call_user_func( $visits_callback, $post );
+		}
         
         if( self::$settings['counting_visits_threshold_max'] > 0 AND $post_visits['real'] > self::$settings['counting_visits_threshold_max'] )
             $post_visits['to_count'] = self::$settings['counting_visits_threshold_max'];
