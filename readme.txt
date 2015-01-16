@@ -66,6 +66,9 @@ It must become: *define( 'PPC_DEBUG_LOG', false );*
 If you want to translate it in your own language and get a discount on the PRO version, [contact us](http://www.thecrowned.org/contact-me)!
 
 == Changelog ==
+= 2.482 =
+Fixed: fatal error in PRO payment history windows.
+
 = 2.481 =
 * Fixed: last update would break PRO Analytics feature.
 

@@ -175,6 +175,19 @@ class PPC_counting_types {
         return apply_filters( 'ppc_active_user_counting_types', $active_user_counting_types, $userid );
     }
     
+	/**
+     * Gets all registered counting types.
+     * 
+     * @access  public
+     * @since   2.40
+     * @param   $what string whether post or author
+     * @return  array counting types
+     */ 
+	
+	function get_all_counting_types( $what ) {
+		return $this->counting_types[$what];
+	}
+	
     /**
      * Registers plugin built-in counting types.
      * 
