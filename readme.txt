@@ -23,6 +23,8 @@ The Post Pay Counter plugin allows you to easily calculate and handle authors' p
 **Also, we have a [PRO version](http://www.thecrowned.org/post-pay-counter-pro?utm_source=wprep&utm_medium=link&utm_campaign=ppcp) with many more features!** (among which integration with Analytics, PayPal, and so much more)
 Browse [all extensions](http://www.thecrowned.org/post-pay-counter-extensions?utm_source=wprep&utm_medium=description&utm_campaign=ppc_addons)
 
+[GitHub repository](https://github.com/TheCrowned/Post-Pay-Counter/) (wanna join us coding?)
+
 [youtube https://www.youtube.com/watch?v=mSFjvR-2zCI]
 
 == Installation ==
