@@ -23,6 +23,7 @@ The Post Pay Counter plugin allows you to easily calculate and handle authors' p
 **Also, we have a [PRO version](http://www.thecrowned.org/post-pay-counter-pro?utm_source=wprep&utm_medium=link&utm_campaign=ppcp) with many more features!** (among which integration with Analytics, PayPal, and so much more)
 
 Browse [all extensions](http://www.thecrowned.org/post-pay-counter-extensions?utm_source=wprep&utm_medium=description&utm_campaign=ppc_addons), including:
+
 * [Google Analytics visits payment and PayPal transactions handler](http://www.thecrowned.org/post-pay-counter-pro?utm_source=wprep&utm_medium=link&utm_campaign=ppcp)
 * [Facebook shares, likes and comments payment](http://www.thecrowned.org/facebook-pay-per-social-interactions-shares-likes-and-comments?utm_source=wprep&utm_medium=link&utm_campaign=ppcp_fb)
 * [Publisher bonus (useful for copyholder/draft-checkers-based systems)](http://www.thecrowned.org/publisher-bonus-editor-rewarding-system?utm_source=wprep&utm_medium=link&utm_campaign=ppcp_pb)
