@@ -3,7 +3,7 @@ Contributors: Ste_95
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SM5Q9BVU4RT22
 Tags: counter, authors, payment, revenue sharing, stats, multi author, post management, post
 Tested up to: 4.1
-Stable tag: 2.490
+Stable tag: 2.491
 Requires at least: 3.7
 
 Easily handle authors' payments on a multi-author blog by computing posts' remuneration basing on admin defined rules.
@@ -74,6 +74,10 @@ It must become: *define( 'PPC_DEBUG_LOG', false );*
 If you want to translate it in your own language and get a discount on the PRO version, [contact us](http://www.thecrowned.org/contact-me)!
 
 == Changelog ==
+= 2.491 =
+* Tweak: new actions needed for the [Facebook addon](http://www.thecrowned.org/facebook-pay-per-social-interactions-shares-likes-and-comments?utm_source=wprep&utm_medium=link&utm_campaign=ppcp_fb).
+* Tweak: notifications processing only made in wp-admin, just as a bit of speed-up.
+
 = 2.490 =
 * Feature: possible to filter stats view by user role: select a user role and get stats only for users belonging to that one.
 * Fixed: prevent PHP warning if website can't contact developer server to check for notifications.
