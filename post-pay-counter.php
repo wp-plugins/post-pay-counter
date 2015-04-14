@@ -109,10 +109,6 @@ class post_pay_counter {
         //Notifications
         add_action( 'admin_init', array( $this, 'load_notifications' ) );
 		
-        //Hook to show the posts' word count as a column in the posts list
-        //add_filter( 'manage_posts_columns', array( $this, 'post_pay_counter_column_word_count' ) );
-        //add_action( 'manage_posts_custom_column', array( $this, 'post_pay_counter_column_word_count_populate' ) );
-        
         //Manage AJAX calls
         add_action( 'wp_ajax_ppc_save_counting_settings', array( 'PPC_ajax_functions', 'save_counting_settings' ) );
         add_action( 'wp_ajax_ppc_save_permissions', array( 'PPC_ajax_functions', 'save_permissions' ) );
@@ -187,7 +183,7 @@ class post_pay_counter {
     
     function on_load_stats_page() {
         global $ppc_global_settings;
-        
+        var_dump(url_to_postid("http://ste95.no-ip.org/WordPress/hello/"));
 		$general_settings = PPC_general_functions::get_settings( 'general' );
 		
 		//Initiliaze counting types
@@ -380,7 +376,9 @@ class post_pay_counter {
 		
     	//Get array list of dismissed notifications for current user and convert it to array
     	$dismissed_notifications = get_option( 'ppc_dismissed_notifications', array() );
-    
+    	
+	if( count( $notifications ) <= count( $dismissed_notifications ) ) return;
+
 		foreach( $notifications as $single ) {
 			//Check if notification is not among dismissed ones
 			if( in_array( $single['id'], $dismissed_notifications ) )
@@ -454,38 +452,6 @@ class post_pay_counter {
      
         return $links;
     }
-    
-    //Adds the 'Word count' column in the post list page
-    /*function post_pay_counter_column_word_count( $columns ) {
-        global $current_user;
-        
-        //If posts word count should be showed
-        if( post_pay_counter_functions_class::get_settings( $current_user->ID, TRUE )->can_view_posts_word_count_post_list == 1 )
-            $columns['post_pay_counter_word_count'] = 'Word Count';
-        
-        return $columns;
-    }
-    
-    //Populates the newly added 'Word count' column
-    function post_pay_counter_column_word_count_populate( $name ) {
-        global  $post,
-                $current_user;
-        
-        $post               = (object) $post;
-        $counting_settings  = post_pay_counter_functions_class::get_settings( $current_user->ID, TRUE );
-        
-        //If posts word count should be showed, we check if the counting system zones is in use and, if yes, compare the word count to the first zone count. When word count is below the first zone, its opacity is reduced
-        if( $counting_settings->can_view_posts_word_count_post_list == 1 ) {
-            if( $name == 'post_pay_counter_word_count' ) {
-                $word_count = post_pay_counter_functions_class::count_post_words( $post->post_content );
-                
-                if( self::$global_settings->general_settings->counting_type_words == 1 AND $counting_settings->counting_system_zones == 1 AND $word_count < $counting_settings->ordinary_zones[1]['zone'] )
-                    echo '<span style="opacity: 0.60">'.$word_count.' words</span>';
-                else
-                    echo $word_count.' words';
-            }
-        }
-    }*/
     
     /**
      * Shows the Options page

@@ -74,6 +74,12 @@ It must become: *define( 'PPC_DEBUG_LOG', false );*
 If you want to translate it in your own language and get a discount on the PRO version, [contact us](http://www.thecrowned.org/contact-me)!
 
 == Changelog ==
+= 2.493 =
+* Fixed: notification dismissing would log an error.
+* Tweak: notifications remote request timeout decreased to 2 seconds.
+* Tweak: extended notifications transient validity (2 days).
+* Tweak: logging errors in HTTP notifications list request.
+
 = 2.492 =
 * Tweak: possible to select future dates as stast end times (allows to see future scheduled posts).
 
