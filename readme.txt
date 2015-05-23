@@ -12,6 +12,7 @@ Easily handle authors' payments on a multi-author blog by computing posts' remun
 Easily calculate and handle authors' pay on a multi-author blog by computing posts' remuneration basing on admin defined rules. The administrator can specify criteria upon which payments should be computed and the stats will immediately be viewable. Both a general view with all users and a specific one for a author are possible. It can easily help you implement a revenue sharing/paid to write model for your business.
 
 Features include:
+
 * Pay per post, word, visit ([tutorial](http://www.thecrowned.org/pay-writers-per-visit-wordpress)), image and comment. They are not mutually exclusive.
 * Pay with an incremental system (eg. each word is €0.01 => 100 words = €1) or with a zonal one (eg. from 200 to 300 words/visits it’s €2.00, up to 10 zones).
 * No account needed. Data is yours, no need to sign-up to anything really.
@@ -23,16 +24,17 @@ Features include:
 
 [GitHub repository](https://github.com/TheCrowned/Post-Pay-Counter/) (wanna join us coding?)
 
-**Integrate with Analytics/Adsense and pay with PayPal**
-The [PRO version](http://www.thecrowned.org/post-pay-counter-pro?utm_source=wprep&utm_medium=link&utm_campaign=ppcp) includes Analytics visits payment, Adsense Revenue sharing and PayPal payments. Among other stuff, it also allows to keep a convenient log of past payments and to display stats in public pages through a shortcode. 
+= Integrate with Analytics/Adsense and pay with PayPal =
+The [PRO version](http://www.thecrowned.org/post-pay-counter-pro?utm_source=wprep&utm_medium=link&utm_campaign=ppcp) includes Analytics visits payment, Adsense Revenues sharing and PayPal payments. Among other stuff, it also allows to keep a convenient log of past payments and to display stats in public pages through a shortcode. 
 
-**Integrate with Facebook**
+= Integrate with Facebook =
 The [Facebook addon](http://www.thecrowned.org/facebook-pay-per-social-interactions-shares-likes-and-comments?utm_source=wprep&utm_medium=link&utm_campaign=ppcp_fb) allows to pay posts for the Facebook shares and comments they receive.
 
 Browse [all extensions](http://www.thecrowned.org/post-pay-counter-extensions?utm_source=wprep&utm_medium=description&utm_campaign=ppc_addons).
 
 = Available languages =
 Post Pay Counter has been translated into these languages:
+
 * English
 * German ([Julian Beck](http://inside11.de/))
 * Italian (Stefano Ottolenghi)
