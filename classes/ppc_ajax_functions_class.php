@@ -250,10 +250,10 @@ class PPC_ajax_functions {
         if( ! $dismissed = get_option( 'ppc_dismissed_notifications' ) )
 			$dismissed = array();
         
-	$dismissed[$_REQUEST['id']] = $_REQUEST['id'];
-	update_option( 'ppc_dismissed_notifications', $dismissed );
-	
-	die( 'ok' );
+		$dismissed[$_REQUEST['id']] = $_REQUEST['id'];
+		update_option( 'ppc_dismissed_notifications', $dismissed );
+		
+		die( 'ok' );
     }
 }
 ?>

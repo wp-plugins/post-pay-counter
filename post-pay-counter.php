@@ -4,7 +4,7 @@ Plugin Name: Post Pay Counter
 Plugin URI: http://www.thecrowned.org/wordpress-plugins/post-pay-counter
 Description: Easily handle authors' payments on a multi-author blog by computing posts' remuneration basing on admin defined rules.
 Author: Stefano Ottolenghi
-Version: 2.502
+Version: 2.503
 Author URI: http://www.thecrowned.org/
 */
 
@@ -54,7 +54,7 @@ class post_pay_counter {
         global $ppc_global_settings;
         
         $ppc_global_settings['current_version'] = get_option( 'ppc_current_version' );
-        $ppc_global_settings['newest_version'] = '2.502';
+        $ppc_global_settings['newest_version'] = '2.503';
         $ppc_global_settings['option_name'] = 'ppc_settings';
         $ppc_global_settings['option_errors'] = 'ppc_errors';
 		$ppc_global_settings['transient_error_deletion'] = 'ppc_error_daily_deletion';
@@ -163,7 +163,7 @@ class post_pay_counter {
             $ppc_global_settings['current_version'] = $ppc_global_settings['newest_version'];
             
 			/**
-			 * Fires after PPC has been updated to last version.
+			 * Fires after PPC has been updated to latest version.
 			 * @since 2.1.1
 			 */
 			
@@ -494,7 +494,7 @@ class post_pay_counter {
             $userdata = get_userdata( self::$options_page_settings['userid'] );
 			?>
 			
-	<p style="text-transform: uppercase; font-size: x-small; margin-bottom: -3px; text-align: center;">
+	<p style="clear: both; text-transform: uppercase; font-size: x-small; margin-bottom: -3px; text-align: center;">
 		<a href="<?php echo $ppc_global_settings['options_menu_link']; ?>" title="<?php _e( 'Go back to general settings' , 'ppc'); ?>" style="float: left; color: black; "><?php _e( 'Back to general' , 'ppc'); ?></a>
 		<a href="#" id="vaporize_user_settings" accesskey="<?php echo self::$options_page_settings['userid']; ?>" title="<?php _e( 'Delete user\'s settings' , 'ppc'); ?>" style="float: right; color: red; "><?php _e( 'Delete user\'s settings' , 'ppc'); ?>'</a>
 		<?php echo __( 'Currently editing user:' , 'ppc').' "'.$userdata->display_name.'"'; ?>

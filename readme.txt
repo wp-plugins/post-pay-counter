@@ -3,7 +3,7 @@ Contributors: Ste_95
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SM5Q9BVU4RT22
 Tags: counter, authors, payment, revenue sharing, stats, multi author, post management, post
 Tested up to: 4.2.2
-Stable tag: 2.502
+Stable tag: 2.503
 Requires at least: 3.7
 
 Easily handle authors' payments on a multi-author blog by computing posts' remuneration basing on admin defined rules.
@@ -13,7 +13,7 @@ Easily calculate and handle authors' pay on a multi-author blog by computing pos
 
 Features include:
 
-* Pay per post, word, visit ([tutorial](http://www.thecrowned.org/pay-writers-per-visit-wordpress)), image and comment. They are not mutually exclusive.
+* Pay per post, word, visit ([tutorial](http://www.thecrowned.org/pay-writers-per-visit-wordpress)), image and comment (not mutually exclusive).
 * Pay with an incremental system (eg. each word is €0.01 => 100 words = €1) or with a zonal one (eg. from 200 to 300 words/visits it’s €2.00, up to 10 zones).
 * No account needed. Data is yours, no need to sign-up to anything really.
 * Old stats availability. View posts countings since the first written post, disregarding the plugin install date. A fancy date picker lets you shift between days and select the desired range.
@@ -37,6 +37,7 @@ Post Pay Counter has been translated into these languages:
 
 * English
 * German ([Julian Beck](http://inside11.de/))
+* Dutch (Elza van Swieten)
 * Italian (Stefano Ottolenghi)
 * Portoguese (Marco Dantas)
 
@@ -75,6 +76,17 @@ It must become: *define( 'PPC_DEBUG_LOG', false );*
 5. The tooltip with all the counting details
 
 == Changelog ==
+= 2.503 =
+* Fixed: word counter wouldn't count one-char words.
+* Fixed: correctly handling of &nbsp; that wouldn't be counted as spaces as resulting from strange behavior of the editor.
+* New: install procedure now grants by default all permissions to administrator by personalizing their settings (the user id of the user who installs the plugin is taken).
+* Tweak: new PHP method that generates stats table tbody. That's a public one that can by used by any implementation (for example, is used several times in the PRO).
+* Fixed: layout broken in user settings page, with links at the top being smushed in the upper-right corner. 
+* New: added pot files to translate plugin in whatever language.
+* Tweak: hiding the *Filter by user role* feature in stats page if user doesn't have the permission to see other people's stats.
+* Tweak: on install, notifications issued before install date are all hidden in bulk.
+* New: added Dutch translation (Elza van Swieten).
+
 = 2.502 =
 * Fixed: after last updated PRO version Analytics visits wouldn't show up.
 

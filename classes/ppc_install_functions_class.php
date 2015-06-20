@@ -1,8 +1,11 @@
 <?php
 
 /**
+ * Install
+ * 
  * @author Stefano Ottolenghi
  * @copyright 2013
+ * @package	PPC
  */
 
 class PPC_install_functions {
@@ -161,7 +164,7 @@ class PPC_install_functions {
                 'counting_exclude_quotations' => 1,
                 'can_see_others_general_stats' => 1,
     			'can_see_others_detailed_stats' => 1,
-    			'can_see_countings_special_settings' => 0,
+    			'can_see_countings_special_settings' => 1,
 				'display_overall_stats' => 1,
                 'can_see_options_user_roles' => array(
                     'administrator' => 'administrator'
@@ -304,13 +307,21 @@ class PPC_install_functions {
         
         //Grant current user all permissions by personalizing his user (if not already)
         $admin_settings = PPC_general_functions::get_settings( $current_user->ID );
-        if( $admin_settings['userid'] == 'general' ) {
-            update_user_option( $current_user->ID, $ppc_global_settings['option_name'], $default_settings['admin'] );
-        }
+        if( $admin_settings['userid'] == 'general' )
+            update_user_option( $current_user->ID, $ppc_global_settings['option_name'], $default_settings['admin'], true );
 		
 		//Add error log option
-		if( ! get_option( $ppc_global_settings['option_errors']  ) )
-			if( add_option( $ppc_global_settings['option_errors'], $errors, '', 'no' ) )
+		if( ! get_option( $ppc_global_settings['option_errors'] ) )
+			add_option( $ppc_global_settings['option_errors'], $errors, '', 'no' );
+		
+		//Add dismissed notification option
+		$dismissed = array(
+			"ppcp_publisher_bonus_available", 
+			"ppcp_facebook_available", 
+			"ppcp_stopwords_available"
+		);
+		if( ! get_option( "ppc_dismissed_notifications" ) )
+			add_option( "ppc_dismissed_notifications", $dismissed, '', 'no' );
         
 		//Set default permissions for acessing plugin pages
         PPC_general_functions::manage_cap_allowed_user_roles_plugin_pages( $default_settings['general']['can_see_options_user_roles'], $default_settings['general']['can_see_stats_user_roles'] );

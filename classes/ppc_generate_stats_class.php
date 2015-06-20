@@ -363,13 +363,13 @@ class PPC_generate_stats {
 					}
 				}
                 
-                $formatted_stats['stats'][$author_id][$post->ID]['post_total_payment'] = PPC_general_functions::format_payment( sprintf( '%.2f', $post->ppc_payment['normal_payment']['total'] ) );
+                $formatted_stats['stats'][$author_id][$post->ID]['post_total_payment'] = sprintf( '%.2f', $post->ppc_payment['normal_payment']['total'] );
                 
                 $formatted_stats['stats'][$author_id][$post->ID] = apply_filters( 'ppc_author_stats_format_stats_after_each_default', $formatted_stats['stats'][$author_id][$post->ID], $author_id, $post );
             }
             
         } else {
-			$cols_info = array(); //holds info about columns. We build cols list after stats taking all unique cnt types enabled across all users. A user may have some counting types unabled, so we can't know before the end all the possible cols we may need
+			$cols_info = array(); //holds info about columns. We build cols list after stats taking the element with most elements. A user may have some counting types unabled, so we can't know before the end all the possible cols we may need
 			
             foreach( $data as $author_id => $posts ) {
                 if( ! isset( $posts['total']['ppc_payment']['normal_payment'] ) OR empty ( $posts['total']['ppc_payment']['normal_payment'] ) ) continue; //user with no counting types enabled
@@ -418,7 +418,7 @@ class PPC_generate_stats {
 				
 				unset( $current_count );*/
 				
-				$formatted_stats['stats'][$author_id]['author_total_payment'] = PPC_general_functions::format_payment( sprintf( '%.2f', $posts['total']['ppc_payment']['normal_payment']['total'] ) );
+				$formatted_stats['stats'][$author_id]['author_total_payment'] = sprintf( '%.2f', $posts['total']['ppc_payment']['normal_payment']['total'] );
                 
                 $formatted_stats['stats'][$author_id] = apply_filters( 'ppc_general_stats_format_stats_after_each_default', $formatted_stats['stats'][$author_id], $author_id, $posts );
             }
