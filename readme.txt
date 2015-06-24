@@ -3,7 +3,7 @@ Contributors: Ste_95
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SM5Q9BVU4RT22
 Tags: counter, authors, payment, revenue sharing, stats, multi author, post management, post
 Tested up to: 4.2.2
-Stable tag: 2.503
+Stable tag: 2.504
 Requires at least: 3.7
 
 Easily handle authors' payments on a multi-author blog by computing posts' remuneration basing on admin defined rules.
@@ -76,6 +76,9 @@ It must become: *define( 'PPC_DEBUG_LOG', false );*
 5. The tooltip with all the counting details
 
 == Changelog ==
+= 2.504 =
+* Fixed: possible fatal error due to too many redirects on update.
+
 = 2.503 =
 * Fixed: word counter wouldn't count one-char words.
 * Fixed: correctly handling of &nbsp; that wouldn't be counted as spaces as resulting from strange behavior of the editor.

@@ -278,16 +278,16 @@ class PPC_welcome {
 
 		if( get_transient( $ppc_global_settings['transient_activation_redirect'] ) OR get_transient( $ppc_global_settings['transient_update_redirect'] ) ) {
             
+			//Delete redirect transients
+			delete_transient( $ppc_global_settings['transient_activation_redirect'] );
+			delete_transient( $ppc_global_settings['transient_update_redirect'] );
+
             //Return if activating from network, or bulk
             if( is_network_admin() || isset( $_GET['activate-multi'] ) )
                 return;
             
 			wp_safe_redirect( admin_url( add_query_arg( array( 'page' => 'ppc-about' ), 'admin.php' ) ) );
-        }
-        
-		//Delete redirect transients
-        delete_transient( $ppc_global_settings['transient_activation_redirect'] );
-        delete_transient( $ppc_global_settings['transient_update_redirect'] );		
+        }		
 	}
 }
 ?>
