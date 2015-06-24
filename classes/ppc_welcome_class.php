@@ -220,8 +220,8 @@ class PPC_welcome {
 				<div class="feature-section">
 					<img src="<?php echo $ppc_global_settings['folder_path'].'style/images/screenshots/pro_stats.png'; ?>" class="ppc-welcome-screenshots"/>
 
-					<h4><?php _e( 'Analytics as visits source', 'ppc' );?></h4>
-					<p><?php _e( 'Use your account on the world-leading website visits tracking system to pay writers basing on reliable visits data. Use pageviews or unique pageviews as you like and stop the counting after a certain number of days.' );?></p>
+					<h4><?php _e( 'Analytics and Adsense integration', 'ppc' );?></h4>
+					<p><?php _e( 'Use your account on the world-leading website visits tracking system to pay writers basing on reliable visits data, and/or share Adsense revenues with your writers. Use pageviews or unique pageviews as you like and stop the counting after a certain number of days.' );?></p>
                     
                     <h4><?php _e( 'Pay with Paypal', 'ppc' );?></h4>
 					<p><?php _e( 'Pay your writers directly from the stats page with Adaptive Payments.' );?></p>
