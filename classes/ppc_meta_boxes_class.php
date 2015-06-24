@@ -19,6 +19,7 @@ class PPC_meta_boxes {
     static function meta_box_pro_features() { 
         $pro_features = array(
             __( 'Google Analytics' , 'ppc') => __( 'use your account on the world-leading website visits tracking system to pay writers per visit.' , 'ppc' ),
+		__( 'Google Adsense' , 'ppc') => __( 'share a percentage of your ads revenues with writers, depending on how much their posts earn.' , 'ppc' ),
 			__( 'PayPal', 'ppc') => __( 'pay your writers with PayPal directly through your blog.' , 'ppc' ),
             __( 'Mark as paid' , 'ppc') => __( 'keep track of your writers\' past payments by marking posts as paid and reviewing payments from a detailed history. Let the plugin keep track of how much each writer should be paid basing on past payments.' , 'ppc' ),
             __( 'Csv export', 'ppc') => __( 'download stats for offline consulting or storing.' , 'ppc' ),
