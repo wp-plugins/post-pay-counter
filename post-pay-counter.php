@@ -4,7 +4,7 @@ Plugin Name: Post Pay Counter
 Plugin URI: http://www.thecrowned.org/wordpress-plugins/post-pay-counter
 Description: Easily handle authors' payments on a multi-author blog by computing posts' remuneration basing on admin defined rules.
 Author: Stefano Ottolenghi
-Version: 2.504
+Version: 2.505
 Author URI: http://www.thecrowned.org/
 */
 
@@ -54,7 +54,7 @@ class post_pay_counter {
         global $ppc_global_settings;
         
         $ppc_global_settings['current_version'] = get_option( 'ppc_current_version' );
-        $ppc_global_settings['newest_version'] = '2.504';
+        $ppc_global_settings['newest_version'] = '2.505';
         $ppc_global_settings['option_name'] = 'ppc_settings';
         $ppc_global_settings['option_errors'] = 'ppc_errors';
 		$ppc_global_settings['transient_error_deletion'] = 'ppc_error_daily_deletion';
@@ -70,7 +70,7 @@ class post_pay_counter {
         $ppc_global_settings['temp'] = array( 'settings' => array() );
         
         //Add left menu entries for both stats and options pages
-        add_action( 'admin_menu', array( $this, 'post_pay_counter_admin_menus' ) );
+        add_action( 'admin_menu', array( $this, 'admin_menus' ) );
         //add_action( 'network_admin_menu', array( $this, 'post_pay_counter_network_admin_menus' ) );
         
         //Hook for the install procedure
@@ -84,9 +84,9 @@ class post_pay_counter {
 		
         //On load plugin pages
         add_action( 'load-toplevel_page_ppc-stats', array( $this, 'on_load_stats_page' ) );
-		add_action( 'load-post-pay-counter_page_ppc-options', array( $this, 'on_load_options_page_get_settings' ), 1 );
-        add_action( 'load-post-pay-counter_page_ppc-options', array( $this, 'on_load_options_page_enqueue' ), 2 );
-		add_action( 'load-post-pay-counter_page_ppc-addons', array( 'PPC_addons', 'on_load_addons_page_enqueue' ) );
+		add_action( 'load-'.sanitize_title( apply_filters( "ppc_admin_menu_name", "Post Pay Counter" ) ).'_page_ppc-options', array( $this, 'on_load_options_page_get_settings' ), 1 );
+        add_action( 'load-'.sanitize_title( apply_filters( "ppc_admin_menu_name", "Post Pay Counter" ) ).'_page_ppc-options', array( $this, 'on_load_options_page_enqueue' ), 2 );
+		add_action( 'load-'.sanitize_title( apply_filters( "ppc_admin_menu_name", "Post Pay Counter" ) ).'_page_ppc-addons', array( 'PPC_addons', 'on_load_addons_page_enqueue' ) );
         //add_action( 'load-toplevel_page_post_pay_counter_show_network_stats', array( &$this, 'on_load_stats_page' ) );
         
         //Localization
@@ -127,10 +127,10 @@ class post_pay_counter {
      * @since   2.0
      */
     
-    function post_pay_counter_admin_menus() {
+    function admin_menus() {
         global $ppc_global_settings;
         
-        add_menu_page( 'Post Pay Counter', 'Post Pay Counter', $ppc_global_settings['cap_access_stats'], 'ppc-stats', array( $this, 'show_stats' ) );
+        add_menu_page( 'Post Pay Counter', apply_filters( "ppc_admin_menu_name", "Post Pay Counter" ), $ppc_global_settings['cap_access_stats'], 'ppc-stats', array( $this, 'show_stats' ) );
         add_submenu_page( 'ppc-stats', 'Post Pay Counter Stats', __( 'Stats', 'ppc' ), $ppc_global_settings['cap_access_stats'], 'ppc-stats', array( $this, 'show_stats' ) );
         $ppc_global_settings['options_menu_slug'] = add_submenu_page( 'ppc-stats', 'Post Pay Counter Options', __( 'Options', 'ppc' ), $ppc_global_settings['cap_manage_options'], 'ppc-options', array( $this, 'show_options' ) );
         add_submenu_page( 'ppc-stats', 'Post Pay Counter System Info', __( 'System Info', 'ppc' ), $ppc_global_settings['cap_manage_options'], 'ppc-system-info', array( 'PPC_system_info', 'system_info' ) );

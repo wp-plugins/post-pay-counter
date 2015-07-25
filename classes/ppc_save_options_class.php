@@ -70,11 +70,12 @@ class PPC_save_options {
         $new_settings['counting_comments_system_incremental_value'] = (float) str_replace( ',', '.', $settings['counting_comments_system_incremental_value'] );
         $new_settings['counting_payment_total_threshold'] = (float) str_replace( ',', '.', $settings['counting_payment_total_threshold'] );
         
-		if( $new_settings['counting_visits_callback'] AND isset( $settings['counting_visits_callback_value'] ) ) {
+		if( isset( $settings['counting_visits_callback_value'] ) AND $settings['counting_visits_callback_value'] != "" ) {
 			$settings['counting_visits_callback_value'] = trim( $settings['counting_visits_callback_value'] );
 			
 			//Check if callback is valid
-			if( @call_user_func( PPC_counting_types::get_visits_callback_function( $settings['counting_visits_callback_value'] ), get_posts( array( 'posts_per_page' => 1, 'orderby' => 'rand' ) ) ) === NULL )
+			$rand_post = get_posts( array( 'posts_per_page' => 1, 'orderby' => 'rand' ) );
+			if( call_user_func( PPC_counting_types::get_visits_callback_function( $settings['counting_visits_callback_value'] ), current( $rand_post ) ) === NULL )
 				return new WP_Error( 'ppc_invalid_visits_callback', __( 'The specified visits callback returned NULL for a random post - are you sure it is correct?', 'ppc' ), array( $settings['counting_visits_callback_value'] ) );
 			
 			$new_settings['counting_visits_callback_value'] = $settings['counting_visits_callback_value'];
