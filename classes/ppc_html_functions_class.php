@@ -206,6 +206,9 @@ class PPC_HTML_functions {
 				$html .= '<tr'.$tr_opacity.'>';
 		
 				foreach( $post_stats as $field_name => $field_value ) {
+					$maybe_skip = apply_filters( 'ppc_author_stats_'.$filter_name.'_skip_field', false, $field_name );
+					if( $maybe_skip ) continue;
+
 					$field_value = apply_filters( 'ppc_author_stats_'.$filter_name.'_each_field_value', $field_value, $field_name, $post );
 		
 					switch( $field_name ) {
