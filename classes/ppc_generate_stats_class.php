@@ -2,7 +2,7 @@
 
 /**
  * Stats generation.
- *C:\Users\Stefano>phpdoc -d E:\htdocs\wordpress\wp-content\plugins\Post-Pay-Counter -t E:\phpdoc --ignore branches/
+
  * @package		PPC
  * @since		2.0
  * @author 		Stefano Ottolenghi
@@ -48,7 +48,7 @@ class PPC_generate_stats {
         if( is_wp_error( $cashed_requested_posts ) ) return $cashed_requested_posts;
         
 		if( empty( $cashed_requested_posts ) ) {
-            $error = new PPC_Error( 'data2cash_empty', __( 'Error: no posts were selected' , 'ppc'), array(), false );
+            $error = new PPC_Error( 'data2cash_empty', __( 'Error: no posts were selected' , 'post-pay-counter'), array(), false );
             return $error->return_error();
         }
 		
@@ -122,7 +122,7 @@ class PPC_generate_stats {
 		//var_dump($requested_posts);
 		
         if( $requested_posts->found_posts == 0 ) {
-            $error = new PPC_Error( 'empty_selection', __( 'Error: no posts were selected' , 'ppc' ), self::$grp_args, false );
+            $error = new PPC_Error( 'empty_selection', __( 'Error: no posts were selected' , 'post-pay-counter' ), self::$grp_args, false );
             return $error->return_error();
         }
         
@@ -307,11 +307,11 @@ class PPC_generate_stats {
 			
 			$counting_types = $ppc_global_settings['counting_types_object']->get_active_counting_types( 'post', $author_id );
 			
-            $formatted_stats['cols']['post_id'] = __( 'ID' , 'ppc');
-            $formatted_stats['cols']['post_title'] = __( 'Title', 'ppc');
-            $formatted_stats['cols']['post_type'] = __( 'Type', 'ppc');
-            $formatted_stats['cols']['post_status'] = __( 'Status', 'ppc');
-            $formatted_stats['cols']['post_publication_date'] = __( 'Pub. Date', 'ppc');
+            $formatted_stats['cols']['post_id'] = __( 'ID' , 'post-pay-counter');
+            $formatted_stats['cols']['post_title'] = __( 'Title', 'post-pay-counter');
+            $formatted_stats['cols']['post_type'] = __( 'Type', 'post-pay-counter');
+            $formatted_stats['cols']['post_status'] = __( 'Status', 'post-pay-counter');
+            $formatted_stats['cols']['post_publication_date'] = __( 'Pub. Date', 'post-pay-counter');
 			
 			foreach( $post_stats->ppc_payment['normal_payment'] as $id => $value ) {
 				if( $id == 'total' ) continue;
@@ -329,7 +329,7 @@ class PPC_generate_stats {
 				}	
 			}
             
-            $formatted_stats['cols']['post_total_payment'] = __( 'Total Pay', 'ppc');
+            $formatted_stats['cols']['post_total_payment'] = __( 'Total Pay', 'post-pay-counter');
             
             $formatted_stats['cols'] = apply_filters( 'ppc_author_stats_format_stats_after_cols_default', $formatted_stats['cols'] );
             
@@ -432,9 +432,9 @@ class PPC_generate_stats {
 			}
 			
 			//COLUMNS
-			$formatted_stats['cols']['author_id'] = __( 'Author ID' , 'ppc');
-            $formatted_stats['cols']['author_name'] = __( 'Author Name' , 'ppc');
-            $formatted_stats['cols']['author_written_posts'] = __( 'Written posts' , 'ppc');
+			$formatted_stats['cols']['author_id'] = __( 'Author ID' , 'post-pay-counter');
+            $formatted_stats['cols']['author_name'] = __( 'Author Name' , 'post-pay-counter');
+            $formatted_stats['cols']['author_written_posts'] = __( 'Written posts' , 'post-pay-counter');
             
 			foreach( $cols_info['counting_types'] as $id => $cnt_type ) {
 				switch( $cnt_type['display'] ) {
@@ -448,7 +448,7 @@ class PPC_generate_stats {
 				}
 			}
 			
-			$formatted_stats['cols']['author_total_payment'] = __( 'Total payment' , 'ppc');
+			$formatted_stats['cols']['author_total_payment'] = __( 'Total payment' , 'post-pay-counter');
 			$formatted_stats['cols'] = apply_filters( 'ppc_general_stats_format_stats_after_cols_default', $formatted_stats['cols'] );
         }
         

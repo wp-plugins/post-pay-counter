@@ -30,7 +30,7 @@ class PPC_notifications {
     	?>
     
 <div id="<?php echo $this->current_notification['id']; ?>" class="updated fade ppc_notification">
-	<p><?php echo $this->current_notification['text']; ?> <a href="" class="ppc_dismiss_notification" accesskey="<?php echo $this->current_notification['id']; ?>" title="<?php _e( 'Dismiss', 'ppc' ); ?>"><?php _e( 'Dismiss', 'ppc' ); ?></a></p>
+	<p><?php echo $this->current_notification['text']; ?> <a href="" class="ppc_dismiss_notification" accesskey="<?php echo $this->current_notification['id']; ?>" title="<?php _e( 'Dismiss', 'post-pay-counter' ); ?>"><?php _e( 'Dismiss', 'post-pay-counter' ); ?></a></p>
 </div>
 	
 <script type="text/javascript">
