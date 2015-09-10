@@ -3,9 +3,8 @@ Contributors: Ste_95
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SM5Q9BVU4RT22
 Tags: counter, authors, payment, revenue sharing, stats, multi author, post management, post
 Tested up to: 4.3
-Stable tag: 2.508
+Stable tag: 2.509
 Requires at least: 3.7
-Text Domain: post-pay-counter
 
 Easily handle authors' payments on a multi-author blog by computing posts' remuneration basing on admin defined rules.
 
@@ -77,6 +76,9 @@ It must become: *define( 'PPC_DEBUG_LOG', false );*
 5. The tooltip with all the counting details
 
 == Changelog ==
+= 2.509 =
+* Fixed: last update broke localization.
+
 = 2.508 =
 * Fixed: PHP warnings when payments consisting of only Bonus would be done.
 * Fixed: (hopefully for real): possible fatal error due to too many redirects on update.
